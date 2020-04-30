@@ -209,4 +209,50 @@ defmodule XDR.Error do
       %XDR.Error.HyperInt{message: msg}
     end
   end
+
+  defmodule HyperUInt do
+    @moduledoc """
+    This module is in charge of containing the errors that may be raised by the XDR.HyperUInt module
+    """
+    defexception [:message]
+
+    @impl true
+    @doc """
+    This function is in charge of raise the errors that can be returned by XDR.HyperUInt module
+      ## Parameters:
+        the function only have one parameter that is an atom which represents the type of error returned by the module
+
+      ### Example
+        def exception(:not_list) do
+          ...
+        end
+
+    Raises an exception error when the error is produced
+    """
+    def exception(:not_integer) do
+      msg = "The value which you try to encode is not an integer"
+      %XDR.Error.HyperUInt{message: msg}
+    end
+
+    def exception(:not_binary) do
+      msg =
+        "The value which you try to decode must be a binary value, for example: <<0, 0, 0, 0, 0, 0, 0, 5>>"
+
+      %XDR.Error.HyperUInt{message: msg}
+    end
+
+    def exception(:exceed_upper_limit) do
+      msg =
+        "The integer which you try to encode exceed the upper limit of an Hyper Unsigned Integer, the value must be less than 18_446_744_073_709_551_615"
+
+      %XDR.Error.HyperUInt{message: msg}
+    end
+
+    def exception(:exceed_lower_limit) do
+      msg =
+        "The integer which you try to encode exceed the lower limit of an Hyper Unsigned Integer, the value must be more than 0"
+
+      %XDR.Error.HyperUInt{message: msg}
+    end
+  end
 end

@@ -19,7 +19,7 @@ defmodule Error.IntTest do
 
   test "When receives :exceed_upper_limit" do
     assert_raise Int,
-    "The integer which you try to encode exceed the upper limit of an integer, the value must be less than 2_147_483_647",
+                 "The integer which you try to encode exceed the upper limit of an integer, the value must be less than 2_147_483_647",
                  fn ->
                    raise Int, :exceed_upper_limit
                  end
@@ -27,7 +27,7 @@ defmodule Error.IntTest do
 
   test "When receives :exceed_lower_limit" do
     assert_raise Int,
-    "The integer which you try to encode exceed the lower limit of an integer, the value must be more than -2_147_483_648",
+                 "The integer which you try to encode exceed the lower limit of an integer, the value must be more than -2_147_483_648",
                  fn ->
                    raise Int, :exceed_lower_limit
                  end

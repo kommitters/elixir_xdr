@@ -20,8 +20,13 @@ defmodule XDR.HyperInt do
   @spec encode_xdr(integer(), any) :: {:ok, binary()}
   def encode_xdr(value, opts \\ nil)
   def encode_xdr(value, _opts) when not is_integer(value), do: raise(HyperInt, :not_integer)
-  def encode_xdr(value, _opts) when value > 9_223_372_036_854_775_807, do: raise(HyperInt, :exceed_upper_limit)
-  def encode_xdr(value, _opts) when value < -9_223_372_036_854_775_808, do: raise(HyperInt, :exceed_lower_limit)
+
+  def encode_xdr(value, _opts) when value > 9_223_372_036_854_775_807,
+    do: raise(HyperInt, :exceed_upper_limit)
+
+  def encode_xdr(value, _opts) when value < -9_223_372_036_854_775_808,
+    do: raise(HyperInt, :exceed_lower_limit)
+
   def encode_xdr(value, _opts), do: {:ok, <<value::big-signed-integer-size(64)>>}
 
   @impl XDR.Declaration

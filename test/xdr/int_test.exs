@@ -22,7 +22,7 @@ defmodule XDR.IntTest do
           assert error ==
                    %IntErr{
                      message:
-                     "The integer which you try to encode exceed the upper limit of an integer, the value must be less than 2_147_483_647"
+                       "The integer which you try to encode exceed the upper limit of an integer, the value must be less than 2_147_483_647"
                    }
       end
     end
@@ -35,7 +35,7 @@ defmodule XDR.IntTest do
           assert error ==
                    %IntErr{
                      message:
-                     "The integer which you try to encode exceed the lower limit of an integer, the value must be more than -2_147_483_648"
+                       "The integer which you try to encode exceed the lower limit of an integer, the value must be more than -2_147_483_648"
                    }
       end
     end
