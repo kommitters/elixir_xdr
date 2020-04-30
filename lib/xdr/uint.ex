@@ -8,14 +8,14 @@ defmodule XDR.UInt do
 
   @impl XDR.Declaration
   @doc """
-  This function is in charge of encoding the unsigned integers to a binary value if the parameters are wrong
+  This function is in charge of encoding an unsigned integers into an XDR if the parameters are wrong
   an error will be raised
 
     ## Parameters:
-      -value: represents an unsigned integer value which you try to encode into a binary value
+      -value: represents an unsigned integer value which you try to encode into a XDR value
       -opts: it is an optional value required by the behaviour
 
-  Returns a tuple with the binary resulted from encode the integer value
+  Returns a tuple with the XDR resulted from encode the unsigned integer value
   """
   def encode_xdr(value, opts \\ nil)
   def encode_xdr(value, _opts) when not is_integer(value), do: raise(UInt, :not_integer)
@@ -25,28 +25,28 @@ defmodule XDR.UInt do
 
   @impl XDR.Declaration
   @doc """
-  This function is in charge of encoding the unsigned integers to a binary value if the parameters are wrong
+  This function is in charge of encoding an unsigned integers into an XDR if the parameters are wrong
   an error will be raised
 
     ## Parameters:
-      -value: represents an unsigned integer value which you try to encode into a binary value
+      -value: represents an unsigned integer value which you try to encode into a XDR value
       -opts: it is an optional value required by the behaviour
 
-  Returns the binary resulted from encode the integer value
+  Returns the XDR resulted from encode the unsigned integer value
   """
   def encode_xdr!(value, opts \\ nil)
   def encode_xdr!(value, _opts), do: encode_xdr(value) |> elem(1)
 
   @impl XDR.Declaration
   @doc """
-  This function is in charge of decode the binary value which represents an unsigned integer value if the parameters are wrong
+  This function is in charge of decode the XDR value which represents an unsigned integer value if the parameters are wrong
   an error will be raised
 
     ## Parameters:
-      -bytes: represents the binary value which needs to decode into an unsigned integer
+      -bytes: represents the XDR value which needs to decode into an unsigned integer
       -opts: it is an optional value required by the behaviour
 
-  Returns a tuple with the integer resulted from decode the binary value
+  Returns a tuple with the integer resulted from decode the XDR value
   """
   def decode_xdr(bytes, opts \\ nil)
   def decode_xdr(bytes, _opts) when not is_binary(bytes), do: raise(UInt, :not_binary)
@@ -56,14 +56,14 @@ defmodule XDR.UInt do
 
   @impl XDR.Declaration
   @doc """
-  This function is in charge of decode the binary value which represents an unsigned integer value if the parameters are wrong
+  This function is in charge of decode the XDR value which represents an unsigned integer value if the parameters are wrong
   an error will be raised
 
     ## Parameters:
-      -bytes: represents the binary value which needs to decode into an unsigned integer
+      -bytes: represents the XDR value which needs to decode into an unsigned integer
       -opts: it is an optional value required by the behaviour
 
-  Returns the integer resulted from decode the binary value
+  Returns the integer resulted from decode the XDR value
   """
   def decode_xdr!(bytes, opts \\ nil)
   def decode_xdr!(bytes, _opts), do: decode_xdr(bytes) |> elem(1)

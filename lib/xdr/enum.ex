@@ -21,7 +21,7 @@ defmodule XDR.Enum do
       -enum: represents the enum structure which is needed to encode a key
       -name: represents the name of the key which we need to encode
 
-  Returns a tuple with the the binary resulted from encode the value wich represents a key in the enum structure
+  Returns a tuple with the the XDR resulted from encode the value wich represents a key in the enum structure
   """
   @spec encode_xdr(enum :: Enum.t(), name :: atom()) :: {:ok, binary()}
   def encode_xdr(enum, name \\ nil)
@@ -47,7 +47,7 @@ defmodule XDR.Enum do
       -enum: represents the enum structure which is needed to encode a key
       -name: represents the name of the key which we need to encode
 
-  Returns the binary resulted from encode the value wich represents a key in the enum structure
+  Returns the XDR resulted from encode the value wich represents a key in the enum structure
   """
   @spec encode_xdr!(enum :: Enum.t(), name :: atom()) :: binary()
   def encode_xdr!(enum, name \\ nil)
@@ -55,10 +55,10 @@ defmodule XDR.Enum do
 
   @impl XDR.Declaration
   @doc """
-  This function is in charge of decode the binary which represents a value inside an enum structure
+  This function is in charge of decode the XDR which represents a value inside an enum structure
 
     ## Parameters:
-      -bytes: represents the binary value received to decode
+      -bytes: represents the XDR value received to decode
       -declarations: represents the enum structure which contains the value that we need to decode
 
   Returns a tuple with the key of the decoded enum and the remaining bytes if there are.
@@ -79,10 +79,10 @@ defmodule XDR.Enum do
 
   @impl XDR.Declaration
   @doc """
-  This function is in charge of decode the binary which represents a value inside an enum structure
+  This function is in charge of decode the XDR which represents a value inside an enum structure
 
     ## Parameters:
-      -bytes: represents the binary value received to decode
+      -bytes: represents the XDR value received to decode
       -declarations: represents the enum structure which contains the value that we need to decode
 
   Returns the key of the decoded enum and the remaining bytes if there are.

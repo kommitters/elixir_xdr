@@ -8,14 +8,13 @@ defmodule XDR.Int do
 
   @impl XDR.Declaration
   @doc """
-  This function is in charge of encoding a value inside of the enum structure based on the identifier received by parameter
-  if the parameters are wrong an error will be raised
+  this function is in charge of encoding a integer value into an XDR if the parameters are wrong an error will be raised
 
     ## Parameters:
       -value: represents the integer value which needs to encode
       -opts: it is an optional value required by the behaviour
 
-  Returns a tuple with the binary resulted from encoding the integer value
+  Returns a tuple with the XDR resulted from encoding the integer value
   """
   @spec encode_xdr(integer(), any) :: {:ok, binary()}
   def encode_xdr(value, opts \\ nil)
@@ -26,14 +25,13 @@ defmodule XDR.Int do
 
   @impl XDR.Declaration
   @doc """
-  This function is in charge of encoding a value inside of the enum structure based on the identifier received by parameter
-  if the parameters are wrong an error will be raised
+  this function is in charge of encoding a integer value into an XDR if the parameters are wrong an error will be raised
 
     ## Parameters:
       -value: represents the integer value which needs to encode
       -opts: it is an optional value required by the behaviour
 
-  Returns the binary resulted from encoding the integer value
+  Returns the XDR resulted from encoding the integer value
   """
   @spec encode_xdr!(integer(), any) :: binary()
   def encode_xdr!(value, opts \\ nil)
@@ -41,14 +39,14 @@ defmodule XDR.Int do
 
   @impl XDR.Declaration
   @doc """
-  This function is in charge of decode the binary value which represents an integer value if the parameters are wrong
+  This function is in charge of decode the XDR value which represents an integer value if the parameters are wrong
   an error will be raised
 
     ## Parameters:
-      -bytes: represents the binary value which needs to decode into an integer
+      -bytes: represents the XDR value which needs to decode into an integer
       -opts: it is an optional value required by the behaviour
 
-  Returns a tuple with the integer resulted from decode the binary value and its remaining bits
+  Returns a tuple with the integer resulted from decode the XDR value and its remaining bits
   """
   @spec decode_xdr(binary(), any()) :: {:ok, {integer(), binary()}}
   def decode_xdr(bytes, opts \\ nil)
@@ -59,14 +57,14 @@ defmodule XDR.Int do
 
   @impl XDR.Declaration
   @doc """
-  This function is in charge of decode the binary value which represents an integer value if the parameters are wrong
+  This function is in charge of decode the XDR value which represents an integer value if the parameters are wrong
   an error will be raised
 
     ## Parameters:
-      -bytes: represents the binary value which needs to decode into an integer
+      -bytes: represents the XDR value which needs to decode into an integer
       -opts: it is an optional value required by the behaviour
 
-  Returns the integer resulted from decode the binary value and its remaining bits
+  Returns the integer resulted from decode the XDR value and its remaining bits
   """
   @spec decode_xdr!(binary(), any()) :: {integer(), binary()}
   def decode_xdr!(bytes, opts \\ nil)

@@ -4,7 +4,7 @@ defmodule Error.UIntTest do
   alias XDR.Error.UInt
 
   test "When receives :not_integer" do
-    assert_raise UInt, "The value which you try to encode is not an unsigned integer", fn ->
+    assert_raise UInt, "The value which you try to encode is not an integer", fn ->
       raise UInt, :not_integer
     end
   end
@@ -19,7 +19,7 @@ defmodule Error.UIntTest do
 
   test "When receives :exceed_upper_limit" do
     assert_raise UInt,
-                 "The integer which you try to encode exceed the upper limit of an unsigned integer, the value must be less than 4294967295",
+    "The integer which you try to encode exceed the upper limit of an unsigned integer, the value must be less than 4_294_967_295",
                  fn ->
                    raise UInt, :exceed_upper_limit
                  end

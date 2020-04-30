@@ -22,7 +22,7 @@ defmodule XDR.IntTest do
           assert error ==
                    %IntErr{
                      message:
-                       "The integer which you try to encode exceed the upper limit of an integer, the value must be less than 2147483647"
+                     "The integer which you try to encode exceed the upper limit of an integer, the value must be less than 2_147_483_647"
                    }
       end
     end
@@ -35,7 +35,7 @@ defmodule XDR.IntTest do
           assert error ==
                    %IntErr{
                      message:
-                       "The integer which you try to encode exceed the lower limit of an integer, the value must be more than -2147483648"
+                     "The integer which you try to encode exceed the lower limit of an integer, the value must be more than -2_147_483_648"
                    }
       end
     end
@@ -44,6 +44,12 @@ defmodule XDR.IntTest do
       {status, result} = Int.encode_xdr(5860)
 
       assert status == :ok
+      assert result == <<0, 0, 22, 228>>
+    end
+
+    test "decode_xdr! with valid data" do
+      result = Int.encode_xdr!(5860)
+
       assert result == <<0, 0, 22, 228>>
     end
   end
@@ -74,6 +80,12 @@ defmodule XDR.IntTest do
 
       assert status == :ok
       assert result === {5860, <<10>>}
+    end
+
+    test "decode_xdr! with valid data" do
+      result = Int.decode_xdr!(<<0, 0, 22, 228>>)
+
+      assert result === {5860, ""}
     end
   end
 end

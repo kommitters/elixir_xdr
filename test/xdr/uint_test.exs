@@ -11,7 +11,7 @@ defmodule XDR.UIntTest do
       rescue
         error ->
           assert error == %UIntErr{
-                   message: "The value which you try to encode is not an unsigned integer"
+                   message: "The value which you try to encode is not an integer"
                  }
       end
     end
@@ -24,7 +24,7 @@ defmodule XDR.UIntTest do
           assert error ==
                    %UIntErr{
                      message:
-                       "The integer which you try to encode exceed the upper limit of an unsigned integer, the value must be less than 4294967295"
+                     "The integer which you try to encode exceed the upper limit of an unsigned integer, the value must be less than 4_294_967_295"
                    }
       end
     end
