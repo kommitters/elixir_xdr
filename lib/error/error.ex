@@ -160,7 +160,7 @@ defmodule XDR.Error do
     """
     def exception(:not_boolean) do
       msg = "The value which you try to encode is not a boolean"
-      %XDR.Error.Enum{message: msg}
+      %XDR.Error.Bool{message: msg}
     end
   end
 end

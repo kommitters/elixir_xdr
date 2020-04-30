@@ -1,4 +1,4 @@
-defmodule EnumTest do
+defmodule XDR.EnumTest do
   use ExUnit.Case
 
   alias XDR.Enum
@@ -11,7 +11,6 @@ defmodule EnumTest do
   end
 
   describe "Encoding Enum structures" do
-
     test "when the declarations is not a list" do
       try do
         Enum.encode_xdr(%Enum{declarations: %{red: 0, blue: 1, yellow: 2}}, :red)
@@ -50,7 +49,7 @@ defmodule EnumTest do
   describe "Decoding enum structures" do
     test "when is not binary value", %{enum: enum} do
       try do
-        Enum.decode_xdr(5860 , enum)
+        Enum.decode_xdr(5860, enum)
       rescue
         error ->
           assert error ==
@@ -65,11 +64,11 @@ defmodule EnumTest do
       try do
         Enum.decode_xdr(<<0, 0, 0, 0>>, %Enum{declarations: %{red: 0, blue: 1, yellow: 2}})
       rescue
-        error -> assert error ==
-          %EnumErr{
-            message:
-            "The declaration inside the Enum structure isn't a list"
-          }
+        error ->
+          assert error ==
+                   %EnumErr{
+                     message: "The declaration inside the Enum structure isn't a list"
+                   }
       end
     end
 

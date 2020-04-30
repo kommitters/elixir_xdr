@@ -53,6 +53,7 @@ defmodule XDR.Int do
   @spec decode_xdr(binary(), any()) :: {:ok, {integer(), binary()}}
   def decode_xdr(bytes, opts \\ nil)
   def decode_xdr(bytes, _opts) when not is_binary(bytes), do: raise(Int, :not_binary)
+
   def decode_xdr(<<int::big-signed-integer-size(32), rest::binary>>, _opts),
     do: {:ok, {int, rest}}
 

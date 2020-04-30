@@ -1,4 +1,4 @@
-defmodule IntTest do
+defmodule XDR.IntTest do
   use ExUnit.Case
 
   alias XDR.Int

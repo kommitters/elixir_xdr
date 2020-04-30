@@ -1,4 +1,4 @@
-defmodule UIntTest do
+defmodule XDR.UIntTest do
   use ExUnit.Case
 
   alias XDR.UInt
