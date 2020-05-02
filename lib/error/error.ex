@@ -255,4 +255,36 @@ defmodule XDR.Error do
       %XDR.Error.HyperUInt{message: msg}
     end
   end
+
+  defmodule Float do
+    @moduledoc """
+    This module is in charge of containing the errors that may be raised by the XDR.Float module
+    """
+    defexception [:message]
+
+    @impl true
+    @doc """
+    This function is in charge of raise the errors that can be returned by XDR.Float module
+      ## Parameters:
+        the function only have one parameter that is an atom which represents the type of error returned by the module
+
+      ### Example
+        def exception(:not_integer) do
+          ...
+        end
+
+    Raises an exception error when the error is produced
+    """
+    def exception(:not_number) do
+      msg = "The value which you try to encode is not an integer or float value"
+      %XDR.Error.Float{message: msg}
+    end
+
+    def exception(:not_binary) do
+      msg =
+        "The value which you try to decode must be a binary value, for example: <<0, 0, 0, 2>>"
+
+      %XDR.Error.Float{message: msg}
+    end
+  end
 end

@@ -4,7 +4,7 @@ defmodule XDR.HyperUIntTest do
   alias XDR.HyperUInt
   alias XDR.Error.HyperUInt, as: HyperUIntErr
 
-  describe "Encoding integer to binary" do
+  describe "Encoding Hyper Unsigned Integer to binary" do
     test "when is not an integer value" do
       try do
         HyperUInt.encode_xdr("hello world")
@@ -56,7 +56,7 @@ defmodule XDR.HyperUIntTest do
     end
   end
 
-  describe "Decoding binary to integer" do
+  describe "Decoding binary to Hyper Unsigned Integer" do
     test "when is not binary value" do
       try do
         HyperUInt.decode_xdr(5860)
