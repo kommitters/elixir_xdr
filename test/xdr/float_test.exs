@@ -45,7 +45,7 @@ defmodule XDR.FloatTest do
       assert result == <<63, 128, 0, 0>>
     end
 
-    test "decode_xdr! with valid integer" do
+    test "encode_xdr! with valid integer" do
       result = Float.encode_xdr!(1)
 
       assert result == <<63, 128, 0, 0>>
