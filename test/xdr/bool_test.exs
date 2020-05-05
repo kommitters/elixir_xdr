@@ -39,7 +39,7 @@ defmodule XDR.BoolTest do
           assert error ==
                    %BoolErr{
                      message:
-                       "The value which you try to decode must be <<0,0,0,0>> or <<0,0,0,1>>"
+                       "The value which you try to decode must be <<0, 0, 0, 0>> or <<0, 0, 0, 1>>"
                    }
       end
     end

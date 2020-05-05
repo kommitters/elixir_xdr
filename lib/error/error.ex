@@ -324,4 +324,55 @@ defmodule XDR.Error do
       %XDR.Error.DoubleFloat{message: msg}
     end
   end
+
+  defmodule FixedOpaque do
+    @moduledoc """
+    This module is in charge of containing the errors that may be raised by the XDR.FixedOpaque module
+    """
+    defexception [:message]
+
+    @impl true
+    @doc """
+    This function is in charge of raise the errors that can be returned by XDR.FixedOpaque module
+      ## Parameters:
+        the function only have one parameter that is an atom which represents the type of error returned by the module
+
+      ### Example
+        def exception(:not_integer) do
+          ...
+        end
+
+    Raises an exception error when the error is produced
+    """
+    def exception(:not_number) do
+      msg = "The value which you pass through parameters is not an integer"
+      %XDR.Error.FixedOpaque{message: msg}
+    end
+
+    def exception(:not_binary) do
+      msg =
+        "The value which you pass through parameters must be a binary value, for example: <<0, 0, 0, 5>>"
+
+      %XDR.Error.FixedOpaque{message: msg}
+    end
+
+    def exception(:invalid_length) do
+      msg =
+        "The length that is passed through parameters must be equal or less to the byte size of the XDR to complete"
+
+      %XDR.Error.FixedOpaque{message: msg}
+    end
+
+    def exception(:exceed_length) do
+      msg = "The length is bigger than the byte size of the XDR"
+
+      %XDR.Error.FixedOpaque{message: msg}
+    end
+
+    def exception(:not_valid_binary) do
+      msg = "The binary size of the binary which you try to decode must be a multiple of 4"
+
+      %XDR.Error.FixedOpaque{message: msg}
+    end
+  end
 end

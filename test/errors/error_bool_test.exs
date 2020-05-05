@@ -11,7 +11,7 @@ defmodule Error.BoolTest do
 
   test "When receives :invalid_value" do
     assert_raise Bool,
-                 "The value which you try to decode must be <<0,0,0,0>> or <<0,0,0,1>>",
+                 "The value which you try to decode must be <<0, 0, 0, 0>> or <<0, 0, 0, 1>>",
                  fn ->
                    raise Bool, :invalid_value
                  end
