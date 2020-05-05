@@ -162,6 +162,11 @@ defmodule XDR.Error do
       msg = "The value which you try to encode is not a boolean"
       %XDR.Error.Bool{message: msg}
     end
+
+    def exception(:invalid_value) do
+      msg = "The value which you try to decode must be <<0, 0, 0, 0>> or <<0, 0, 0, 1>>"
+      %XDR.Error.Bool{message: msg}
+    end
   end
 
   defmodule HyperInt do

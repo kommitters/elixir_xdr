@@ -3,7 +3,6 @@ defmodule XDR.BoolTest do
 
   alias XDR.Bool
   alias XDR.Error.Bool, as: BoolErr
-  alias XDR.Error.Enum, as: EnumErr
 
   describe "Encoding Boolean structures" do
     test "when the value is not boolean" do
@@ -38,9 +37,9 @@ defmodule XDR.BoolTest do
       rescue
         error ->
           assert error ==
-                   %EnumErr{
+                   %BoolErr{
                      message:
-                       "The value which you try to decode must be a binary value, for example: <<0, 0, 0, 2>>"
+                       "The value which you try to decode must be <<0,0,0,0>> or <<0,0,0,1>>"
                    }
       end
     end
