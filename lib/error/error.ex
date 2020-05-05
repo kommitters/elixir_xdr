@@ -375,4 +375,68 @@ defmodule XDR.Error do
       %XDR.Error.FixedOpaque{message: msg}
     end
   end
+
+  defmodule VariableOpaque do
+    @moduledoc """
+    This module is in charge of containing the errors that may be raised by the XDR.VariableOpaque module
+    """
+    defexception [:message]
+
+    @impl true
+    @doc """
+    This function is in charge of raise the errors that can be returned by XDR.VariableOpaque module
+      ## Parameters:
+        the function only have one parameter that is an atom which represents the type of error returned by the module
+
+      ### Example
+        def exception(:not_integer) do
+          ...
+        end
+
+    Raises an exception error when the error is produced
+    """
+    def exception(:not_number) do
+      msg = "The value which you pass through parameters is not an integer"
+      %XDR.Error.VariableOpaque{message: msg}
+    end
+
+    def exception(:not_binary) do
+      msg =
+        "The value which you pass through parameters must be a binary value, for example: <<0, 0, 0, 5>>"
+
+      %XDR.Error.VariableOpaque{message: msg}
+    end
+
+    def exception(:invalid_length) do
+      msg =
+        "The max length that is passed through parameters must be biger to the byte size of the XDR"
+
+      %XDR.Error.VariableOpaque{message: msg}
+    end
+
+    def exception(:exceed_lower_bound) do
+      msg = "The minimum value of the length of the variable is 0"
+
+      %XDR.Error.VariableOpaque{message: msg}
+    end
+
+    def exception(:exceed_upper_bound) do
+      msg = "The maximum value of the length of the variable is 4_294_967_295"
+
+      %XDR.Error.VariableOpaque{message: msg}
+    end
+
+    def exception(:length_over_max) do
+      msg =
+        "The number wich represents the length from decode the opaque as UInt is bigger than the defined max (max by default is 4_294_967_295)"
+
+      %XDR.Error.VariableOpaque{message: msg}
+    end
+
+    def exception(:length_over_rest) do
+      msg = "The XDR has an invalid length, it must be less than byte-size of the rest"
+
+      %XDR.Error.VariableOpaque{message: msg}
+    end
+  end
 end
