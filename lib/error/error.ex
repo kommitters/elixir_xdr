@@ -439,4 +439,29 @@ defmodule XDR.Error do
       %XDR.Error.VariableOpaque{message: msg}
     end
   end
+
+  defmodule String do
+    @moduledoc """
+    This module is in charge of containing the errors that may be raised by the XDR.String module
+    """
+    defexception [:message]
+
+    @impl true
+    @doc """
+    This function is in charge of raise the errors that can be returned by XDR.String module
+      ## Parameters:
+        the function only have one parameter that is an atom which represents the type of error returned by the module
+
+      ### Example
+        def exception(:not_integer) do
+          ...
+        end
+
+    Raises an exception error when the error is produced
+    """
+    def exception(:not_bitstring) do
+      msg = "the value which you ty to encode must be a bitstring value"
+      %XDR.Error.String{message: msg}
+    end
+  end
 end

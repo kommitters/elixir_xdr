@@ -65,7 +65,6 @@ defmodule XDR.FixedOpaque do
   def decode_xdr!(xdr, length), do: decode_xdr(xdr, length) |> elem(1)
 
   @spec get_required_padding(integer()) :: integer()
-  defp get_required_padding(0), do: 0
-  defp get_required_padding(4), do: 0
-  defp get_required_padding(length), do: 4 - length
+  defp get_required_padding(length) when rem(length, 4) == 0, do: 0
+  defp get_required_padding(length), do: 4 - rem(length, 4)
 end
