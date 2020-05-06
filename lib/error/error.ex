@@ -509,4 +509,60 @@ defmodule XDR.Error do
       %XDR.Error.FixedArray{message: msg}
     end
   end
+
+  defmodule VariableArray do
+    @moduledoc """
+    This module is in charge of containing the errors that may be raised by the XDR.VariableArray module
+    """
+    defexception [:message]
+
+    @impl true
+    @doc """
+    This function is in charge of raise the errors that can be returned by XDR.VariableArray module
+      ## Parameters:
+        the function only have one parameter that is an atom which represents the type of error returned by the module
+
+      ### Example
+        def exception(:not_integer) do
+          ...
+        end
+
+    Raises an exception error when the error is produced
+    """
+    def exception(:not_list) do
+      msg = "the value which you try to encode must be a list"
+      %XDR.Error.VariableArray{message: msg}
+    end
+
+    def exception(:not_number) do
+      msg = "the max length must be an integer value"
+      %XDR.Error.VariableArray{message: msg}
+    end
+
+    def exception(:not_binary) do
+      msg =
+        "The value which you pass through parameters must be a binary value, for example: <<0, 0, 0, 5>>"
+
+      %XDR.Error.VariableArray{message: msg}
+    end
+
+    def exception(:exceed_lower_bound) do
+      msg = "The minimum value of the length of the variable is 0"
+
+      %XDR.Error.VariableArray{message: msg}
+    end
+
+    def exception(:exceed_upper_bound) do
+      msg = "The maximum value of the length of the variable is 4_294_967_295"
+
+      %XDR.Error.VariableArray{message: msg}
+    end
+
+    def exception(:length_over_max) do
+      msg =
+        "The number which represents the length from decode the opaque as UInt is bigger than the defined max"
+
+      %XDR.Error.VariableArray{message: msg}
+    end
+  end
 end
