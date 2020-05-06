@@ -129,7 +129,7 @@ defmodule XDR.VariableOpaqueTest do
         error ->
           assert error == %VariableOpaqueErr{
                    message:
-                     "The number wich represents the length from decode the opaque as UInt is bigger than the defined max (max by default is 4_294_967_295)"
+                     "The number which represents the length from decode the opaque as UInt is bigger than the defined max (max by default is 4_294_967_295)"
                  }
       end
     end

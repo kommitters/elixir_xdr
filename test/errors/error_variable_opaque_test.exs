@@ -37,7 +37,7 @@ defmodule Error.VariableOpaqueTest do
 
   test "When receives :length_over_max" do
     assert_raise VariableOpaque,
-                 "The number wich represents the length from decode the opaque as UInt is bigger than the defined max (max by default is 4_294_967_295)",
+                 "The number which represents the length from decode the opaque as UInt is bigger than the defined max (max by default is 4_294_967_295)",
                  fn ->
                    raise VariableOpaque, :length_over_max
                  end

@@ -428,7 +428,7 @@ defmodule XDR.Error do
 
     def exception(:length_over_max) do
       msg =
-        "The number wich represents the length from decode the opaque as UInt is bigger than the defined max (max by default is 4_294_967_295)"
+        "The number which represents the length from decode the opaque as UInt is bigger than the defined max (max by default is 4_294_967_295)"
 
       %XDR.Error.VariableOpaque{message: msg}
     end
@@ -462,6 +462,51 @@ defmodule XDR.Error do
     def exception(:not_bitstring) do
       msg = "the value which you ty to encode must be a bitstring value"
       %XDR.Error.String{message: msg}
+    end
+  end
+
+  defmodule FixedArray do
+    @moduledoc """
+    This module is in charge of containing the errors that may be raised by the XDR.FixedArray module
+    """
+    defexception [:message]
+
+    @impl true
+    @doc """
+    This function is in charge of raise the errors that can be returned by XDR.FixedArray module
+      ## Parameters:
+        the function only have one parameter that is an atom which represents the type of error returned by the module
+
+      ### Example
+        def exception(:not_integer) do
+          ...
+        end
+
+    Raises an exception error when the error is produced
+    """
+    def exception(:invalid_length) do
+      msg = "the length of the array and the length must be the same"
+      %XDR.Error.FixedArray{message: msg}
+    end
+
+    def exception(:not_list) do
+      msg = "the value which you try to encode must be a list"
+      %XDR.Error.FixedArray{message: msg}
+    end
+
+    def exception(:not_number) do
+      msg = "the length received by parameter must be an integer"
+      %XDR.Error.FixedArray{message: msg}
+    end
+
+    def exception(:not_binary) do
+      msg = "the value which you try to decode must be a binary value"
+      %XDR.Error.FixedArray{message: msg}
+    end
+
+    def exception(:not_valid_binary) do
+      msg = "the value which you try to decode must have a multiple of 4 byte-size"
+      %XDR.Error.FixedArray{message: msg}
     end
   end
 end

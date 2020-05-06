@@ -81,7 +81,7 @@ defmodule XDR.FixedOpaqueTest do
 
     test "when length is not an integer" do
       try do
-        FixedOpaque.encode_xdr(<<0, 0, 1, 0>>, "2")
+        FixedOpaque.decode_xdr(<<0, 0, 1, 0>>, "2")
       rescue
         error ->
           assert error == %FixedOpaqueErr{
@@ -92,12 +92,11 @@ defmodule XDR.FixedOpaqueTest do
 
     test "when the length is bigger than the XDR byte-size" do
       try do
-        FixedOpaque.encode_xdr(<<0, 0, 1, 0>>, 5)
+        FixedOpaque.decode_xdr(<<0, 0, 1, 0>>, 5)
       rescue
         error ->
           assert error == %FixedOpaqueErr{
-                   message:
-                     "The length that is passed through parameters must be equal or less to the byte size of the XDR to complete"
+                   message: "The length is bigger than the byte size of the XDR"
                  }
       end
     end
