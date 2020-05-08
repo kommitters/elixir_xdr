@@ -71,9 +71,11 @@ defmodule XDR.Struct do
     do: raise(Struct, :not_list)
 
   def decode_xdr(%XDR.Struct{struct: struct, components: components}) do
-    decode_struct(struct, components)
-    |> Keyword.pop!(:rest)
-    |> perform_response()
+    {rest, components} =
+      decode_struct(struct, components)
+      |> Keyword.pop!(:rest)
+
+    {:ok, {components, rest}}
   end
 
   @impl XDR.Declaration
@@ -102,6 +104,4 @@ defmodule XDR.Struct do
     do: Keyword.merge(keyword1, rest: rest)
 
   defp merge_keyword(keyword1, keyword2), do: Keyword.merge(keyword1, keyword2)
-
-  defp perform_response({rest, components}), do: {:ok, {components, rest}}
 end

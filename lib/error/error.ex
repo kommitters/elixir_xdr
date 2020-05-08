@@ -597,7 +597,7 @@ defmodule XDR.Error do
       msg =
         "The :struct received by parameter must be a binary value, for example: <<0, 0, 0, 5>>"
 
-      %XDR.Error.VariableArray{message: msg}
+      %XDR.Error.Struct{message: msg}
     end
   end
 end
