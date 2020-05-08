@@ -7,7 +7,8 @@ defmodule XDR.DoubleFloatTest do
   describe "Encoding float to binary" do
     test "when receives a String" do
       try do
-        DoubleFloat.encode_xdr("hello world")
+        DoubleFloat.new("hello world")
+        |> DoubleFloat.encode_xdr()
       rescue
         error ->
           assert error == %DoubleFloatErr{
@@ -18,7 +19,8 @@ defmodule XDR.DoubleFloatTest do
 
     test "when receives a boolean" do
       try do
-        DoubleFloat.encode_xdr(true)
+        DoubleFloat.new(true)
+        |> DoubleFloat.encode_xdr()
       rescue
         error ->
           assert error == %DoubleFloatErr{
@@ -29,7 +31,8 @@ defmodule XDR.DoubleFloatTest do
 
     test "when receives an atom" do
       try do
-        DoubleFloat.encode_xdr(true)
+        DoubleFloat.new(:hello)
+        |> DoubleFloat.encode_xdr()
       rescue
         error ->
           assert error == %DoubleFloatErr{
@@ -39,34 +42,44 @@ defmodule XDR.DoubleFloatTest do
     end
 
     test "when is a valid integer" do
-      {status, result} = DoubleFloat.encode_xdr(1)
+      {status, result} =
+        DoubleFloat.new(1)
+        |> DoubleFloat.encode_xdr()
 
       assert status == :ok
       assert result == <<63, 240, 0, 0, 0, 0, 0, 0>>
     end
 
     test "decode_xdr! with valid integer" do
-      result = DoubleFloat.encode_xdr!(1)
+      result =
+        DoubleFloat.new(1)
+        |> DoubleFloat.encode_xdr!()
 
       assert result == <<63, 240, 0, 0, 0, 0, 0, 0>>
     end
 
     test "with negative integer" do
-      {status, result} = DoubleFloat.encode_xdr(-1)
+      {status, result} =
+        DoubleFloat.new(-1)
+        |> DoubleFloat.encode_xdr()
 
       assert status == :ok
       assert result == <<191, 240, 0, 0, 0, 0, 0, 0>>
     end
 
     test "with positive float" do
-      {status, result} = DoubleFloat.encode_xdr(3.46)
+      {status, result} =
+        DoubleFloat.new(3.46)
+        |> DoubleFloat.encode_xdr()
 
       assert status == :ok
       assert result == <<64, 11, 174, 20, 122, 225, 71, 174>>
     end
 
     test "with negative float" do
-      {status, result} = DoubleFloat.encode_xdr(-3.46)
+      {status, result} =
+        DoubleFloat.new(-3.46)
+        |> DoubleFloat.encode_xdr()
 
       assert status == :ok
       assert result == <<192, 11, 174, 20, 122, 225, 71, 174>>
@@ -76,7 +89,8 @@ defmodule XDR.DoubleFloatTest do
   describe "Decoding binary to integer" do
     test "when is not binary value" do
       try do
-        DoubleFloat.decode_xdr(5860)
+        DoubleFloat.new(5860)
+        |> DoubleFloat.decode_xdr()
       rescue
         error ->
           assert error ==
@@ -88,21 +102,27 @@ defmodule XDR.DoubleFloatTest do
     end
 
     test "when is a valid binary" do
-      {status, result} = DoubleFloat.decode_xdr(<<192, 11, 174, 20, 122, 225, 71, 174>>)
+      {status, result} =
+        DoubleFloat.new(<<192, 11, 174, 20, 122, 225, 71, 174>>)
+        |> DoubleFloat.decode_xdr()
 
       assert status == :ok
       assert result == {-3.46, ""}
     end
 
     test "when is a valid binary with extra bytes" do
-      {status, result} = DoubleFloat.decode_xdr(<<192, 11, 174, 20, 122, 225, 71, 174, 0, 0>>)
+      {status, result} =
+        DoubleFloat.new(<<192, 11, 174, 20, 122, 225, 71, 174, 0, 0>>)
+        |> DoubleFloat.decode_xdr()
 
       assert status == :ok
       assert result === {-3.46, <<0, 0>>}
     end
 
     test "decode_xdr! with valid data" do
-      result = DoubleFloat.decode_xdr!(<<192, 11, 174, 20, 122, 225, 71, 174>>)
+      result =
+        DoubleFloat.new(<<192, 11, 174, 20, 122, 225, 71, 174>>)
+        |> DoubleFloat.decode_xdr!()
 
       assert result === {-3.46, ""}
     end

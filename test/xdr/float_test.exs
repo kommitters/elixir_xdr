@@ -7,7 +7,8 @@ defmodule XDR.FloatTest do
   describe "Encoding float to binary" do
     test "when receives a String" do
       try do
-        Float.encode_xdr("hello world")
+        Float.new("hello world")
+        |> Float.encode_xdr()
       rescue
         error ->
           assert error == %FloatErr{
@@ -18,7 +19,8 @@ defmodule XDR.FloatTest do
 
     test "when receives a boolean" do
       try do
-        Float.encode_xdr(true)
+        Float.new(true)
+        |> Float.encode_xdr()
       rescue
         error ->
           assert error == %FloatErr{
@@ -29,7 +31,8 @@ defmodule XDR.FloatTest do
 
     test "when receives an atom" do
       try do
-        Float.encode_xdr(true)
+        Float.new(:hello)
+        |> Float.encode_xdr()
       rescue
         error ->
           assert error == %FloatErr{
@@ -39,34 +42,44 @@ defmodule XDR.FloatTest do
     end
 
     test "when is a valid integer" do
-      {status, result} = Float.encode_xdr(1)
+      {status, result} =
+        Float.new(1)
+        |> Float.encode_xdr()
 
       assert status == :ok
       assert result == <<63, 128, 0, 0>>
     end
 
     test "encode_xdr! with valid integer" do
-      result = Float.encode_xdr!(1)
+      result =
+        Float.new(1)
+        |> Float.encode_xdr!()
 
       assert result == <<63, 128, 0, 0>>
     end
 
     test "with negative integer" do
-      {status, result} = Float.encode_xdr(-1)
+      {status, result} =
+        Float.new(-1)
+        |> Float.encode_xdr()
 
       assert status == :ok
       assert result == <<191, 128, 0, 0>>
     end
 
     test "with positive float" do
-      {status, result} = Float.encode_xdr(3.46)
+      {status, result} =
+        Float.new(3.46)
+        |> Float.encode_xdr()
 
       assert status == :ok
       assert result == <<64, 93, 112, 164>>
     end
 
     test "with negative float" do
-      {status, result} = Float.encode_xdr(-3.46)
+      {status, result} =
+        Float.new(-3.46)
+        |> Float.encode_xdr()
 
       assert status == :ok
       assert result == <<192, 93, 112, 164>>
@@ -76,7 +89,8 @@ defmodule XDR.FloatTest do
   describe "Decoding binary to integer" do
     test "when is not binary value" do
       try do
-        Float.decode_xdr(5860)
+        Float.new(5860)
+        |> Float.decode_xdr()
       rescue
         error ->
           assert error ==
@@ -88,21 +102,27 @@ defmodule XDR.FloatTest do
     end
 
     test "when is a valid binary" do
-      {status, result} = Float.decode_xdr(<<192, 93, 112, 164>>)
+      {status, result} =
+        Float.new(<<192, 93, 112, 164>>)
+        |> Float.decode_xdr()
 
       assert status == :ok
       assert result == {-3.4600000381469727, ""}
     end
 
     test "when is a valid binary with extra bytes" do
-      {status, result} = Float.decode_xdr(<<192, 93, 112, 164, 0, 0>>)
+      {status, result} =
+        Float.new(<<192, 93, 112, 164, 0, 0>>)
+        |> Float.decode_xdr()
 
       assert status == :ok
       assert result === {-3.4600000381469727, <<0, 0>>}
     end
 
     test "decode_xdr! with valid data" do
-      result = Float.decode_xdr!(<<192, 93, 112, 164>>)
+      result =
+        Float.new(<<192, 93, 112, 164>>)
+        |> Float.decode_xdr!()
 
       assert result === {-3.4600000381469727, ""}
     end

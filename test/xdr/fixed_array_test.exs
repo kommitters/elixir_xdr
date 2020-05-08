@@ -7,7 +7,8 @@ defmodule XDR.FixedArrayTest do
   describe "Encoding Fixed Array" do
     test "when xdr is not list" do
       try do
-        FixedArray.encode_xdr(<<0, 0, 1>>, type: XDR.Int, length: 3)
+        FixedArray.new(<<0, 0, 1>>, XDR.Int, 3)
+        |> FixedArray.encode_xdr()
       rescue
         error ->
           assert error == %FixedArrayErr{
@@ -18,7 +19,8 @@ defmodule XDR.FixedArrayTest do
 
     test "with invalid length" do
       try do
-        FixedArray.encode_xdr([0, 0, 1], type: XDR.Int, length: 2)
+        FixedArray.new([0, 0, 1], XDR.Int, 2)
+        |> FixedArray.encode_xdr()
       rescue
         error ->
           assert error == %FixedArrayErr{
@@ -29,7 +31,8 @@ defmodule XDR.FixedArrayTest do
 
     test "when length is not an integer" do
       try do
-        FixedArray.encode_xdr([0, 0, 1], type: XDR.Int, length: "3")
+        FixedArray.new([0, 0, 1], XDR.Int, "3")
+        |> FixedArray.encode_xdr()
       rescue
         error ->
           assert error == %FixedArrayErr{
@@ -39,7 +42,9 @@ defmodule XDR.FixedArrayTest do
     end
 
     test "with valid data" do
-      {status, result} = FixedArray.encode_xdr([0, 0, 1], type: XDR.Int, length: 3)
+      {status, result} =
+        FixedArray.new([0, 0, 1], XDR.Int, 3)
+        |> FixedArray.encode_xdr()
 
       assert status == :ok
       assert result == <<0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1>>
@@ -47,7 +52,8 @@ defmodule XDR.FixedArrayTest do
 
     test "encode_xdr! with valid data" do
       result =
-        FixedArray.encode_xdr!(["kommit.co", "kommitter", "kommit"], type: XDR.String, length: 3)
+        FixedArray.new(["kommit.co", "kommitter", "kommit"], XDR.String, 3)
+        |> FixedArray.encode_xdr!()
 
       assert result ==
                <<0, 0, 0, 9, 107, 111, 109, 109, 105, 116, 46, 99, 111, 0, 0, 0, 0, 0, 0, 9, 107,
@@ -59,7 +65,8 @@ defmodule XDR.FixedArrayTest do
   describe "Decoding Fixed Array" do
     test "when xdr is not binary" do
       try do
-        FixedArray.decode_xdr([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], type: XDR.Int, length: 3)
+        FixedArray.new([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], XDR.Int, 3)
+        |> FixedArray.decode_xdr()
       rescue
         error ->
           assert error == %FixedArrayErr{
@@ -70,7 +77,8 @@ defmodule XDR.FixedArrayTest do
 
     test "when xdr byte size is not a multiple of 4" do
       try do
-        FixedArray.decode_xdr(<<0, 0, 1>>, type: XDR.Int, length: 1)
+        FixedArray.new(<<0, 0, 1>>, XDR.Int, 1)
+        |> FixedArray.decode_xdr()
       rescue
         error ->
           assert error == %FixedArrayErr{
@@ -82,7 +90,8 @@ defmodule XDR.FixedArrayTest do
 
     test "when length is not an integer" do
       try do
-        FixedArray.decode_xdr(<<0, 0, 1, 0>>, type: XDR.Int, length: "1")
+        FixedArray.new(<<0, 0, 1, 0>>, XDR.Int, "1")
+        |> FixedArray.decode_xdr()
       rescue
         error ->
           assert error == %FixedArrayErr{
@@ -92,14 +101,18 @@ defmodule XDR.FixedArrayTest do
     end
 
     test "with valid data" do
-      {status, result} = FixedArray.decode_xdr(<<0, 0, 1, 0>>, type: XDR.Int, length: 1)
+      {status, result} =
+        FixedArray.new(<<0, 0, 1, 0>>, XDR.Int, 1)
+        |> FixedArray.decode_xdr()
 
       assert status == :ok
       assert result == {[256], ""}
     end
 
     test "decode_xdr! with valid data" do
-      result = FixedArray.decode_xdr!(<<0, 0, 1, 0, 0, 1, 0, 0>>, type: XDR.Int, length: 2)
+      result =
+        FixedArray.new(<<0, 0, 1, 0, 0, 1, 0, 0>>, XDR.Int, 2)
+        |> FixedArray.decode_xdr!()
 
       assert result == {[256, 65536], ""}
     end

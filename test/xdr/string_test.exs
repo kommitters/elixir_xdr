@@ -7,7 +7,8 @@ defmodule XDR.StringTest do
   describe "Encoding string to binary" do
     test "when is not a bitstring value" do
       try do
-        String.encode_xdr(2)
+        String.new(2)
+        |> String.encode_xdr()
       rescue
         error ->
           assert error == %StringErr{
@@ -17,14 +18,18 @@ defmodule XDR.StringTest do
     end
 
     test "when is a valid bitstring" do
-      {status, result} = String.encode_xdr("kommit.co")
+      {status, result} =
+        String.new("kommit.co")
+        |> String.encode_xdr()
 
       assert status == :ok
       assert result == <<0, 0, 0, 9, 107, 111, 109, 109, 105, 116, 46, 99, 111, 0, 0, 0>>
     end
 
     test "decode_xdr! with valid String" do
-      result = String.encode_xdr!("kommit.co")
+      result =
+        String.new("kommit.co")
+        |> String.encode_xdr!()
 
       assert result == <<0, 0, 0, 9, 107, 111, 109, 109, 105, 116, 46, 99, 111, 0, 0, 0>>
     end
@@ -33,7 +38,8 @@ defmodule XDR.StringTest do
   describe "Decoding binary to integer" do
     test "when is a valid binary" do
       {status, result} =
-        String.decode_xdr(<<0, 0, 0, 9, 107, 111, 109, 109, 105, 116, 46, 99, 111, 0, 0, 0>>)
+        String.new(<<0, 0, 0, 9, 107, 111, 109, 109, 105, 116, 46, 99, 111, 0, 0, 0>>)
+        |> String.decode_xdr()
 
       assert status == :ok
       assert result == {"kommit.co", ""}
@@ -41,7 +47,8 @@ defmodule XDR.StringTest do
 
     test "decode_xdr! with valid binary" do
       result =
-        String.decode_xdr!(<<0, 0, 0, 9, 107, 111, 109, 109, 105, 116, 46, 99, 111, 0, 0, 0>>)
+        String.new(<<0, 0, 0, 9, 107, 111, 109, 109, 105, 116, 46, 99, 111, 0, 0, 0>>)
+        |> String.decode_xdr!()
 
       assert result === {"kommit.co", ""}
     end

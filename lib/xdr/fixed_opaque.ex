@@ -1,68 +1,101 @@
 defmodule XDR.FixedOpaque do
   @moduledoc """
-  This module is in charge of process the Fixed Length Opaque based on the RFC4056 XDR Standard
+  This module is in charge of process the Fixed Length Opaque based on the RFC4506 XDR Standard
   """
+  @behaviour XDR.Declaration
+
+  defstruct opaque: nil, length: nil
+
+  @typedoc """
+  Every Fixed length opaque structure has a opaque which represent the XDR to fix and its length
+  """
+  @type t :: %XDR.FixedOpaque{opaque: binary, length: integer}
 
   alias XDR.Error.FixedOpaque, as: FixedOpaqueErr
 
-  @behaviour XDR.Declaration
-
   @doc """
-  this function is in charge of encode a Fixed Length Opaque into an XDR
+  this function provides an easy way to create an XDR.FixedOpaque type
+
+  returns a XDR.FixedOpaque struct with the value received as parameter
+  """
+  @spec new(opaque :: binary, length :: integer) :: t()
+  def new(opaque, length), do: %XDR.FixedOpaque{opaque: opaque, length: length}
+
+  @impl XDR.Declaration
+  @doc """
+  this function is in charge of encode a Fixed Length Opaque into an XDR, it receives an XDR.FixedOpaque structure which
+  contains the bytes to encode
 
   returns an ok tuple with the resulted XDR
   """
-  @impl XDR.Declaration
-  @spec encode_xdr(binary, integer) :: {:ok, binary}
-  def encode_xdr(xdr, _length) when not is_binary(xdr), do: raise(FixedOpaqueErr, :not_binary)
-  def encode_xdr(_xdr, length) when not is_integer(length), do: raise(FixedOpaqueErr, :not_number)
+  @spec encode_xdr(t()) :: {:ok, binary}
+  def encode_xdr(%XDR.FixedOpaque{opaque: opaque}) when not is_binary(opaque),
+    do: raise(FixedOpaqueErr, :not_binary)
 
-  def encode_xdr(xdr, length) when length != byte_size(xdr),
-    do: raise(FixedOpaqueErr, :invalid_length)
+  def encode_xdr(%XDR.FixedOpaque{length: length}) when not is_integer(length),
+    do: raise(FixedOpaqueErr, :not_number)
 
-  def encode_xdr(xdr, length) when rem(length, 4) === 0, do: {:ok, xdr}
-  def encode_xdr(xdr, length) when rem(length, 4) != 0, do: encode_xdr(xdr <> <<0>>, length + 1)
+  def encode_xdr(%XDR.FixedOpaque{opaque: opaque, length: length})
+      when length != byte_size(opaque),
+      do: raise(FixedOpaqueErr, :invalid_length)
 
-  @impl XDR.Declaration
-  @doc """
-  this function is in charge of encode a Fixed Length Opaque into an XDR
+  def encode_xdr(%XDR.FixedOpaque{opaque: opaque, length: length}) when rem(length, 4) === 0,
+    do: {:ok, opaque}
 
-  returns the resulted XDR
-  """
-  @spec encode_xdr!(xdr :: binary(), length :: integer()) :: binary()
-  def encode_xdr!(xdr, length), do: encode_xdr(xdr, length) |> elem(1)
-
-  @impl XDR.Declaration
-  @doc """
-  this function is in charge of decode an XDR into a Fixed Length Opaque
-
-  returns an :ok tuple with the resulted binary
-  """
-  @spec decode_xdr(binary, integer) :: {:ok, {binary, binary}}
-  def decode_xdr(xdr, _length) when not is_binary(xdr), do: raise(FixedOpaqueErr, :not_binary)
-
-  def decode_xdr(xdr, _length) when rem(byte_size(xdr), 4) != 0,
-    do: raise(FixedOpaqueErr, :not_valid_binary)
-
-  def decode_xdr(_xdr, length) when not is_integer(length), do: raise(FixedOpaqueErr, :not_number)
-
-  def decode_xdr(xdr, length) when length > byte_size(xdr),
-    do: raise(FixedOpaqueErr, :exceed_length)
-
-  def decode_xdr(xdr, length) do
-    required_padding = get_required_padding(length)
-    <<opaque::bytes-size(length), _padding::bytes-size(required_padding), rest::binary>> = xdr
-    {:ok, {opaque, rest}}
+  def encode_xdr(%XDR.FixedOpaque{opaque: opaque, length: length}) when rem(length, 4) != 0 do
+    new(opaque <> <<0>>, length + 1)
+    |> encode_xdr()
   end
 
   @impl XDR.Declaration
   @doc """
-  this function is in charge of decode an XDR into a Fixed Length Opaque
+  this function is in charge of encode a Fixed Length Opaque into an XDR, it receives an XDR.FixedOpaque structure which
+  contains the bytes to encode
+
+  returns the resulted XDR
+  """
+  @spec encode_xdr!(t()) :: binary()
+  def encode_xdr!(opaque), do: encode_xdr(opaque) |> elem(1)
+
+  @impl XDR.Declaration
+  @doc """
+  this function is in charge of decode an XDR into a Fixed Length Opaque, it receives an XDR.FixedOpaque structure which
+  contains the binary to decode
+
+  returns an :ok tuple with the resulted binary
+  """
+  @spec decode_xdr(t()) :: {:ok, {binary, binary}}
+  def decode_xdr(%XDR.FixedOpaque{opaque: opaque}) when not is_binary(opaque),
+    do: raise(FixedOpaqueErr, :not_binary)
+
+  def decode_xdr(%XDR.FixedOpaque{opaque: opaque}) when rem(byte_size(opaque), 4) != 0,
+    do: raise(FixedOpaqueErr, :not_valid_binary)
+
+  def decode_xdr(%XDR.FixedOpaque{length: length}) when not is_integer(length),
+    do: raise(FixedOpaqueErr, :not_number)
+
+  def decode_xdr(%XDR.FixedOpaque{opaque: opaque, length: length})
+      when length > byte_size(opaque),
+      do: raise(FixedOpaqueErr, :exceed_length)
+
+  def decode_xdr(%XDR.FixedOpaque{opaque: opaque, length: length}) do
+    required_padding = get_required_padding(length)
+
+    <<fixed_opaque::bytes-size(length), _padding::bytes-size(required_padding), rest::binary>> =
+      opaque
+
+    {:ok, {fixed_opaque, rest}}
+  end
+
+  @impl XDR.Declaration
+  @doc """
+  this function is in charge of decode an XDR into a Fixed Length Opaque, it receives an XDR.FixedOpaque structure which
+  contains the binary to decode
 
   returns the resulted binary
   """
-  @spec decode_xdr!(xdr :: binary(), length :: integer()) :: {binary(), binary()}
-  def decode_xdr!(xdr, length), do: decode_xdr(xdr, length) |> elem(1)
+  @spec decode_xdr!(t()) :: {binary(), binary()}
+  def decode_xdr!(opaque), do: decode_xdr(opaque) |> elem(1)
 
   @spec get_required_padding(integer()) :: integer()
   defp get_required_padding(length) when rem(length, 4) == 0, do: 0

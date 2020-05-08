@@ -5,7 +5,7 @@ defmodule XDR.EnumTest do
   alias XDR.Error.Enum, as: EnumErr
 
   setup do
-    enum = %Enum{declarations: [red: 0, blue: 1, yellow: 2]}
+    enum = [red: 0, blue: 1, yellow: 2]
 
     {:ok, enum: enum}
   end
@@ -13,7 +13,8 @@ defmodule XDR.EnumTest do
   describe "Encoding Enum structures" do
     test "when the declarations is not a list" do
       try do
-        Enum.encode_xdr(%Enum{declarations: %{red: 0, blue: 1, yellow: 2}}, :red)
+        Enum.new(%{red: 0, blue: 1, yellow: 2}, :red)
+        |> Enum.encode_xdr()
       rescue
         error ->
           assert error == %EnumErr{
@@ -24,7 +25,8 @@ defmodule XDR.EnumTest do
 
     test "when specification name is not an atom", %{enum: enum} do
       try do
-        Enum.encode_xdr(enum, "red")
+        Enum.new(enum, "red")
+        |> Enum.encode_xdr()
       rescue
         error ->
           assert error ==
@@ -33,14 +35,18 @@ defmodule XDR.EnumTest do
     end
 
     test "with valid data", %{enum: enum} do
-      {status, result} = Enum.encode_xdr(enum, :red)
+      {status, result} =
+        Enum.new(enum, :red)
+        |> Enum.encode_xdr()
 
       assert status === :ok
       assert result === <<0, 0, 0, 0>>
     end
 
     test "encode_xdr! with valid data", %{enum: enum} do
-      result = Enum.encode_xdr!(enum, :yellow)
+      result =
+        Enum.new(enum, :yellow)
+        |> Enum.encode_xdr!()
 
       assert result === <<0, 0, 0, 2>>
     end
@@ -49,7 +55,8 @@ defmodule XDR.EnumTest do
   describe "Decoding enum structures" do
     test "when is not binary value", %{enum: enum} do
       try do
-        Enum.decode_xdr(5860, enum)
+        Enum.new(enum, 5860)
+        |> Enum.decode_xdr()
       rescue
         error ->
           assert error ==
@@ -60,9 +67,10 @@ defmodule XDR.EnumTest do
       end
     end
 
-    test "when is binary enum doesn't contain a list" do
+    test "when enum doesn't contain a list" do
       try do
-        Enum.decode_xdr(<<0, 0, 0, 0>>, %Enum{declarations: %{red: 0, blue: 1, yellow: 2}})
+        Enum.new(%{red: 0, blue: 1, yellow: 2}, <<0, 0, 0, 0>>)
+        |> Enum.decode_xdr()
       rescue
         error ->
           assert error ==
@@ -73,14 +81,18 @@ defmodule XDR.EnumTest do
     end
 
     test "with valid data", %{enum: enum} do
-      {status, result} = Enum.decode_xdr(<<0, 0, 0, 0>>, enum)
+      {status, result} =
+        Enum.new(enum, <<0, 0, 0, 0>>)
+        |> Enum.decode_xdr()
 
       assert status == :ok
       assert result === {:red, ""}
     end
 
     test "decode_xdr! with valid data", %{enum: enum} do
-      result = Enum.decode_xdr!(<<0, 0, 0, 0>>, enum)
+      result =
+        Enum.new(enum, <<0, 0, 0, 0>>)
+        |> Enum.decode_xdr!()
 
       assert result === {:red, ""}
     end

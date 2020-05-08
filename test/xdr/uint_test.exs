@@ -7,7 +7,8 @@ defmodule XDR.UIntTest do
   describe "Encoding unsigned integer to binary" do
     test "when is not an unsigned integer value" do
       try do
-        UInt.encode_xdr("hello world")
+        UInt.new("hello world")
+        |> UInt.encode_xdr()
       rescue
         error ->
           assert error == %UIntErr{
@@ -18,7 +19,8 @@ defmodule XDR.UIntTest do
 
     test "when exceeds the upper limit of an unsigned integer" do
       try do
-        UInt.encode_xdr(5_147_483_647)
+        UInt.new(5_147_483_647)
+        |> UInt.encode_xdr()
       rescue
         error ->
           assert error ==
@@ -31,7 +33,8 @@ defmodule XDR.UIntTest do
 
     test "when exceeds the lower limit of an unsigned integer" do
       try do
-        UInt.encode_xdr(-3_147_483_647)
+        UInt.new(-3_147_483_647)
+        |> UInt.encode_xdr()
       rescue
         error ->
           assert error ==
@@ -43,14 +46,18 @@ defmodule XDR.UIntTest do
     end
 
     test "when is a valid unsigned integer" do
-      {status, result} = UInt.encode_xdr(67_225_860)
+      {status, result} =
+        UInt.new(67_225_860)
+        |> UInt.encode_xdr()
 
       assert status == :ok
       assert result == <<4, 1, 201, 4>>
     end
 
     test "decode_xdr! with valid UInt" do
-      result = UInt.encode_xdr!(67_225_860)
+      result =
+        UInt.new(67_225_860)
+        |> UInt.encode_xdr!()
 
       assert result == <<4, 1, 201, 4>>
     end
@@ -59,7 +66,8 @@ defmodule XDR.UIntTest do
   describe "Decoding binary to integer" do
     test "when is not binary value" do
       try do
-        UInt.decode_xdr(5860)
+        UInt.new(5860)
+        |> UInt.decode_xdr()
       rescue
         error ->
           assert error ==
@@ -71,21 +79,27 @@ defmodule XDR.UIntTest do
     end
 
     test "when is a valid binary" do
-      {status, result} = UInt.decode_xdr(<<4, 1, 201, 4>>)
+      {status, result} =
+        UInt.new(<<4, 1, 201, 4>>)
+        |> UInt.decode_xdr()
 
       assert status == :ok
       assert result == {67_225_860, ""}
     end
 
     test "when is a valid binary with extra bytes" do
-      {status, result} = UInt.decode_xdr(<<4, 1, 201, 4, 10>>)
+      {status, result} =
+        UInt.new(<<4, 1, 201, 4, 10>>)
+        |> UInt.decode_xdr()
 
       assert status == :ok
       assert result === {67_225_860, <<10>>}
     end
 
     test "decode_xdr! with valid binary" do
-      result = UInt.decode_xdr!(<<4, 1, 201, 4, 10>>)
+      result =
+        UInt.new(<<4, 1, 201, 4, 10>>)
+        |> UInt.decode_xdr!()
 
       assert result === {67_225_860, <<10>>}
     end

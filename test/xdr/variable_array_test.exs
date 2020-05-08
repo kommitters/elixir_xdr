@@ -7,7 +7,8 @@ defmodule XDR.VariableArrayTest do
   describe "Encoding Fixed Array" do
     test "when xdr is not list" do
       try do
-        VariableArray.encode_xdr(<<0, 0, 1>>, type: XDR.Int, length: 3)
+        VariableArray.new(<<0, 0, 1>>, XDR.Int, 3)
+        |> VariableArray.encode_xdr()
       rescue
         error ->
           assert error == %VariableArrayErr{
@@ -18,7 +19,8 @@ defmodule XDR.VariableArrayTest do
 
     test "with invalid length" do
       try do
-        VariableArray.encode_xdr([0, 0, 1], type: XDR.Int, length: 2)
+        VariableArray.new([0, 0, 1], XDR.Int, 2)
+        |> VariableArray.encode_xdr()
       rescue
         error ->
           assert error == %VariableArrayErr{
@@ -30,7 +32,8 @@ defmodule XDR.VariableArrayTest do
 
     test "when length is not an integer" do
       try do
-        VariableArray.encode_xdr([0, 0, 1], type: XDR.Int, length: "3")
+        VariableArray.new([0, 0, 1], XDR.Int, "2")
+        |> VariableArray.encode_xdr()
       rescue
         error ->
           assert error == %VariableArrayErr{
@@ -41,7 +44,8 @@ defmodule XDR.VariableArrayTest do
 
     test "when exceed the upper bound" do
       try do
-        VariableArray.encode_xdr([0, 0, 1], type: XDR.Int, length: 4_294_967_296)
+        VariableArray.new([0, 0, 1], XDR.Int, 4_294_967_296)
+        |> VariableArray.encode_xdr()
       rescue
         error ->
           assert error == %VariableArrayErr{
@@ -52,7 +56,8 @@ defmodule XDR.VariableArrayTest do
 
     test "when exceed the lower bound" do
       try do
-        VariableArray.encode_xdr([0, 0, 1], type: XDR.Int, length: -1)
+        VariableArray.new([0, 0, 1], XDR.Int, -1)
+        |> VariableArray.encode_xdr()
       rescue
         error ->
           assert error == %VariableArrayErr{
@@ -62,7 +67,9 @@ defmodule XDR.VariableArrayTest do
     end
 
     test "with valid data" do
-      {status, result} = VariableArray.encode_xdr([0, 0, 1], type: XDR.Int, length: 3)
+      {status, result} =
+        VariableArray.new([0, 0, 1], XDR.Int, 3)
+        |> VariableArray.encode_xdr()
 
       assert status == :ok
       assert result == <<0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1>>
@@ -70,10 +77,8 @@ defmodule XDR.VariableArrayTest do
 
     test "encode_xdr! with valid data" do
       result =
-        VariableArray.encode_xdr!(["kommit.co", "kommitter", "kommit"],
-          type: XDR.String,
-          length: 3
-        )
+        VariableArray.new(["kommit.co", "kommitter", "kommit"], XDR.String, 3)
+        |> VariableArray.encode_xdr!()
 
       assert result ==
                <<0, 0, 0, 3, 0, 0, 0, 9, 107, 111, 109, 109, 105, 116, 46, 99, 111, 0, 0, 0, 0, 0,
@@ -85,7 +90,8 @@ defmodule XDR.VariableArrayTest do
   describe "Decoding Fixed Array" do
     test "when xdr is not binary" do
       try do
-        VariableArray.decode_xdr([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], type: XDR.Int, length: 3)
+        VariableArray.new([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], XDR.Int, 3)
+        |> VariableArray.decode_xdr()
       rescue
         error ->
           assert error == %VariableArrayErr{
@@ -97,7 +103,8 @@ defmodule XDR.VariableArrayTest do
 
     test "when length is not an integer" do
       try do
-        VariableArray.decode_xdr(<<0, 0, 1, 0>>, type: XDR.Int, length: "1")
+        VariableArray.new(<<0, 0, 1, 0>>, XDR.Int, "3")
+        |> VariableArray.decode_xdr()
       rescue
         error ->
           assert error == %VariableArrayErr{
@@ -108,20 +115,23 @@ defmodule XDR.VariableArrayTest do
 
     test "with valid data" do
       {status, result} =
-        VariableArray.decode_xdr(
+        VariableArray.new(
           <<0, 0, 0, 3, 0, 0, 0, 9, 107, 111, 109, 109, 105, 116, 46, 99, 111, 0, 0, 0, 0, 0, 0,
             9, 107, 111, 109, 109, 105, 116, 116, 101, 114, 0, 0, 0, 0, 0, 0, 6, 107, 111, 109,
             109, 105, 116, 0, 0>>,
-          type: XDR.String,
-          length: 1
+          XDR.String,
+          1
         )
+        |> VariableArray.decode_xdr()
 
       assert status == :ok
       assert result == {["kommit.co", "kommitter", "kommit"], ""}
     end
 
     test "decode_xdr! with valid data" do
-      result = VariableArray.decode_xdr!(<<0, 0, 0, 1, 0, 1, 0, 0>>, type: XDR.Int, length: 1)
+      result =
+        VariableArray.new(<<0, 0, 0, 1, 0, 1, 0, 0>>, XDR.Int, 1)
+        |> VariableArray.decode_xdr!()
 
       assert result == {[65536], ""}
     end

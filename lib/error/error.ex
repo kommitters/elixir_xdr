@@ -565,4 +565,39 @@ defmodule XDR.Error do
       %XDR.Error.VariableArray{message: msg}
     end
   end
+
+  defmodule Struct do
+    @moduledoc """
+    This module is in charge of containing the errors that may be raised by the XDR.Struct module
+    """
+    defexception [:message]
+
+    @impl true
+    @doc """
+    This function is in charge of raise the errors that can be returned by XDR.Struct module
+      ## Parameters:
+        the function only have one parameter that is an atom which represents the type of error returned by the module
+      ### Example
+        def exception(:not_integer) do
+          ...
+        end
+    Raises an exception error when the error is produced
+    """
+    def exception(:not_list) do
+      msg = "The :components received by parameter must be a keyword list"
+      %XDR.Error.Struct{message: msg}
+    end
+
+    def exception(:empty_list) do
+      msg = "The :components must not be empty, it must be a keyword list"
+      %XDR.Error.Struct{message: msg}
+    end
+
+    def exception(:not_binary) do
+      msg =
+        "The :struct received by parameter must be a binary value, for example: <<0, 0, 0, 5>>"
+
+      %XDR.Error.VariableArray{message: msg}
+    end
+  end
 end

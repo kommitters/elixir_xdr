@@ -7,7 +7,8 @@ defmodule XDR.IntTest do
   describe "Encoding integer to binary" do
     test "when is not an integer value" do
       try do
-        Int.encode_xdr("hello world")
+        Int.new("hello world")
+        |> Int.encode_xdr()
       rescue
         error ->
           assert error == %IntErr{message: "The value which you try to encode is not an integer"}
@@ -16,7 +17,8 @@ defmodule XDR.IntTest do
 
     test "when exceeds the upper limit of an integer" do
       try do
-        Int.encode_xdr(3_147_483_647)
+        Int.new(3_147_483_647)
+        |> Int.encode_xdr()
       rescue
         error ->
           assert error ==
@@ -29,7 +31,8 @@ defmodule XDR.IntTest do
 
     test "when exceeds the lower limit of an integer" do
       try do
-        Int.encode_xdr(-3_147_483_647)
+        Int.new(-3_147_483_647)
+        |> Int.encode_xdr()
       rescue
         error ->
           assert error ==
@@ -41,14 +44,18 @@ defmodule XDR.IntTest do
     end
 
     test "when is a valid integer" do
-      {status, result} = Int.encode_xdr(5860)
+      {status, result} =
+        Int.new(5860)
+        |> Int.encode_xdr()
 
       assert status == :ok
       assert result == <<0, 0, 22, 228>>
     end
 
     test "decode_xdr! with valid data" do
-      result = Int.encode_xdr!(5860)
+      result =
+        Int.new(5860)
+        |> Int.encode_xdr!()
 
       assert result == <<0, 0, 22, 228>>
     end
@@ -57,7 +64,8 @@ defmodule XDR.IntTest do
   describe "Decoding binary to integer" do
     test "when is not binary value" do
       try do
-        Int.decode_xdr(5860)
+        Int.new(5860)
+        |> Int.decode_xdr()
       rescue
         error ->
           assert error ==
@@ -69,21 +77,27 @@ defmodule XDR.IntTest do
     end
 
     test "when is a valid binary" do
-      {status, result} = Int.decode_xdr(<<0, 0, 22, 228>>)
+      {status, result} =
+        Int.new(<<0, 0, 22, 228>>)
+        |> Int.decode_xdr()
 
       assert status == :ok
       assert result == {5860, ""}
     end
 
     test "when is a valid binary with extra bytes" do
-      {status, result} = Int.decode_xdr(<<0, 0, 22, 228, 10>>)
+      {status, result} =
+        Int.new(<<0, 0, 22, 228, 10>>)
+        |> Int.decode_xdr()
 
       assert status == :ok
       assert result === {5860, <<10>>}
     end
 
     test "decode_xdr! with valid data" do
-      result = Int.decode_xdr!(<<0, 0, 22, 228>>)
+      result =
+        Int.new(<<0, 0, 22, 228>>)
+        |> Int.decode_xdr!()
 
       assert result === {5860, ""}
     end

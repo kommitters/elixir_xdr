@@ -1,79 +1,78 @@
 defmodule XDR.HyperInt do
   @moduledoc """
-  This module is in charge of process the Hyper Integer types based on the RFC4056 XDR Standard
+  This module is in charge of process the Hyper Integer types based on the RFC4506 XDR Standard
   """
+  @behaviour XDR.Declaration
+
+  defstruct datum: nil
+
+  @typedoc """
+  Every integer structure has a datum which represent the integer value which you try to encode
+  """
+  @type t :: %XDR.HyperInt{datum: integer | binary}
+
   alias XDR.Error.HyperInt
 
-  @behaviour XDR.Declaration
+  @doc """
+  this function provides an easy way to create an XDR.HyperInt type
+
+  returns a XDR.HyperInt struct with the value received as parameter
+  """
+  @spec new(datum :: integer | binary) :: t()
+  def new(datum), do: %XDR.HyperInt{datum: datum}
 
   @impl XDR.Declaration
   @doc """
   This function is in charge of encoding the Hyper Integer received by parameter if the parameters
-  are wrong an error will be raised
-
-    ## Parameters:
-      -value: represents the Hyper Integer value which needs to encode
-      -opts: it is an optional value required by the behaviour
+  are wrong an error will be raised, it recieves an XDR.HyperInt structure which contains the hyper int
 
   Returns a tuple with the XDR resulted from encoding the Hyper Integer value
   """
-  @spec encode_xdr(integer(), any) :: {:ok, binary()}
-  def encode_xdr(value, opts \\ nil)
-  def encode_xdr(value, _opts) when not is_integer(value), do: raise(HyperInt, :not_integer)
+  @spec encode_xdr(t()) :: {:ok, binary()}
+  def encode_xdr(%XDR.HyperInt{datum: datum}) when not is_integer(datum),
+    do: raise(HyperInt, :not_integer)
 
-  def encode_xdr(value, _opts) when value > 9_223_372_036_854_775_807,
+  def encode_xdr(%XDR.HyperInt{datum: datum}) when datum > 9_223_372_036_854_775_807,
     do: raise(HyperInt, :exceed_upper_limit)
 
-  def encode_xdr(value, _opts) when value < -9_223_372_036_854_775_808,
+  def encode_xdr(%XDR.HyperInt{datum: datum}) when datum < -9_223_372_036_854_775_808,
     do: raise(HyperInt, :exceed_lower_limit)
 
-  def encode_xdr(value, _opts), do: {:ok, <<value::big-signed-integer-size(64)>>}
+  def encode_xdr(%XDR.HyperInt{datum: datum}), do: {:ok, <<datum::big-signed-integer-size(64)>>}
 
   @impl XDR.Declaration
   @doc """
   This function is in charge of encoding the Hyper Integer received by parameter if the parameters
-  are wrong an error will be raised
-
-    ## Parameters:
-      -value: represents the Hyper Integer value which needs to encode
-      -opts: it is an optional value required by the behaviour
+  are wrong an error will be raised, it recieves an XDR.HyperInt structure which contains the hyper int
 
   Returns the XDR resulted from encoding the Hyper Integer value
   """
-  @spec encode_xdr!(integer(), any) :: binary()
-  def encode_xdr!(value, opts \\ nil)
-  def encode_xdr!(value, _opts), do: encode_xdr(value) |> elem(1)
+  @spec encode_xdr!(t()) :: binary()
+  def encode_xdr!(datum), do: encode_xdr(datum) |> elem(1)
 
   @impl XDR.Declaration
   @doc """
   This function is in charge of decode the XDR value which represents an Hyper Integer value if the parameters are wrong
-  an error will be raised
-
-    ## Parameters:
-      -bytes: represents the XDR value which needs to decode into an Hyper Integer
-      -opts: it is an optional value required by the behaviour
+  an error will be raised, it receives an XDR.HyperInt structure which contains the binary to decode
 
   Returns a tuple with the Hyper Integer resulted from decode the XDR value and its remaining bits
   """
-  @spec decode_xdr(binary(), any()) :: {:ok, {integer(), binary()}}
-  def decode_xdr(bytes, opts \\ nil)
-  def decode_xdr(bytes, _opts) when not is_binary(bytes), do: raise(HyperInt, :not_binary)
+  @spec decode_xdr(t()) :: {:ok, {integer(), binary()}}
+  def decode_xdr(%XDR.HyperInt{datum: datum}) when not is_binary(datum),
+    do: raise(HyperInt, :not_binary)
 
-  def decode_xdr(<<hyper_int::big-signed-integer-size(64), rest::binary>>, _opts),
-    do: {:ok, {hyper_int, rest}}
+  def decode_xdr(%XDR.HyperInt{datum: datum}) do
+    <<hyper_int::big-signed-integer-size(64), rest::binary>> = datum
+    {:ok, {hyper_int, rest}}
+  end
 
   @impl XDR.Declaration
   @doc """
   This function is in charge of decode the XDR value which represents an Hyper Integer value if the parameters are wrong
-  an error will be raised
-
-    ## Parameters:
-      -bytes: represents the XDR value which needs to decode into an Hyper Integer
-      -opts: it is an optional value required by the behaviour
+  an error will be raised, it receives an XDR.HyperInt structure which contains the binary to decode
 
   Returns the Hyper Integer resulted from decode the XDR value and its remaining bits
   """
-  @spec decode_xdr!(binary(), any()) :: {integer(), binary()}
-  def decode_xdr!(bytes, opts \\ nil)
-  def decode_xdr!(binary, _opts), do: decode_xdr(binary) |> elem(1)
+  @spec decode_xdr!(t()) :: {integer(), binary()}
+  def decode_xdr!(datum), do: decode_xdr(datum) |> elem(1)
 end

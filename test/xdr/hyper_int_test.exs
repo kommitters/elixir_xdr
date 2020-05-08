@@ -7,7 +7,8 @@ defmodule XDR.HyperIntTest do
   describe "Encoding Hyper Integer to binary" do
     test "when is not an integer value" do
       try do
-        HyperInt.encode_xdr("hello world")
+        HyperInt.new("hello world")
+        |> HyperInt.encode_xdr()
       rescue
         error ->
           assert error == %HyperIntErr{
@@ -18,7 +19,8 @@ defmodule XDR.HyperIntTest do
 
     test "when exceeds the upper limit of an integer" do
       try do
-        HyperInt.encode_xdr(9_223_372_036_854_775_808)
+        HyperInt.new(9_223_372_036_854_775_808)
+        |> HyperInt.encode_xdr()
       rescue
         error ->
           assert error ==
@@ -31,7 +33,8 @@ defmodule XDR.HyperIntTest do
 
     test "when exceeds the lower limit of an integer" do
       try do
-        HyperInt.encode_xdr(-9_223_372_036_854_775_809)
+        HyperInt.new(-9_223_372_036_854_775_808)
+        |> HyperInt.encode_xdr()
       rescue
         error ->
           assert error ==
@@ -43,14 +46,18 @@ defmodule XDR.HyperIntTest do
     end
 
     test "when is a valid integer" do
-      {status, result} = HyperInt.encode_xdr(5860)
+      {status, result} =
+        HyperInt.new(5860)
+        |> HyperInt.encode_xdr()
 
       assert status == :ok
       assert result == <<0, 0, 0, 0, 0, 0, 22, 228>>
     end
 
     test "encode_xdr! with valid data" do
-      result = HyperInt.encode_xdr!(5860)
+      result =
+        HyperInt.new(5860)
+        |> HyperInt.encode_xdr!()
 
       assert result == <<0, 0, 0, 0, 0, 0, 22, 228>>
     end
@@ -59,7 +66,8 @@ defmodule XDR.HyperIntTest do
   describe "Decoding binary to Hyper Integer" do
     test "when is not binary value" do
       try do
-        HyperInt.decode_xdr(5860)
+        HyperInt.new(5860)
+        |> HyperInt.decode_xdr()
       rescue
         error ->
           assert error ==
@@ -71,21 +79,27 @@ defmodule XDR.HyperIntTest do
     end
 
     test "when is a valid binary" do
-      {status, result} = HyperInt.decode_xdr(<<0, 0, 0, 0, 0, 0, 22, 228>>)
+      {status, result} =
+        HyperInt.new(<<0, 0, 0, 0, 0, 0, 22, 228>>)
+        |> HyperInt.decode_xdr()
 
       assert status == :ok
       assert result == {5860, ""}
     end
 
     test "when is a valid binary with extra bytes" do
-      {status, result} = HyperInt.decode_xdr(<<0, 0, 0, 0, 0, 0, 22, 228, 10>>)
+      {status, result} =
+        HyperInt.new(<<0, 0, 0, 0, 0, 0, 22, 228, 10>>)
+        |> HyperInt.decode_xdr()
 
       assert status == :ok
       assert result === {5860, <<10>>}
     end
 
     test "decode_xdr! with valid data" do
-      result = HyperInt.decode_xdr!(<<0, 0, 0, 0, 0, 0, 22, 228>>)
+      result =
+        HyperInt.new(<<0, 0, 0, 0, 0, 0, 22, 228>>)
+        |> HyperInt.decode_xdr!()
 
       assert result === {5860, ""}
     end

@@ -1,70 +1,75 @@
 defmodule XDR.UInt do
   @moduledoc """
-  This module is in charge of process the unsigned integer types based on the RFC4056 XDR Standard
+  This module is in charge of process the unsigned integer types based on the RFC4506 XDR Standard
   """
+  @behaviour XDR.Declaration
+
+  defstruct datum: nil
+
+  @typedoc """
+  Every Unsigned integer structure has a datum which represent the integer value which you try to encode
+  """
+  @type t :: %XDR.UInt{datum: integer | binary}
+
   alias XDR.Error.UInt
 
-  @behaviour XDR.Declaration
+  @doc """
+  this function provides an easy way to create an XDR.UInt type
+
+  returns a XDR.UInt struct with the value received as parameter
+  """
+  @spec new(datum :: integer | binary) :: t()
+  def new(datum), do: %XDR.UInt{datum: datum}
 
   @impl XDR.Declaration
   @doc """
   This function is in charge of encoding an unsigned integers into an XDR if the parameters are wrong
-  an error will be raised
-
-    ## Parameters:
-      -value: represents an unsigned integer value which you try to encode into a XDR value
-      -opts: it is an optional value required by the behaviour
+  an error will be raised, it receives a XDR.UInt structure which contains the value to encode
 
   Returns a tuple with the XDR resulted from encode the unsigned integer value
   """
-  def encode_xdr(value, opts \\ nil)
-  def encode_xdr(value, _opts) when not is_integer(value), do: raise(UInt, :not_integer)
-  def encode_xdr(value, _opts) when value > 4_294_967_295, do: raise(UInt, :exceed_upper_limit)
-  def encode_xdr(value, _opts) when value < 0, do: raise(UInt, :exceed_lower_limit)
-  def encode_xdr(value, _opts), do: {:ok, <<value::big-unsigned-integer-size(32)>>}
+  @spec encode_xdr(t()) :: {:ok, binary()}
+  def encode_xdr(%XDR.UInt{datum: datum}) when not is_integer(datum),
+    do: raise(UInt, :not_integer)
+
+  def encode_xdr(%XDR.UInt{datum: datum}) when datum > 4_294_967_295,
+    do: raise(UInt, :exceed_upper_limit)
+
+  def encode_xdr(%XDR.UInt{datum: datum}) when datum < 0, do: raise(UInt, :exceed_lower_limit)
+  def encode_xdr(%XDR.UInt{datum: datum}), do: {:ok, <<datum::big-unsigned-integer-size(32)>>}
 
   @impl XDR.Declaration
   @doc """
   This function is in charge of encoding an unsigned integers into an XDR if the parameters are wrong
-  an error will be raised
-
-    ## Parameters:
-      -value: represents an unsigned integer value which you try to encode into a XDR value
-      -opts: it is an optional value required by the behaviour
+  an error will be raised, it receives a XDR.UInt structure which contains the value to encode
 
   Returns the XDR resulted from encode the unsigned integer value
   """
-  def encode_xdr!(value, opts \\ nil)
-  def encode_xdr!(value, _opts), do: encode_xdr(value) |> elem(1)
+  @spec encode_xdr!(t()) :: binary()
+  def encode_xdr!(datum), do: encode_xdr(datum) |> elem(1)
 
   @impl XDR.Declaration
   @doc """
   This function is in charge of decode the XDR value which represents an unsigned integer value if the parameters are wrong
-  an error will be raised
-
-    ## Parameters:
-      -bytes: represents the XDR value which needs to decode into an unsigned integer
-      -opts: it is an optional value required by the behaviour
+  an error will be raised, it receives a XDR.UInt structure which contains the binary value to decode
 
   Returns a tuple with the integer resulted from decode the XDR value
   """
-  def decode_xdr(bytes, opts \\ nil)
-  def decode_xdr(bytes, _opts) when not is_binary(bytes), do: raise(UInt, :not_binary)
+  @spec decode_xdr(t()) :: {:ok, {integer(), binary()}}
+  def decode_xdr(%XDR.UInt{datum: datum}) when not is_binary(datum), do: raise(UInt, :not_binary)
 
-  def decode_xdr(<<uint::big-unsigned-integer-size(32), rest::binary>>, _opts),
-    do: {:ok, {uint, rest}}
+  def decode_xdr(%XDR.UInt{datum: datum}) do
+    <<uint::big-unsigned-integer-size(32), rest::binary>> = datum
+    {:ok, {uint, rest}}
+  end
 
   @impl XDR.Declaration
   @doc """
   This function is in charge of decode the XDR value which represents an unsigned integer value if the parameters are wrong
-  an error will be raised
-
-    ## Parameters:
-      -bytes: represents the XDR value which needs to decode into an unsigned integer
-      -opts: it is an optional value required by the behaviour
+  an error will be raised, it receives a XDR.UInt structure which contains the binary value to decode
 
   Returns the integer resulted from decode the XDR value
   """
-  def decode_xdr!(bytes, opts \\ nil)
-  def decode_xdr!(bytes, _opts), do: decode_xdr(bytes) |> elem(1)
+  @spec decode_xdr!(t()) :: {integer(), binary()}
+  def decode_xdr!(datum), do: decode_xdr(datum) |> elem(1)
 end

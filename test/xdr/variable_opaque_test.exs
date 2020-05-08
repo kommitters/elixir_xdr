@@ -7,7 +7,8 @@ defmodule XDR.VariableOpaqueTest do
   describe "Encoding Variable Opaque" do
     test "when xdr is not binary" do
       try do
-        VariableOpaque.encode_xdr([0, 0, 1], 2)
+        VariableOpaque.new([0, 0, 1], 2)
+        |> VariableOpaque.encode_xdr()
       rescue
         error ->
           assert error == %VariableOpaqueErr{
@@ -19,7 +20,8 @@ defmodule XDR.VariableOpaqueTest do
 
     test "with invalid length" do
       try do
-        VariableOpaque.encode_xdr(<<0, 0, 1>>, 2)
+        VariableOpaque.new(<<0, 0, 1>>, 2)
+        |> VariableOpaque.encode_xdr()
       rescue
         error ->
           assert error == %VariableOpaqueErr{
@@ -31,7 +33,8 @@ defmodule XDR.VariableOpaqueTest do
 
     test "when length is not an integer" do
       try do
-        VariableOpaque.encode_xdr(<<0, 0, 1>>, "hi")
+        VariableOpaque.new(<<0, 0, 1>>, "hi")
+        |> VariableOpaque.encode_xdr()
       rescue
         error ->
           assert error == %VariableOpaqueErr{
@@ -42,7 +45,8 @@ defmodule XDR.VariableOpaqueTest do
 
     test "when exceed lower bound" do
       try do
-        VariableOpaque.encode_xdr(<<0, 0, 1>>, -1)
+        VariableOpaque.new(<<0, 0, 1>>, -1)
+        |> VariableOpaque.encode_xdr()
       rescue
         error ->
           assert error == %VariableOpaqueErr{
@@ -53,7 +57,8 @@ defmodule XDR.VariableOpaqueTest do
 
     test "when exceed upper bound" do
       try do
-        VariableOpaque.encode_xdr(<<0, 0, 1>>, 4_294_967_296)
+        VariableOpaque.new(<<0, 0, 1>>, 4_294_967_296)
+        |> VariableOpaque.encode_xdr()
       rescue
         error ->
           assert error == %VariableOpaqueErr{
@@ -63,14 +68,18 @@ defmodule XDR.VariableOpaqueTest do
     end
 
     test "with valid data" do
-      {status, result} = VariableOpaque.encode_xdr(<<0, 0, 1>>)
+      {status, result} =
+        VariableOpaque.new(<<0, 0, 1>>)
+        |> VariableOpaque.encode_xdr()
 
       assert status == :ok
       assert result == <<0, 0, 0, 3, 0, 0, 1, 0>>
     end
 
     test "encode_xdr! with valid data" do
-      result = VariableOpaque.encode_xdr!(<<0, 0, 1>>)
+      result =
+        VariableOpaque.new(<<0, 0, 1>>)
+        |> VariableOpaque.encode_xdr!()
 
       assert result == <<0, 0, 0, 3, 0, 0, 1, 0>>
     end
@@ -79,7 +88,8 @@ defmodule XDR.VariableOpaqueTest do
   describe "Decoding Variable Opaque" do
     test "when xdr is not binary" do
       try do
-        VariableOpaque.decode_xdr([0, 0, 1], 2)
+        VariableOpaque.new([0, 0, 1], 2)
+        |> VariableOpaque.decode_xdr()
       rescue
         error ->
           assert error == %VariableOpaqueErr{
@@ -91,7 +101,8 @@ defmodule XDR.VariableOpaqueTest do
 
     test "when length is not an integer" do
       try do
-        VariableOpaque.encode_xdr(<<0, 0, 1, 0>>, "2")
+        VariableOpaque.new(<<0, 0, 1, 0>>, "2")
+        |> VariableOpaque.encode_xdr()
       rescue
         error ->
           assert error == %VariableOpaqueErr{
@@ -102,7 +113,8 @@ defmodule XDR.VariableOpaqueTest do
 
     test "when exceed lower bound" do
       try do
-        VariableOpaque.decode_xdr(<<0, 0, 1>>, -1)
+        VariableOpaque.new(<<0, 0, 1>>, -1)
+        |> VariableOpaque.decode_xdr()
       rescue
         error ->
           assert error == %VariableOpaqueErr{
@@ -113,7 +125,8 @@ defmodule XDR.VariableOpaqueTest do
 
     test "when exceed upper bound" do
       try do
-        VariableOpaque.decode_xdr(<<0, 0, 1>>, 4_294_967_296)
+        VariableOpaque.new(<<0, 0, 1>>, 4_294_967_296)
+        |> VariableOpaque.decode_xdr()
       rescue
         error ->
           assert error == %VariableOpaqueErr{
@@ -124,7 +137,8 @@ defmodule XDR.VariableOpaqueTest do
 
     test "when the length is bigger than the defined max" do
       try do
-        VariableOpaque.decode_xdr(<<0, 0, 0, 6>>, 1)
+        VariableOpaque.new(<<0, 0, 0, 6>>, 1)
+        |> VariableOpaque.decode_xdr()
       rescue
         error ->
           assert error == %VariableOpaqueErr{
@@ -136,7 +150,8 @@ defmodule XDR.VariableOpaqueTest do
 
     test "when the length is bigger than the rest binaries" do
       try do
-        VariableOpaque.decode_xdr(<<0, 0, 0, 6, 0, 0, 0, 0>>)
+        VariableOpaque.new(<<0, 0, 0, 6, 0, 0, 0, 0>>)
+        |> VariableOpaque.decode_xdr()
       rescue
         error ->
           assert error == %VariableOpaqueErr{
@@ -147,14 +162,18 @@ defmodule XDR.VariableOpaqueTest do
     end
 
     test "with valid data" do
-      {status, result} = VariableOpaque.decode_xdr(<<0, 0, 0, 2, 0, 1, 0, 0>>)
+      {status, result} =
+        VariableOpaque.new(<<0, 0, 0, 2, 0, 1, 0, 0>>)
+        |> VariableOpaque.decode_xdr()
 
       assert status == :ok
       assert result == {<<0, 1>>, <<>>}
     end
 
     test "decode_xdr! with valid data" do
-      result = VariableOpaque.decode_xdr!(<<0, 0, 0, 2, 0, 1, 0, 0>>)
+      result =
+        VariableOpaque.new(<<0, 0, 0, 2, 0, 1, 0, 0>>)
+        |> VariableOpaque.decode_xdr!()
 
       assert result == {<<0, 1>>, <<>>}
     end
