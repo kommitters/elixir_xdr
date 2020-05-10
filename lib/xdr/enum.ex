@@ -25,13 +25,13 @@ defmodule XDR.Enum do
   Returns a tuple with the the XDR resulted from encode the value wich represents a key in the enum structure
   """
   @spec encode_xdr(t()) :: {:ok, binary()}
-  def encode_xdr(%XDR.Enum{declarations: declarations}) when not is_list(declarations),
+  def encode_xdr(%{declarations: declarations}) when not is_list(declarations),
     do: raise(EnumErr, :not_list)
 
-  def encode_xdr(%XDR.Enum{identifier: identifier}) when not is_atom(identifier),
+  def encode_xdr(%{identifier: identifier}) when not is_atom(identifier),
     do: raise(EnumErr, :not_an_atom)
 
-  def encode_xdr(%XDR.Enum{declarations: declarations, identifier: identifier}) do
+  def encode_xdr(%{declarations: declarations, identifier: identifier}) do
     binary =
       declarations[identifier]
       |> XDR.Int.new()
@@ -58,13 +58,13 @@ defmodule XDR.Enum do
   Returns a tuple with the key of the decoded enum and the remaining bytes if there are.
   """
   @spec decode_xdr(t()) :: {:ok, {atom(), binary()}}
-  def decode_xdr(%XDR.Enum{identifier: identifier}) when not is_binary(identifier),
+  def decode_xdr(%{identifier: identifier}) when not is_binary(identifier),
     do: raise(EnumErr, :not_binary)
 
-  def decode_xdr(%XDR.Enum{declarations: declarations}) when not is_list(declarations),
+  def decode_xdr(%{declarations: declarations}) when not is_list(declarations),
     do: raise(EnumErr, :not_list)
 
-  def decode_xdr(%XDR.Enum{declarations: declarations, identifier: identifier}) do
+  def decode_xdr(%{declarations: declarations, identifier: identifier}) do
     {value, rest} =
       XDR.Int.new(identifier)
       |> XDR.Int.decode_xdr!()

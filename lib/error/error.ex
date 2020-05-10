@@ -600,4 +600,46 @@ defmodule XDR.Error do
       %XDR.Error.Struct{message: msg}
     end
   end
+
+  defmodule Union do
+    @moduledoc """
+    This module is in charge of containing the errors that may be raised by the XDR.Union module
+    """
+    defexception [:message]
+
+    @impl true
+    @doc """
+    This function is in charge of raise the errors that can be returned by XDR.Union module
+      ## Parameters:
+        the function only have one parameter that is an atom which represents the type of error returned by the module
+      ### Example
+        def exception(:not_integer) do
+          ...
+        end
+    Raises an exception error when the error is produced
+    """
+    def exception(:not_list) do
+      msg =
+        "The :declarations received by parameter must be a keyword list which belongs to an XDR.Enum"
+
+      %XDR.Error.Union{message: msg}
+    end
+
+    def exception(:not_binary) do
+      msg =
+        "The :identifier received by parameter must be a binary value, for example: <<0, 0, 0, 5>>"
+
+      %XDR.Error.Union{message: msg}
+    end
+
+    def exception(:not_number) do
+      msg = "The value which you try to decode is not an integer value"
+      %XDR.Error.Union{message: msg}
+    end
+
+    def exception(:not_atom) do
+      msg = "The :identifier which you try to decode from the Enum Union is not an atom"
+      %XDR.Error.Union{message: msg}
+    end
+  end
 end

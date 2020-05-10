@@ -30,12 +30,12 @@ defmodule XDR.Struct do
   returns an :ok tuple with the resulted XDR
   """
   @spec encode_xdr(t()) :: {:ok, binary}
-  def encode_xdr(%XDR.Struct{components: components}) when not is_list(components),
+  def encode_xdr(%{components: components}) when not is_list(components),
     do: raise(Struct, :not_list)
 
-  def encode_xdr(%XDR.Struct{components: []}), do: raise(Struct, :empty_list)
+  def encode_xdr(%{components: []}), do: raise(Struct, :empty_list)
 
-  def encode_xdr(%XDR.Struct{components: components}) do
+  def encode_xdr(%{components: components}) do
     xdr =
       components
       |> Enum.reduce(<<>>, fn {_key, component}, bytes ->
@@ -64,18 +64,18 @@ defmodule XDR.Struct do
   returns an :ok tuple with the resulted struct
   """
   @spec decode_xdr(t()) :: {:ok, {list(), binary()}}
-  def decode_xdr(%XDR.Struct{struct: struct}) when not is_binary(struct),
+  def decode_xdr(%{struct: struct}) when not is_binary(struct),
     do: raise(Struct, :not_binary)
 
-  def decode_xdr(%XDR.Struct{components: components}) when not is_list(components),
+  def decode_xdr(%{components: components}) when not is_list(components),
     do: raise(Struct, :not_list)
 
-  def decode_xdr(%XDR.Struct{struct: struct, components: components}) do
-    {rest, components} =
+  def decode_xdr(%{struct: struct, components: components}) do
+    {rest, new_components} =
       decode_struct(struct, components)
       |> Keyword.pop!(:rest)
 
-    {:ok, {components, rest}}
+    {:ok, {new_components, rest}}
   end
 
   @impl XDR.Declaration
