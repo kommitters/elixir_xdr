@@ -29,7 +29,7 @@ defmodule XDR.UnionTest do
         Union.encode_xdr(%{discriminant: enum, arms: arms})
       rescue
         error ->
-          assert error == %XDR.Error.Union{
+          assert error == %UnionErr{
                    message:
                      "The :identifier which you try to decode from the Enum Union is not an atom"
                  }
@@ -74,7 +74,7 @@ defmodule XDR.UnionTest do
         Union.decode_xdr(%{discriminant: %{identifier: [0, 0, 0, 0, 0, 0, 0, 0]}, arms: arms})
       rescue
         error ->
-          assert error == %XDR.Error.Union{
+          assert error == %UnionErr{
                    message:
                      "The :identifier received by parameter must be a binary value, for example: <<0, 0, 0, 5>>"
                  }
@@ -93,7 +93,7 @@ defmodule XDR.UnionTest do
         Union.decode_xdr(%{discriminant: %{declarations: <<0, 0, 0, 0, 0, 0, 0, 0>>}, arms: arms})
       rescue
         error ->
-          assert error == %XDR.Error.Union{
+          assert error == %UnionErr{
                    message:
                      "The :declarations received by parameter must be a keyword list which belongs to an XDR.Enum"
                  }
@@ -144,14 +144,22 @@ defmodule UnionEnum do
       struct: UnionEnum.__struct__()
     }
 
+  @impl XDR.Declaration
   def encode_xdr(%UnionEnum{} = union), do: XDR.Union.encode_xdr(union)
 
+  @impl XDR.Declaration
   def encode_xdr!(%UnionEnum{} = union), do: encode_xdr(union) |> elem(1)
 
-  def decode(%UnionEnum{} = union), do: XDR.Union.decode_xdr(union)
+  @impl XDR.Declaration
+  def decode_xdr(%UnionEnum{} = union), do: XDR.Union.decode_xdr(union)
+
+  @impl XDR.Declaration
+  def decode_xdr!(%UnionEnum{} = union), do: XDR.Union.decode_xdr!(union)
 end
 
 defmodule UnionNumber do
+  @behaviour XDR.Declaration
+
   defstruct discriminant: XDR.UInt, arms: nil, struct: nil
 
   @arms %{
@@ -164,9 +172,14 @@ defmodule UnionNumber do
   def new(discriminant),
     do: %UnionNumber{discriminant: discriminant, arms: @arms, struct: UnionNumber.__struct__()}
 
+  @impl XDR.Declaration
   def encode_xdr(%UnionNumber{} = union), do: XDR.Union.encode_xdr(union)
-
+  @impl XDR.Declaration
+  def encode_xdr!(%UnionNumber{} = union), do: XDR.Union.encode_xdr!(union)
+  @impl XDR.Declaration
   def decode_xdr(%UnionNumber{} = union), do: XDR.Union.decode_xdr(union)
+  @impl XDR.Declaration
+  def decode_xdr!(%UnionNumber{} = union), do: XDR.Union.decode_xdr!(union)
 end
 
 defmodule SCPStatementType do
