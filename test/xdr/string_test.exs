@@ -26,7 +26,7 @@ defmodule XDR.StringTest do
       assert result == <<0, 0, 0, 9, 107, 111, 109, 109, 105, 116, 46, 99, 111, 0, 0, 0>>
     end
 
-    test "decode_xdr! with valid String" do
+    test "encode_xdr! with valid String" do
       result =
         String.new("kommit.co")
         |> String.encode_xdr!()
