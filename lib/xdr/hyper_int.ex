@@ -57,13 +57,18 @@ defmodule XDR.HyperInt do
 
   Returns a tuple with the Hyper Integer resulted from decode the XDR value and its remaining bits
   """
-  @spec decode_xdr(t()) :: {:ok, {integer(), binary()}}
-  def decode_xdr(%XDR.HyperInt{datum: datum}) when not is_binary(datum),
+  @spec decode_xdr(bytes :: binary, opts :: any) :: {:ok, {t(), binary()}}
+  def decode_xdr(bytes, opts \\ nil)
+
+  def decode_xdr(bytes, _opts) when not is_binary(bytes),
     do: raise(HyperInt, :not_binary)
 
-  def decode_xdr(%XDR.HyperInt{datum: datum}) do
-    <<hyper_int::big-signed-integer-size(64), rest::binary>> = datum
-    {:ok, {hyper_int, rest}}
+  def decode_xdr(bytes, _opts) do
+    <<hyper_int::big-signed-integer-size(64), rest::binary>> = bytes
+
+    decoded_hyper_int = new(hyper_int)
+
+    {:ok, {decoded_hyper_int, rest}}
   end
 
   @impl XDR.Declaration
@@ -73,6 +78,7 @@ defmodule XDR.HyperInt do
 
   Returns the Hyper Integer resulted from decode the XDR value and its remaining bits
   """
-  @spec decode_xdr!(t()) :: {integer(), binary()}
-  def decode_xdr!(datum), do: decode_xdr(datum) |> elem(1)
+  @spec decode_xdr!(bytes :: binary, opts :: any) :: {t(), binary()}
+  def decode_xdr!(bytes, opts \\ nil)
+  def decode_xdr!(bytes, opts), do: decode_xdr(bytes, opts) |> elem(1)
 end

@@ -79,29 +79,23 @@ defmodule XDR.UIntTest do
     end
 
     test "when is a valid binary" do
-      {status, result} =
-        UInt.new(<<4, 1, 201, 4>>)
-        |> UInt.decode_xdr()
+      {status, result} = UInt.decode_xdr(<<4, 1, 201, 4>>)
 
       assert status == :ok
-      assert result == {67_225_860, ""}
+      assert result == {%UInt{datum: 67_225_860}, ""}
     end
 
     test "when is a valid binary with extra bytes" do
-      {status, result} =
-        UInt.new(<<4, 1, 201, 4, 10>>)
-        |> UInt.decode_xdr()
+      {status, result} = UInt.decode_xdr(<<4, 1, 201, 4, 10>>)
 
       assert status == :ok
-      assert result === {67_225_860, <<10>>}
+      assert result === {%XDR.UInt{datum: 67_225_860}, <<10>>}
     end
 
     test "decode_xdr! with valid binary" do
-      result =
-        UInt.new(<<4, 1, 201, 4, 10>>)
-        |> UInt.decode_xdr!()
+      result = UInt.decode_xdr!(<<4, 1, 201, 4, 10>>)
 
-      assert result === {67_225_860, <<10>>}
+      assert result === {%XDR.UInt{datum: 67_225_860}, <<10>>}
     end
   end
 end

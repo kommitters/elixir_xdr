@@ -38,8 +38,7 @@ defmodule XDR.BoolTest do
   describe "Decoding boolean structures" do
     test "when is not binary value" do
       try do
-        Bool.new(5860)
-        |> Bool.decode_xdr()
+        Bool.decode_xdr(5860)
       rescue
         error ->
           assert error ==
@@ -51,20 +50,16 @@ defmodule XDR.BoolTest do
     end
 
     test "with valid data" do
-      {status, result} =
-        Bool.new(<<0, 0, 0, 0>>)
-        |> Bool.decode_xdr()
+      {status, result} = Bool.decode_xdr(<<0, 0, 0, 0>>)
 
       assert status == :ok
-      assert result === {false, ""}
+      assert result === {%XDR.Bool{declarations: [false: 0, true: 1], identifier: false}, ""}
     end
 
     test "decode_xdr! with valid data" do
-      result =
-        Bool.new(<<0, 0, 0, 1>>)
-        |> Bool.decode_xdr!()
+      result = Bool.decode_xdr!(<<0, 0, 0, 1>>)
 
-      assert result === {true, ""}
+      assert result === {%XDR.Bool{declarations: [false: 0, true: 1], identifier: true}, ""}
     end
   end
 end

@@ -18,7 +18,7 @@ defmodule XDR.UInt do
 
   returns a XDR.UInt struct with the value received as parameter
   """
-  @spec new(datum :: integer | binary) :: t()
+  @spec new(datum :: integer | binary) :: t
   def new(datum), do: %XDR.UInt{datum: datum}
 
   @impl XDR.Declaration
@@ -28,7 +28,7 @@ defmodule XDR.UInt do
 
   Returns a tuple with the XDR resulted from encode the unsigned integer value
   """
-  @spec encode_xdr(t()) :: {:ok, binary()}
+  @spec encode_xdr(t) :: {:ok, binary}
   def encode_xdr(%XDR.UInt{datum: datum}) when not is_integer(datum),
     do: raise(UInt, :not_integer)
 
@@ -45,7 +45,7 @@ defmodule XDR.UInt do
 
   Returns the XDR resulted from encode the unsigned integer value
   """
-  @spec encode_xdr!(t()) :: binary()
+  @spec encode_xdr!(t) :: binary
   def encode_xdr!(datum), do: encode_xdr(datum) |> elem(1)
 
   @impl XDR.Declaration
@@ -55,11 +55,14 @@ defmodule XDR.UInt do
 
   Returns a tuple with the integer resulted from decode the XDR value
   """
-  @spec decode_xdr(t()) :: {:ok, {integer(), binary()}}
-  def decode_xdr(%XDR.UInt{datum: datum}) when not is_binary(datum), do: raise(UInt, :not_binary)
+  @spec decode_xdr(binary, any) :: {:ok, {t, binary}}
+  def decode_xdr(bytes, opts \\ nil)
+  def decode_xdr(bytes, _opts) when not is_binary(bytes), do: raise(UInt, :not_binary)
 
-  def decode_xdr(%XDR.UInt{datum: datum}) do
-    <<uint::big-unsigned-integer-size(32), rest::binary>> = datum
+  def decode_xdr(bytes, _opts) do
+    <<datum::big-unsigned-integer-size(32), rest::binary>> = bytes
+
+    uint = new(datum)
     {:ok, {uint, rest}}
   end
 
@@ -70,6 +73,7 @@ defmodule XDR.UInt do
 
   Returns the integer resulted from decode the XDR value
   """
-  @spec decode_xdr!(t()) :: {integer(), binary()}
-  def decode_xdr!(datum), do: decode_xdr(datum) |> elem(1)
+  @spec decode_xdr!(binary, any) :: {t, binary}
+  def decode_xdr!(bytes, opts \\ nil)
+  def decode_xdr!(bytes, _opts), do: decode_xdr(bytes) |> elem(1)
 end

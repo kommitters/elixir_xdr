@@ -5,12 +5,12 @@ defmodule XDR.Struct do
 
   @behaviour XDR.Declaration
 
-  defstruct struct: nil, components: nil
+  defstruct components: nil
 
   @typedoc """
   Every Struct structure has a component keyword which contains the keys and its representation value
   """
-  @type t :: %XDR.Struct{struct: binary, components: keyword}
+  @type t :: %XDR.Struct{components: keyword}
 
   alias XDR.Error.Struct
 
@@ -19,8 +19,8 @@ defmodule XDR.Struct do
 
   returns a XDR.DoubleFloat struct with the value received as parameter
   """
-  @spec new(components :: keyword, struct :: binary) :: t()
-  def new(components, struct \\ <<>>), do: %XDR.Struct{struct: struct, components: components}
+  @spec new(components :: keyword) :: t()
+  def new(components), do: %XDR.Struct{components: components}
 
   @impl XDR.Declaration
   @doc """
@@ -63,19 +63,19 @@ defmodule XDR.Struct do
 
   returns an :ok tuple with the resulted struct
   """
-  @spec decode_xdr(t()) :: {:ok, {list(), binary()}}
-  def decode_xdr(%{struct: struct}) when not is_binary(struct),
+  @spec decode_xdr(bytes :: binary, struct :: t()) :: {:ok, {t(), binary()}}
+  def decode_xdr(bytes, _struct) when not is_binary(bytes),
     do: raise(Struct, :not_binary)
 
-  def decode_xdr(%{components: components}) when not is_list(components),
+  def decode_xdr(_bytes, %{components: components}) when not is_list(components),
     do: raise(Struct, :not_list)
 
-  def decode_xdr(%{struct: struct, components: components}) do
+  def decode_xdr(bytes, %{components: components}) do
     {rest, new_components} =
-      decode_struct(struct, components)
+      decode_struct(bytes, components)
       |> Keyword.pop!(:rest)
 
-    {:ok, {new_components, rest}}
+    {:ok, {XDR.Struct.new(new_components), rest}}
   end
 
   @impl XDR.Declaration
@@ -85,15 +85,13 @@ defmodule XDR.Struct do
 
   returns an :ok tuple with the resulted struct
   """
-  @spec decode_xdr!(t()) :: {list(), binary()}
-  def decode_xdr!(struct), do: decode_xdr(struct) |> elem(1)
+  @spec decode_xdr!(bytes :: binary, struct :: t()) :: {t(), binary()}
+  def decode_xdr!(bytes, struct), do: decode_xdr(bytes, struct) |> elem(1)
 
-  defp decode_struct(struct, []), do: struct
+  defp decode_struct(bytes, []), do: bytes
 
-  defp decode_struct(struct, [{key, component} | tail]) do
-    {decoded_component, rest} =
-      component.new(struct)
-      |> component.decode_xdr!()
+  defp decode_struct(bytes, [{key, component} | tail]) do
+    {decoded_component, rest} = component.decode_xdr!(bytes)
 
     keyword1 = Keyword.new([{key, decoded_component}])
     merge_keyword(keyword1, decode_struct(rest, tail))

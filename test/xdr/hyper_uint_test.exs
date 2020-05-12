@@ -66,8 +66,7 @@ defmodule XDR.HyperUIntTest do
   describe "Decoding binary to Hyper Unsigned Integer" do
     test "when is not binary value" do
       try do
-        HyperUInt.new(5860)
-        |> HyperUInt.decode_xdr()
+        HyperUInt.decode_xdr(5860)
       rescue
         error ->
           assert error ==
@@ -79,29 +78,23 @@ defmodule XDR.HyperUIntTest do
     end
 
     test "when is a valid binary" do
-      {status, result} =
-        HyperUInt.new(<<0, 0, 0, 0, 0, 0, 22, 228>>)
-        |> HyperUInt.decode_xdr()
+      {status, result} = HyperUInt.decode_xdr(<<0, 0, 0, 0, 0, 0, 22, 228>>)
 
       assert status == :ok
-      assert result == {5860, ""}
+      assert result == {%XDR.HyperUInt{datum: 5860}, ""}
     end
 
     test "when is a valid binary with extra bytes" do
-      {status, result} =
-        HyperUInt.new(<<0, 0, 0, 0, 0, 0, 22, 228, 10>>)
-        |> HyperUInt.decode_xdr()
+      {status, result} = HyperUInt.decode_xdr(<<0, 0, 0, 0, 0, 0, 22, 228, 10>>)
 
       assert status == :ok
-      assert result === {5860, <<10>>}
+      assert result === {%XDR.HyperUInt{datum: 5860}, <<10>>}
     end
 
     test "decode_xdr! with valid data" do
-      result =
-        HyperUInt.new(<<0, 0, 0, 0, 0, 0, 22, 228>>)
-        |> HyperUInt.decode_xdr!()
+      result = HyperUInt.decode_xdr!(<<0, 0, 0, 0, 0, 0, 22, 228>>)
 
-      assert result === {5860, ""}
+      assert result === {%XDR.HyperUInt{datum: 5860}, ""}
     end
   end
 end

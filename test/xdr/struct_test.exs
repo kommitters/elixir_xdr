@@ -36,7 +36,9 @@ defmodule XDR.StructTest do
 
     test "with valid data" do
       component_keyword =
-        TestFile.new("The Little Prince", 200) |> Map.from_struct() |> Map.to_list()
+        TestFile.new(XDR.String.new("The Little Prince"), XDR.Int.new(200))
+        |> Map.from_struct()
+        |> Map.to_list()
 
       {status, result} =
         component_keyword
@@ -52,7 +54,9 @@ defmodule XDR.StructTest do
 
     test "decode_xdr! with valid Struct" do
       component_keyword =
-        TestFile.new("The Little Prince", 200) |> Map.from_struct() |> Map.to_list()
+        TestFile.new(XDR.String.new("The Little Prince"), XDR.Int.new(200))
+        |> Map.from_struct()
+        |> Map.to_list()
 
       result =
         component_keyword
@@ -70,8 +74,7 @@ defmodule XDR.StructTest do
       try do
         component_keyword = Map.from_struct(TestFile.__struct__()) |> Map.to_list()
 
-        Struct.new(component_keyword, [0, 0, 2, 0, 3, 0, 1, 0])
-        |> Struct.decode_xdr()
+        Struct.decode_xdr([0, 0, 2, 0, 3, 0, 1, 0], %{components: component_keyword})
       rescue
         error ->
           assert error == %StructErr{
@@ -85,53 +88,74 @@ defmodule XDR.StructTest do
       component_keyword = TestFile.__struct__() |> Map.from_struct() |> Map.to_list()
 
       {status, result} =
-        component_keyword
-        |> Struct.new(
+        Struct.decode_xdr(
           <<0, 0, 0, 17, 84, 104, 101, 32, 76, 105, 116, 116, 108, 101, 32, 80, 114, 105, 110, 99,
-            101, 0, 0, 0, 0, 0, 0, 200>>
+            101, 0, 0, 0, 0, 0, 0, 200>>,
+          %{components: component_keyword}
         )
-        |> Struct.decode_xdr()
 
       assert status == :ok
 
-      assert result == {[file_name: "The Little Prince", file_size: 200], ""}
+      assert result ==
+               {%XDR.Struct{
+                  components: [
+                    file_name: %XDR.String{max_length: 4_294_967_295, string: "The Little Prince"},
+                    file_size: %XDR.Int{datum: 200}
+                  ]
+                }, ""}
     end
 
     test "decode_xdr! with valid binary" do
       component_keyword = TestFile.__struct__() |> Map.from_struct() |> Map.to_list()
 
       result =
-        component_keyword
-        |> Struct.new(
+        Struct.decode_xdr!(
           <<0, 0, 0, 17, 84, 104, 101, 32, 76, 105, 116, 116, 108, 101, 32, 80, 114, 105, 110, 99,
-            101, 0, 0, 0, 0, 0, 0, 200>>
+            101, 0, 0, 0, 0, 0, 0, 200>>,
+          %{components: component_keyword}
         )
-        |> Struct.decode_xdr!()
 
-      assert result === {[file_name: "The Little Prince", file_size: 200], ""}
+      assert result ===
+               {%XDR.Struct{
+                  components: [
+                    file_name: %XDR.String{max_length: 4_294_967_295, string: "The Little Prince"},
+                    file_size: %XDR.Int{datum: 200}
+                  ]
+                }, ""}
     end
 
     test "with valid data, with extra bytes" do
       component_keyword = TestFile.__struct__() |> Map.from_struct() |> Map.to_list()
 
       {status, result} =
-        component_keyword
-        |> Struct.new(
+        Struct.decode_xdr(
           <<0, 0, 0, 17, 84, 104, 101, 32, 76, 105, 116, 116, 108, 101, 32, 80, 114, 105, 110, 99,
-            101, 0, 0, 0, 0, 0, 0, 200, 0, 0, 2, 1>>
+            101, 0, 0, 0, 0, 0, 0, 200, 0, 0, 2, 1>>,
+          %{components: component_keyword}
         )
-        |> Struct.decode_xdr()
 
       assert status == :ok
 
-      assert result == {[file_name: "The Little Prince", file_size: 200], <<0, 0, 2, 1>>}
+      assert result ==
+               {
+                 %XDR.Struct{
+                   components: [
+                     file_name: %XDR.String{
+                       max_length: 4_294_967_295,
+                       string: "The Little Prince"
+                     },
+                     file_size: %XDR.Int{datum: 200}
+                   ]
+                 },
+                 <<0, 0, 2, 1>>
+               }
     end
   end
 
   describe "Testing an example structure" do
     test "encode TestFile" do
       {status, result} =
-        TestFile.new("The Little Prince", 200)
+        TestFile.new(XDR.String.new("The Little Prince"), XDR.Int.new(200))
         |> TestFile.encode_xdr()
 
       assert status == :ok
@@ -142,15 +166,17 @@ defmodule XDR.StructTest do
     end
 
     test "decode TestFile" do
+      alias TestFile
+
       {status, result} =
         TestFile.decode_xdr(
           <<0, 0, 0, 17, 84, 104, 101, 32, 76, 105, 116, 116, 108, 101, 32, 80, 114, 105, 110, 99,
-            101, 0, 0, 0, 0, 0, 0, 200>>
+            101, 0, 0, 0, 0, 0, 0, 200>>,
+          nil
         )
 
       assert status == :ok
-
-      assert result == {TestFile.new("The Little Prince", 200), ""}
+      assert result == {TestFile.new(XDR.String.new("The Little Prince"), XDR.Int.new(200)), ""}
     end
   end
 end
@@ -163,7 +189,7 @@ defmodule TestFile do
   @type t :: %TestFile{file_name: XDR.String.t(), file_size: XDR.Int.t()}
 
   def new(file_name, file_size) do
-    %TestFile{file_name: file_name |> XDR.String.new(), file_size: file_size |> XDR.Int.new()}
+    %TestFile{file_name: file_name, file_size: file_size}
   end
 
   @impl XDR.Declaration
@@ -178,19 +204,19 @@ defmodule TestFile do
   def encode_xdr!(struct), do: encode_xdr(struct) |> elem(1)
 
   @impl XDR.Declaration
-  def decode_xdr(binary) do
+  def decode_xdr(bytes, _) do
     component_keyword = TestFile.__struct__() |> Map.from_struct() |> Map.to_list()
 
-    XDR.Struct.new(component_keyword, binary)
-    |> XDR.Struct.decode_xdr!()
+    XDR.Struct.decode_xdr!(bytes, %{components: component_keyword})
     |> perform_struct()
   end
 
   @impl XDR.Declaration
-  def decode_xdr!(struct), do: decode_xdr(struct) |> elem(1)
+  def decode_xdr!(bytes, struct), do: decode_xdr(bytes, struct) |> elem(1)
 
   defp perform_struct({components, rest}) do
-    struct = TestFile.new(components[:file_name], components[:file_size])
+    struct_components = components.components
+    struct = TestFile.new(struct_components[:file_name], struct_components[:file_size])
 
     {:ok, {struct, rest}}
   end

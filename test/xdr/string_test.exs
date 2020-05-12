@@ -38,19 +38,17 @@ defmodule XDR.StringTest do
   describe "Decoding binary to integer" do
     test "when is a valid binary" do
       {status, result} =
-        String.new(<<0, 0, 0, 9, 107, 111, 109, 109, 105, 116, 46, 99, 111, 0, 0, 0>>)
-        |> String.decode_xdr()
+        String.decode_xdr(<<0, 0, 0, 9, 107, 111, 109, 109, 105, 116, 46, 99, 111, 0, 0, 0>>)
 
       assert status == :ok
-      assert result == {"kommit.co", ""}
+      assert result == {%XDR.String{max_length: 4_294_967_295, string: "kommit.co"}, ""}
     end
 
     test "decode_xdr! with valid binary" do
       result =
-        String.new(<<0, 0, 0, 9, 107, 111, 109, 109, 105, 116, 46, 99, 111, 0, 0, 0>>)
-        |> String.decode_xdr!()
+        String.decode_xdr!(<<0, 0, 0, 9, 107, 111, 109, 109, 105, 116, 46, 99, 111, 0, 0, 0>>)
 
-      assert result === {"kommit.co", ""}
+      assert result === {%XDR.String{max_length: 4_294_967_295, string: "kommit.co"}, ""}
     end
   end
 end
