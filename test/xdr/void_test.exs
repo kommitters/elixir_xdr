@@ -38,31 +38,25 @@ defmodule XDR.VoidTest do
   describe "Decoding binary to integer" do
     test "when is not binary value" do
       try do
-        Void.new(5860)
-        |> Void.decode_xdr()
+        Void.decode_xdr(5860, XDR.Void)
       rescue
         error ->
           assert error ==
                    %VoidErr{
-                     message:
-                       "The value which you try to decode must be a binary value, for example: <<0, 0, 0, 5>>"
+                     message: "The value which you try to encode is not void"
                    }
       end
     end
 
     test "when is a valid binary" do
-      {status, result} =
-        Void.new(<<>>)
-        |> Void.decode_xdr()
+      {status, result} = Void.decode_xdr(<<>>, XDR.Void)
 
       assert status == :ok
       assert result == {nil, ""}
     end
 
     test "decode_xdr! with valid data" do
-      result =
-        Void.new(<<>>)
-        |> Void.decode_xdr!()
+      result = Void.decode_xdr!(<<>>, XDR.Void)
 
       assert result === {nil, ""}
     end

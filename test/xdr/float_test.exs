@@ -102,29 +102,23 @@ defmodule XDR.FloatTest do
     end
 
     test "when is a valid binary" do
-      {status, result} =
-        Float.new(<<192, 93, 112, 164>>)
-        |> Float.decode_xdr()
+      {status, result} = Float.decode_xdr(<<192, 93, 112, 164>>)
 
       assert status == :ok
-      assert result == {-3.4600000381469727, ""}
+      assert result == {%XDR.Float{float: -3.4600000381469727}, ""}
     end
 
     test "when is a valid binary with extra bytes" do
-      {status, result} =
-        Float.new(<<192, 93, 112, 164, 0, 0>>)
-        |> Float.decode_xdr()
+      {status, result} = Float.decode_xdr(<<192, 93, 112, 164, 0, 0>>)
 
       assert status == :ok
-      assert result === {-3.4600000381469727, <<0, 0>>}
+      assert result === {%XDR.Float{float: -3.4600000381469727}, <<0, 0>>}
     end
 
     test "decode_xdr! with valid data" do
-      result =
-        Float.new(<<192, 93, 112, 164>>)
-        |> Float.decode_xdr!()
+      result = Float.decode_xdr!(<<192, 93, 112, 164>>)
 
-      assert result === {-3.4600000381469727, ""}
+      assert result === {%XDR.Float{float: -3.4600000381469727}, ""}
     end
   end
 end

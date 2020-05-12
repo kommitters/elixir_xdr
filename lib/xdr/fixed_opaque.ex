@@ -9,7 +9,7 @@ defmodule XDR.FixedOpaque do
   @typedoc """
   Every Fixed length opaque structure has a opaque which represent the XDR to fix and its length
   """
-  @type t :: %XDR.FixedOpaque{opaque: binary, length: integer}
+  @type t :: %XDR.FixedOpaque{opaque: binary | nil, length: integer}
 
   alias XDR.Error.FixedOpaque, as: FixedOpaqueErr
 
@@ -64,27 +64,29 @@ defmodule XDR.FixedOpaque do
 
   returns an :ok tuple with the resulted binary
   """
-  @spec decode_xdr(t()) :: {:ok, {binary, binary}}
-  def decode_xdr(%XDR.FixedOpaque{opaque: opaque}) when not is_binary(opaque),
+  @spec decode_xdr(bytes :: binary(), opts :: t()) :: {:ok, {t(), binary}}
+  def decode_xdr(bytes, _opts) when not is_binary(bytes),
     do: raise(FixedOpaqueErr, :not_binary)
 
-  def decode_xdr(%XDR.FixedOpaque{opaque: opaque}) when rem(byte_size(opaque), 4) != 0,
+  def decode_xdr(bytes, _opts) when rem(byte_size(bytes), 4) != 0,
     do: raise(FixedOpaqueErr, :not_valid_binary)
 
-  def decode_xdr(%XDR.FixedOpaque{length: length}) when not is_integer(length),
+  def decode_xdr(_bytes, %XDR.FixedOpaque{length: length}) when not is_integer(length),
     do: raise(FixedOpaqueErr, :not_number)
 
-  def decode_xdr(%XDR.FixedOpaque{opaque: opaque, length: length})
-      when length > byte_size(opaque),
+  def decode_xdr(bytes, %XDR.FixedOpaque{length: length})
+      when length > byte_size(bytes),
       do: raise(FixedOpaqueErr, :exceed_length)
 
-  def decode_xdr(%XDR.FixedOpaque{opaque: opaque, length: length}) do
+  def decode_xdr(bytes, %XDR.FixedOpaque{length: length}) do
     required_padding = get_required_padding(length)
 
     <<fixed_opaque::bytes-size(length), _padding::bytes-size(required_padding), rest::binary>> =
-      opaque
+      bytes
 
-    {:ok, {fixed_opaque, rest}}
+    decoded_opaque = new(fixed_opaque, length)
+
+    {:ok, {decoded_opaque, rest}}
   end
 
   @impl XDR.Declaration
@@ -94,8 +96,8 @@ defmodule XDR.FixedOpaque do
 
   returns the resulted binary
   """
-  @spec decode_xdr!(t()) :: {binary(), binary()}
-  def decode_xdr!(opaque), do: decode_xdr(opaque) |> elem(1)
+  @spec decode_xdr!(bytes :: binary, opts :: t()) :: {t(), binary()}
+  def decode_xdr!(bytes, opaque), do: decode_xdr(bytes, opaque) |> elem(1)
 
   @spec get_required_padding(integer()) :: integer()
   defp get_required_padding(length) when rem(length, 4) == 0, do: 0

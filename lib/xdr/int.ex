@@ -9,7 +9,7 @@ defmodule XDR.Int do
   @typedoc """
   Every integer structure has a datum which represent the integer value which you try to encode
   """
-  @type t :: %XDR.Int{datum: integer | binary}
+  @type t :: %XDR.Int{datum: integer}
 
   alias XDR.Error.Int
 
@@ -18,7 +18,7 @@ defmodule XDR.Int do
 
   returns a XDR.Int struct with the value received as parameter
   """
-  @spec new(datum :: integer | binary) :: t()
+  @spec new(datum :: integer) :: t
   def new(datum), do: %XDR.Int{datum: datum}
 
   @impl XDR.Declaration
@@ -28,7 +28,7 @@ defmodule XDR.Int do
 
   Returns a tuple with the XDR resulted from encoding the integer value
   """
-  @spec encode_xdr(t()) :: {:ok, any}
+  @spec encode_xdr(t) :: {:ok, any}
   def encode_xdr(%XDR.Int{datum: datum}) when not is_integer(datum), do: raise(Int, :not_integer)
 
   def encode_xdr(%XDR.Int{datum: datum}) when datum > 2_147_483_647,
@@ -46,7 +46,7 @@ defmodule XDR.Int do
 
   Returns the XDR resulted from encoding the integer value
   """
-  @spec encode_xdr!(datum :: t) :: binary()
+  @spec encode_xdr!(datum :: t) :: binary
   def encode_xdr!(datum), do: encode_xdr(datum) |> elem(1)
 
   @impl XDR.Declaration
@@ -56,11 +56,15 @@ defmodule XDR.Int do
 
   Returns a tuple with the integer resulted from decode the XDR value and its remaining bits
   """
-  @spec decode_xdr(t()) :: {:ok, {integer(), binary()}}
-  def decode_xdr(%XDR.Int{datum: datum}) when not is_binary(datum), do: raise(Int, :not_binary)
+  @spec decode_xdr(binary, any) :: {:ok, {t, binary}}
+  def decode_xdr(bytes, opts \\ nil)
+  def decode_xdr(bytes, _opts) when not is_binary(bytes), do: raise(Int, :not_binary)
 
-  def decode_xdr(%XDR.Int{datum: datum}) do
-    <<int::big-signed-integer-size(32), rest::binary>> = datum
+  def decode_xdr(bytes, _opts) do
+    <<datum::big-signed-integer-size(32), rest::binary>> = bytes
+
+    int = new(datum)
+
     {:ok, {int, rest}}
   end
 
@@ -71,6 +75,7 @@ defmodule XDR.Int do
 
   Returns the integer resulted from decode the XDR value and its remaining bits
   """
-  @spec decode_xdr!(t()) :: {integer(), binary()}
-  def decode_xdr!(datum), do: decode_xdr(datum) |> elem(1)
+  @spec decode_xdr!(binary, any) :: {t, binary}
+  def decode_xdr!(bytes, opts \\ nil)
+  def decode_xdr!(bytes, _opts), do: decode_xdr(bytes) |> elem(1)
 end

@@ -10,7 +10,7 @@ defmodule XDR.FixedArray do
   @typedoc """
   Every FixedArray structure has the list of elements to encode,the type of these elements and the length of the list
   """
-  @type t :: %XDR.FixedArray{elements: list | binary, type: module, length: integer}
+  @type t :: %XDR.FixedArray{elements: list | nil, type: module, length: integer}
 
   alias XDR.Error.FixedArray
 
@@ -65,18 +65,18 @@ defmodule XDR.FixedArray do
 
   returns an :ok tuple with the resulted list
   """
-  @spec decode_xdr(t()) :: {:ok, {list, binary}}
-  def decode_xdr(%XDR.FixedArray{length: length}) when not is_integer(length),
+  @spec decode_xdr(bytes :: binary, struct :: t()) :: {:ok, {list, binary}}
+  def decode_xdr(_bytes, %XDR.FixedArray{length: length}) when not is_integer(length),
     do: raise(FixedArray, :not_number)
 
-  def decode_xdr(%XDR.FixedArray{elements: elements}) when not is_binary(elements),
+  def decode_xdr(bytes, _struct) when not is_binary(bytes),
     do: raise(FixedArray, :not_binary)
 
-  def decode_xdr(%XDR.FixedArray{elements: elements}) when rem(byte_size(elements), 4) != 0,
+  def decode_xdr(bytes, _struct) when rem(byte_size(bytes), 4) != 0,
     do: raise(FixedArray, :not_valid_binary)
 
-  def decode_xdr(%XDR.FixedArray{elements: elements, type: type, length: length}) do
-    {decoded_array, rest} = decode_elements_from_fixed_array(type, [], elements, length)
+  def decode_xdr(bytes, %XDR.FixedArray{type: type, length: length}) do
+    {decoded_array, rest} = decode_elements_from_fixed_array(type, [], bytes, length)
 
     {:ok, {Enum.reverse(decoded_array), rest}}
   end
@@ -88,8 +88,8 @@ defmodule XDR.FixedArray do
 
   returns the resulted list
   """
-  @spec decode_xdr!(t()) :: {list, binary}
-  def decode_xdr!(fixed_array), do: decode_xdr(fixed_array) |> elem(1)
+  @spec decode_xdr!(bytes :: binary, struct :: t()) :: {list, binary}
+  def decode_xdr!(bytes, struct), do: decode_xdr(bytes, struct) |> elem(1)
 
   @spec decode_elements_from_fixed_array(
           type :: module,
@@ -100,7 +100,7 @@ defmodule XDR.FixedArray do
   defp decode_elements_from_fixed_array(_type, acc, rest, 0), do: {acc, rest}
 
   defp decode_elements_from_fixed_array(type, acc, bytes, array_length) do
-    {decoded, rest} = apply(type, :decode_xdr!, [apply(type, :new, [bytes])])
+    {decoded, rest} = apply(type, :decode_xdr!, [bytes])
     decode_elements_from_fixed_array(type, [decoded | acc], rest, array_length - 1)
   end
 end

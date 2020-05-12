@@ -59,16 +59,20 @@ defmodule XDR.String do
 
   returns an :ok tuple with the resulted string
   """
-  @spec decode_xdr(t()) :: {:ok, {String.t(), binary()}}
-  def decode_xdr(%XDR.String{string: string, max_length: max_length}) do
-    {binary, rest} =
-      VariableOpaque.new(string, max_length)
-      |> VariableOpaque.decode_xdr!()
+  @spec decode_xdr(bytes :: binary, struct :: t() | any) :: {:ok, {t(), binary()}}
+  def decode_xdr(bytes, struct \\ %XDR.String{max_length: 4_294_967_295})
+
+  def decode_xdr(bytes, %XDR.String{max_length: max_length}) do
+    variable_struct = VariableOpaque.new(nil, max_length)
+
+    {binary, rest} = VariableOpaque.decode_xdr!(bytes, variable_struct)
 
     decoded_string =
       binary
+      |> Map.get(:opaque)
       |> String.graphemes()
       |> Enum.join("")
+      |> new(max_length)
 
     {:ok, {decoded_string, rest}}
   end
@@ -79,6 +83,7 @@ defmodule XDR.String do
 
   returns the resulted string
   """
-  @spec decode_xdr!(t()) :: {String.t(), binary()}
-  def decode_xdr!(string), do: decode_xdr(string) |> elem(1)
+  @spec decode_xdr!(bytes :: binary, struct :: t() | any) :: {t(), binary()}
+  def decode_xdr!(bytes, struct \\ %XDR.String{max_length: 4_294_967_295})
+  def decode_xdr!(bytes, struct), do: decode_xdr(bytes, struct) |> elem(1)
 end

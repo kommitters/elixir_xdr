@@ -27,7 +27,7 @@ defmodule Error.VariableArrayTest do
 
   test "When receives :exceed_lower_bound" do
     assert_raise VariableArray,
-                 "The minimum value of the length of the variable is 0",
+                 "The minimum value of the length of the variable is 1",
                  fn ->
                    raise VariableArray, :exceed_lower_bound
                  end
@@ -46,6 +46,22 @@ defmodule Error.VariableArrayTest do
                  "The number which represents the length from decode the opaque as UInt is bigger than the defined max",
                  fn ->
                    raise VariableArray, :length_over_max
+                 end
+  end
+
+  test "When receives :invalid_length" do
+    assert_raise VariableArray,
+                 "The length of the binary exceeds the max_length of the type",
+                 fn ->
+                   raise VariableArray, :invalid_length
+                 end
+  end
+
+  test "When receives :invalid_binary" do
+    assert_raise VariableArray,
+                 "The data which you try to decode has an invalid number of bytes, it must be equal to or greater than the size of the array multiplied by 4",
+                 fn ->
+                   raise VariableArray, :invalid_binary
                  end
   end
 end

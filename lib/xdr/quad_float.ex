@@ -23,13 +23,13 @@ defmodule XDR.QuadFloat do
   @doc """
   not supported
   """
-  @spec decode_xdr(any) :: any
-  def decode_xdr(_), do: raise("Not supported function")
+  @spec decode_xdr(any, any) :: any
+  def decode_xdr(_, _), do: raise("Not supported function")
 
   @impl XDR.Declaration
   @doc """
   not supported
   """
-  @spec decode_xdr!(any) :: any
-  def decode_xdr!(_), do: raise("Not supported function")
+  @spec decode_xdr!(any, any) :: any
+  def decode_xdr!(_, _), do: raise("Not supported function")
 end

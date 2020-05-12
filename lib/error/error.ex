@@ -547,7 +547,7 @@ defmodule XDR.Error do
     end
 
     def exception(:exceed_lower_bound) do
-      msg = "The minimum value of the length of the variable is 0"
+      msg = "The minimum value of the length of the variable is 1"
 
       %XDR.Error.VariableArray{message: msg}
     end
@@ -561,6 +561,19 @@ defmodule XDR.Error do
     def exception(:length_over_max) do
       msg =
         "The number which represents the length from decode the opaque as UInt is bigger than the defined max"
+
+      %XDR.Error.VariableArray{message: msg}
+    end
+
+    def exception(:invalid_length) do
+      msg = "The length of the binary exceeds the max_length of the type"
+
+      %XDR.Error.VariableArray{message: msg}
+    end
+
+    def exception(:invalid_binary) do
+      msg =
+        "The data which you try to decode has an invalid number of bytes, it must be equal to or greater than the size of the array multiplied by 4"
 
       %XDR.Error.VariableArray{message: msg}
     end

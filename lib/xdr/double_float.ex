@@ -18,7 +18,7 @@ defmodule XDR.DoubleFloat do
 
   returns a XDR.DoubleFloat struct with the value received as parameter
   """
-  @spec new(float :: integer | binary) :: t()
+  @spec new(float :: float | integer | binary) :: t()
   def new(float), do: %XDR.DoubleFloat{float: float}
 
   defguard valid_float?(value) when is_float(value) or is_integer(value)
@@ -53,13 +53,18 @@ defmodule XDR.DoubleFloat do
 
   Returns a tuple with the Double Floating Point resulted from decode the XDR value and its remaining bits
   """
-  @spec decode_xdr(t()) :: {:ok, {float(), binary()}}
-  def decode_xdr(%XDR.DoubleFloat{float: float}) when not is_binary(float),
+  @spec decode_xdr(bytes :: binary, opts :: any) :: {:ok, {t(), binary()}}
+  def decode_xdr(bytes, opts \\ nil)
+
+  def decode_xdr(bytes, _opts) when not is_binary(bytes),
     do: raise(DoubleFloat, :not_binary)
 
-  def decode_xdr(%XDR.DoubleFloat{float: float}) do
-    <<int::big-signed-float-size(64), rest::binary>> = float
-    {:ok, {int, rest}}
+  def decode_xdr(bytes, _opts) do
+    <<float::big-signed-float-size(64), rest::binary>> = bytes
+
+    decoded_float = new(float)
+
+    {:ok, {decoded_float, rest}}
   end
 
   @impl XDR.Declaration
@@ -69,6 +74,7 @@ defmodule XDR.DoubleFloat do
 
   Returns the Double Floating Point resulted from decode the XDR value and its remaining bits
   """
-  @spec decode_xdr!(t()) :: {float(), binary()}
-  def decode_xdr!(float), do: decode_xdr(float) |> elem(1)
+  @spec decode_xdr!(bytes :: binary, opts :: any) :: {t(), binary()}
+  def decode_xdr!(bytes, opts \\ nil)
+  def decode_xdr!(bytes, opts), do: decode_xdr(bytes, opts) |> elem(1)
 end

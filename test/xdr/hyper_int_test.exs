@@ -79,29 +79,23 @@ defmodule XDR.HyperIntTest do
     end
 
     test "when is a valid binary" do
-      {status, result} =
-        HyperInt.new(<<0, 0, 0, 0, 0, 0, 22, 228>>)
-        |> HyperInt.decode_xdr()
+      {status, result} = HyperInt.decode_xdr(<<0, 0, 0, 0, 0, 0, 22, 228>>)
 
       assert status == :ok
-      assert result == {5860, ""}
+      assert result == {%XDR.HyperInt{datum: 5860}, ""}
     end
 
     test "when is a valid binary with extra bytes" do
-      {status, result} =
-        HyperInt.new(<<0, 0, 0, 0, 0, 0, 22, 228, 10>>)
-        |> HyperInt.decode_xdr()
+      {status, result} = HyperInt.decode_xdr(<<0, 0, 0, 0, 0, 0, 22, 228, 10>>)
 
       assert status == :ok
-      assert result === {5860, <<10>>}
+      assert result === {%XDR.HyperInt{datum: 5860}, <<10>>}
     end
 
     test "decode_xdr! with valid data" do
-      result =
-        HyperInt.new(<<0, 0, 0, 0, 0, 0, 22, 228>>)
-        |> HyperInt.decode_xdr!()
+      result = HyperInt.decode_xdr!(<<0, 0, 0, 0, 0, 0, 22, 228>>)
 
-      assert result === {5860, ""}
+      assert result === {%XDR.HyperInt{datum: 5860}, ""}
     end
   end
 end

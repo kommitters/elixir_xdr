@@ -77,29 +77,23 @@ defmodule XDR.IntTest do
     end
 
     test "when is a valid binary" do
-      {status, result} =
-        Int.new(<<0, 0, 22, 228>>)
-        |> Int.decode_xdr()
+      {status, result} = Int.decode_xdr(<<0, 0, 22, 228>>)
 
       assert status == :ok
-      assert result == {5860, ""}
+      assert result == {%XDR.Int{datum: 5860}, ""}
     end
 
     test "when is a valid binary with extra bytes" do
-      {status, result} =
-        Int.new(<<0, 0, 22, 228, 10>>)
-        |> Int.decode_xdr()
+      {status, result} = Int.decode_xdr(<<0, 0, 22, 228, 10>>)
 
       assert status == :ok
-      assert result === {5860, <<10>>}
+      assert result === {%XDR.Int{datum: 5860}, <<10>>}
     end
 
     test "decode_xdr! with valid data" do
-      result =
-        Int.new(<<0, 0, 22, 228>>)
-        |> Int.decode_xdr!()
+      result = Int.decode_xdr!(<<0, 0, 22, 228>>)
 
-      assert result === {5860, ""}
+      assert result === {%XDR.Int{datum: 5860}, ""}
     end
   end
 end

@@ -65,8 +65,10 @@ defmodule XDR.FixedArrayTest do
   describe "Decoding Fixed Array" do
     test "when xdr is not binary" do
       try do
-        FixedArray.new([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], XDR.Int, 3)
-        |> FixedArray.decode_xdr()
+        FixedArray.decode_xdr([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], %XDR.FixedArray{
+          type: XDR.Int,
+          length: 3
+        })
       rescue
         error ->
           assert error == %FixedArrayErr{
@@ -77,8 +79,7 @@ defmodule XDR.FixedArrayTest do
 
     test "when xdr byte size is not a multiple of 4" do
       try do
-        FixedArray.new(<<0, 0, 1>>, XDR.Int, 1)
-        |> FixedArray.decode_xdr()
+        FixedArray.decode_xdr(<<0, 0, 1>>, %XDR.FixedArray{type: XDR.Int, length: 1})
       rescue
         error ->
           assert error == %FixedArrayErr{
@@ -90,8 +91,7 @@ defmodule XDR.FixedArrayTest do
 
     test "when length is not an integer" do
       try do
-        FixedArray.new(<<0, 0, 1, 0>>, XDR.Int, "1")
-        |> FixedArray.decode_xdr()
+        FixedArray.decode_xdr(<<0, 0, 1, 0>>, %XDR.FixedArray{type: XDR.Int, length: "1"})
       rescue
         error ->
           assert error == %FixedArrayErr{
@@ -102,19 +102,20 @@ defmodule XDR.FixedArrayTest do
 
     test "with valid data" do
       {status, result} =
-        FixedArray.new(<<0, 0, 1, 0>>, XDR.Int, 1)
-        |> FixedArray.decode_xdr()
+        FixedArray.decode_xdr(<<0, 0, 1, 0>>, %XDR.FixedArray{type: XDR.Int, length: 1})
 
       assert status == :ok
-      assert result == {[256], ""}
+      assert result == {[%XDR.Int{datum: 256}], ""}
     end
 
     test "decode_xdr! with valid data" do
       result =
-        FixedArray.new(<<0, 0, 1, 0, 0, 1, 0, 0>>, XDR.Int, 2)
-        |> FixedArray.decode_xdr!()
+        FixedArray.decode_xdr!(<<0, 0, 1, 0, 0, 1, 0, 0>>, %XDR.FixedArray{
+          type: XDR.Int,
+          length: 2
+        })
 
-      assert result == {[256, 65536], ""}
+      assert result == {[%XDR.Int{datum: 256}, %XDR.Int{datum: 65536}], ""}
     end
   end
 end

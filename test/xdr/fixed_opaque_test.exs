@@ -64,8 +64,7 @@ defmodule XDR.FixedOpaqueTest do
   describe "Decoding Fixed Opaque" do
     test "when xdr is not binary" do
       try do
-        FixedOpaque.new([0, 0, 1], 2)
-        |> FixedOpaque.decode_xdr()
+        FixedOpaque.decode_xdr([0, 0, 1], %XDR.FixedOpaque{length: 2})
       rescue
         error ->
           assert error == %FixedOpaqueErr{
@@ -77,8 +76,7 @@ defmodule XDR.FixedOpaqueTest do
 
     test "when xdr byte size is not a multiple of 4" do
       try do
-        FixedOpaque.new(<<0, 0, 1>>, 2)
-        |> FixedOpaque.decode_xdr()
+        FixedOpaque.decode_xdr(<<0, 0, 1>>, %XDR.FixedOpaque{length: 2})
       rescue
         error ->
           assert error == %FixedOpaqueErr{
@@ -90,8 +88,7 @@ defmodule XDR.FixedOpaqueTest do
 
     test "when length is not an integer" do
       try do
-        FixedOpaque.new(<<0, 0, 1, 0>>, "2")
-        |> FixedOpaque.decode_xdr()
+        FixedOpaque.decode_xdr(<<0, 0, 1, 0>>, %XDR.FixedOpaque{length: "2"})
       rescue
         error ->
           assert error == %FixedOpaqueErr{
@@ -102,8 +99,7 @@ defmodule XDR.FixedOpaqueTest do
 
     test "when the length is bigger than the XDR byte-size" do
       try do
-        FixedOpaque.new(<<0, 0, 1, 0>>, 5)
-        |> FixedOpaque.decode_xdr()
+        FixedOpaque.decode_xdr(<<0, 0, 1, 0>>, %XDR.FixedOpaque{length: 5})
       rescue
         error ->
           assert error == %FixedOpaqueErr{
@@ -114,19 +110,16 @@ defmodule XDR.FixedOpaqueTest do
 
     test "with valid data" do
       {status, result} =
-        FixedOpaque.new(<<0, 0, 1, 0, 0, 0, 0, 0>>, 4)
-        |> FixedOpaque.decode_xdr()
+        FixedOpaque.decode_xdr(<<0, 0, 1, 0, 0, 0, 0, 0>>, %XDR.FixedOpaque{length: 4})
 
       assert status == :ok
-      assert result == {<<0, 0, 1, 0>>, <<0, 0, 0, 0>>}
+      assert result == {%XDR.FixedOpaque{length: 4, opaque: <<0, 0, 1, 0>>}, <<0, 0, 0, 0>>}
     end
 
     test "decode_xdr! with valid data" do
-      result =
-        FixedOpaque.new(<<0, 0, 1, 0, 0, 0, 0, 0>>, 4)
-        |> FixedOpaque.decode_xdr!()
+      result = FixedOpaque.decode_xdr!(<<0, 0, 1, 0, 0, 0, 0, 0>>, %XDR.FixedOpaque{length: 4})
 
-      assert result == {<<0, 0, 1, 0>>, <<0, 0, 0, 0>>}
+      assert result == {%XDR.FixedOpaque{length: 4, opaque: <<0, 0, 1, 0>>}, <<0, 0, 0, 0>>}
     end
   end
 end

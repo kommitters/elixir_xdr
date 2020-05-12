@@ -61,7 +61,7 @@ defmodule XDR.VariableArrayTest do
       rescue
         error ->
           assert error == %VariableArrayErr{
-                   message: "The minimum value of the length of the variable is 0"
+                   message: "The minimum value of the length of the variable is 1"
                  }
       end
     end
@@ -90,8 +90,10 @@ defmodule XDR.VariableArrayTest do
   describe "Decoding Fixed Array" do
     test "when xdr is not binary" do
       try do
-        VariableArray.new([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], XDR.Int, 3)
-        |> VariableArray.decode_xdr()
+        VariableArray.decode_xdr([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], %XDR.VariableArray{
+          type: XDR.Int,
+          max_length: 3
+        })
       rescue
         error ->
           assert error == %VariableArrayErr{
@@ -103,8 +105,10 @@ defmodule XDR.VariableArrayTest do
 
     test "when length is not an integer" do
       try do
-        VariableArray.new(<<0, 0, 1, 0>>, XDR.Int, "3")
-        |> VariableArray.decode_xdr()
+        VariableArray.decode_xdr(<<0, 0, 1, 0>>, %XDR.VariableArray{
+          type: XDR.Int,
+          max_length: "3"
+        })
       rescue
         error ->
           assert error == %VariableArrayErr{
@@ -113,27 +117,49 @@ defmodule XDR.VariableArrayTest do
       end
     end
 
+    test "when binary length exceeds the max_length" do
+      bytes =
+        <<0, 0, 0, 3, 0, 0, 0, 9, 107, 111, 109, 109, 105, 116, 46, 99, 111, 0, 0, 0, 0, 0, 0, 9,
+          107, 111, 109, 109, 105, 116, 116, 101, 114, 0, 0, 0, 0, 0, 0, 6, 107, 111, 109, 109,
+          105, 116, 0, 0>>
+
+      try do
+        VariableArray.decode_xdr(bytes, %XDR.VariableArray{type: XDR.Int, max_length: 1})
+      rescue
+        error ->
+          assert error == %VariableArrayErr{
+                   message: "The length of the binary exceeds the max_length of the type"
+                 }
+      end
+    end
+
     test "with valid data" do
+      bytes =
+        <<0, 0, 0, 3, 0, 0, 0, 9, 107, 111, 109, 109, 105, 116, 46, 99, 111, 0, 0, 0, 0, 0, 0, 9,
+          107, 111, 109, 109, 105, 116, 116, 101, 114, 0, 0, 0, 0, 0, 0, 6, 107, 111, 109, 109,
+          105, 116, 0, 0>>
+
       {status, result} =
-        VariableArray.new(
-          <<0, 0, 0, 3, 0, 0, 0, 9, 107, 111, 109, 109, 105, 116, 46, 99, 111, 0, 0, 0, 0, 0, 0,
-            9, 107, 111, 109, 109, 105, 116, 116, 101, 114, 0, 0, 0, 0, 0, 0, 6, 107, 111, 109,
-            109, 105, 116, 0, 0>>,
-          XDR.String,
-          1
-        )
-        |> VariableArray.decode_xdr()
+        VariableArray.decode_xdr(bytes, %XDR.VariableArray{type: XDR.String, max_length: 3})
 
       assert status == :ok
-      assert result == {["kommit.co", "kommitter", "kommit"], ""}
+
+      assert result ==
+               {[
+                  %XDR.String{max_length: 4_294_967_295, string: "kommit.co"},
+                  %XDR.String{max_length: 4_294_967_295, string: "kommitter"},
+                  %XDR.String{max_length: 4_294_967_295, string: "kommit"}
+                ], ""}
     end
 
     test "decode_xdr! with valid data" do
       result =
-        VariableArray.new(<<0, 0, 0, 1, 0, 1, 0, 0>>, XDR.Int, 1)
-        |> VariableArray.decode_xdr!()
+        VariableArray.decode_xdr!(<<0, 0, 0, 1, 0, 1, 0, 0>>, %XDR.VariableArray{
+          type: XDR.Int,
+          max_length: 1
+        })
 
-      assert result == {[65536], ""}
+      assert result == {[%XDR.Int{datum: 65536}], ""}
     end
   end
 end

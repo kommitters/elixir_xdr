@@ -11,8 +11,8 @@ defmodule XDR.Declaration do
   @callback encode_xdr!(struct) :: binary | Error.t()
 
   # decode XDR for any type returns a tuple with the converted value
-  @callback decode_xdr(struct) :: {:ok, {term, binary}} | Error.t()
+  @callback decode_xdr(binary, term) :: {:ok, {term, binary}} | Error.t()
 
   # decode XDR for any type returns the resulted converted value
-  @callback decode_xdr!(struct) :: {term, binary} | Error.t()
+  @callback decode_xdr!(binary, term) :: {term, binary} | Error.t()
 end

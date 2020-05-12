@@ -71,7 +71,7 @@ defmodule XDR.UnionTest do
       ]
 
       try do
-        Union.decode_xdr(%{discriminant: %{identifier: [0, 0, 0, 0, 0, 0, 0, 0]}, arms: arms})
+        Union.decode_xdr([0, 0, 0, 0, 0, 0, 0, 0], %{discriminant: %{identifier: nil}, arms: arms})
       rescue
         error ->
           assert error == %UnionErr{
@@ -90,7 +90,10 @@ defmodule XDR.UnionTest do
       ]
 
       try do
-        Union.decode_xdr(%{discriminant: %{declarations: <<0, 0, 0, 0, 0, 0, 0, 0>>}, arms: arms})
+        Union.decode_xdr(<<0, 0, 0, 0, 0, 0, 0, 0>>, %{
+          discriminant: %{declarations: nil},
+          arms: arms
+        })
       rescue
         error ->
           assert error == %UnionErr{
@@ -101,26 +104,26 @@ defmodule XDR.UnionTest do
     end
 
     test "Enum example" do
-      {status, result} =
-        SCPStatementType.new(<<0, 0, 0, 0, 0, 0, 0, 60>>)
+      union =
+        SCPStatementType.new(nil)
         # Union type definition, it contains the same arms that you can see on the line 21
         |> UnionEnum.new()
-        # It also can use the XDR.UnionEnum.decode_xdr()/1 function
-        |> Union.decode_xdr()
+
+      # It also can use the XDR.UnionEnum.decode_xdr()/1 function
+      {status, result} = Union.decode_xdr(<<0, 0, 0, 0, 0, 0, 0, 60>>, union)
 
       assert status == :ok
-      assert result == {{:SCP_ST_PREPARE, 60}, ""}
+      assert result == {{:SCP_ST_PREPARE, %XDR.Int{datum: 60}}, ""}
     end
 
     test "Uint example" do
       # Union type definition, it contains the same arms that you can see on the line 21
-      {status, result} =
-        UnionNumber.new(<<0, 0, 0, 3, 64, 93, 112, 164>>)
-        # It also can use the XDR.UnionNumber.decode_xdr()/1 function
-        |> Union.decode_xdr()
+      union = UnionNumber.new(nil)
+      # It also can use the XDR.UnionNumber.decode_xdr()/1 function
+      {status, result} = Union.decode_xdr(<<0, 0, 0, 3, 64, 93, 112, 164>>, union)
 
       assert status == :ok
-      assert result == {{3, 3.4600000381469727}, ""}
+      assert result == {{3, %XDR.Float{float: 3.4600000381469727}}, ""}
     end
   end
 end
@@ -151,10 +154,10 @@ defmodule UnionEnum do
   def encode_xdr!(%UnionEnum{} = union), do: encode_xdr(union) |> elem(1)
 
   @impl XDR.Declaration
-  def decode_xdr(%UnionEnum{} = union), do: XDR.Union.decode_xdr(union)
+  def decode_xdr(bytes, %UnionEnum{} = union), do: XDR.Union.decode_xdr(bytes, union)
 
   @impl XDR.Declaration
-  def decode_xdr!(%UnionEnum{} = union), do: XDR.Union.decode_xdr!(union)
+  def decode_xdr!(bytes, %UnionEnum{} = union), do: XDR.Union.decode_xdr!(bytes, union)
 end
 
 defmodule UnionNumber do
@@ -177,9 +180,9 @@ defmodule UnionNumber do
   @impl XDR.Declaration
   def encode_xdr!(%UnionNumber{} = union), do: XDR.Union.encode_xdr!(union)
   @impl XDR.Declaration
-  def decode_xdr(%UnionNumber{} = union), do: XDR.Union.decode_xdr(union)
+  def decode_xdr(bytes, %UnionNumber{} = union), do: XDR.Union.decode_xdr(bytes, union)
   @impl XDR.Declaration
-  def decode_xdr!(%UnionNumber{} = union), do: XDR.Union.decode_xdr!(union)
+  def decode_xdr!(bytes, %UnionNumber{} = union), do: XDR.Union.decode_xdr!(bytes, union)
 end
 
 defmodule SCPStatementType do
@@ -202,7 +205,7 @@ defmodule SCPStatementType do
   @impl XDR.Declaration
   defdelegate encode_xdr!(enum), to: XDR.Enum
   @impl XDR.Declaration
-  defdelegate decode_xdr(enum), to: XDR.Enum
+  defdelegate decode_xdr(bytes, struct), to: XDR.Enum
   @impl XDR.Declaration
-  defdelegate decode_xdr!(enum), to: XDR.Enum
+  defdelegate decode_xdr!(bytes, struct), to: XDR.Enum
 end
