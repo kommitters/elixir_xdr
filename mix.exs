@@ -21,9 +21,7 @@ defmodule XDR.MixProject do
   end
 
   def deps do
-    [
-      {:ex_doc, "~> 0.21", only: :dev, runtime: false}
-    ]
+    []
   end
 
   defp description() do
