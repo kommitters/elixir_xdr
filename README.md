@@ -50,12 +50,13 @@ XDR.Typedef, Section 4.18, RFC4506, better to implement it with elixir modules, 
 
 ## Behaviour is the key
 
-All the XDR implementations are implemented under the parameters of behavior, this behavior declares 4 types which must have all the XDR implementations, there is the behavior:
+All the XDR types are implemented under the specifications of behavior, this behavior declares 4 functions which must have all the XDR types, following is the behavior:
 
 ```elixir
 defmodule XDR.Declaration do
   @moduledoc """
-    Behaviour definition that is in charge of keeping the types declared by the RFC4506 standard with these specifications
+    Behaviour definition that is in charge of keeping the types declared by the RFC4506 standard
+    with these specifications
   """
   alias XDR.Error
 
@@ -98,12 +99,14 @@ XDR.Int.new(1234) #returns the following structure %XDR.Int{datum: 1234}
 
 To encode an Integer value you'll need to call the encode_xdr/1 function, it receives an structure of the current type, XDR.Int in this case
 ```elixir
-XDR.Int.encode_xdr(%XDR.Int{datum: 1234}) #returns the following tuple {:ok, <<0, 0, 4, 210>>} the binary resulted from encode the integer is the XDR value
+XDR.Int.encode_xdr(%XDR.Int{datum: 1234}) 
+#returns the following tuple {:ok, <<0, 0, 4, 210>>} the binary resulted from encode the integer is the XDR value
 ```
 
 To decode an Integer value you'll need to call the decode_xdr/2 function, it receives a bunch of bytes and a structure which represents the XDR type, the basic types don't need this structure, look at the following example
 ```elixir
-# The function decode_xdr implemented on the basic types could receive a single one parameter as shown in the following example:
+# The function decode_xdr implemented on the basic types could receive
+# a single one parameter as shown in the following example:
 XDR.Int.decode_xdr(<<0, 0, 4, 210>>)
 # This call will return a tuple with the decoded value as this:
 {:ok, {%XDR.Int{datum: 1234}, ""}}
@@ -111,7 +114,6 @@ XDR.Int.decode_xdr(<<0, 0, 4, 210>>)
 
 If you don't like or need the tuples, you can use the encode_xdr!/1 and decode_xdr!/2 functions to get only the decoded value
 ```elixir
-# The function decode_xdr implemented on the basic types could receive a single one parameter as shown in the following example:
 XDR.Int.decode_xdr!(<<0, 0, 4, 210>>)
 # This call will return a tuple with the decoded value as this:
 {%XDR.Int{datum: 1234}, ""}
@@ -119,7 +121,8 @@ XDR.Int.decode_xdr!(<<0, 0, 4, 210>>)
 
 If you pay attention to the return you can see that is a tuple, that is because when we have a bunch of bytes that exceeds the byte size of the type (4 in this case) the second item will contain the rest of the binary, see the following example to solve your doubts.
 ```elixir
-# The function decode_xdr implemented on the basic types could receive a single one parameter as shown in the following example:
+# The function decode_xdr implemented on the basic types could receive a single one parameter
+# as shown in the following example:
 XDR.Int.decode_xdr!(<<0, 0, 4, 210, 0, 0, 0, 0>>)
 # This call will return a tuple with the decoded value as this:
 {%XDR.Int{datum: 1234}, <<0, 0, 0, 0>>}
@@ -130,6 +133,8 @@ The rest binaries will be very helpful when we start to use more complex types!
 The following modules also are XDR implementations, so, remember the XDR.Declaration behaviour and let's start:
 
 ### Compound types
+
+´´´elixir
 XDR.Type.Enum
 XDR.Type.FixedOpaque
 XDR.Type.VariableOpaque
@@ -139,6 +144,7 @@ XDR.Type.VariableArray
 XDR.Type.Struct
 XDR.Type.Union
 XDR.Type.Optional
+´´´
 
 ## Implements an Enum type
 This type is a simple type that consists of two very important things, the declarations, and the identifier, the declarations represent the possible values of the enum representation and the identifier represents the value to select in the declaration:
@@ -208,7 +214,8 @@ XDR.Bool.new(true)
 
 # To decode this binary you can use the following:
 XDR.Bool.decode_xdr(<0, 0, 0, 1>>) 
-# this call returns the XDR.Bool structure with the result: {:ok, {%XDR.Bool{declarations: [false: 0, true: 1], identifier: true}, ""}
+# this call returns the XDR.Bool structure with the result: 
+# {:ok, {%XDR.Bool{declarations: [false: 0, true: 1], identifier: true}, ""}
 ```
 
 ## Implements a FixedOpaque type 
