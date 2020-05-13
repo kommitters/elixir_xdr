@@ -1,0 +1,28 @@
+name: Elixir CI
+
+on:
+  push:
+    branches:
+    - master
+    - develop
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup elixir
+      uses: actions/setup-elixir@v1
+      with:
+        elixir-version: 1.10.3 # Define the elixir version [required]
+        otp-version: 22.2 # Define the OTP version [required]
+    - name: Install Dependencies
+      run: mix deps.get 
+    - name: Run Tests
+      run: mix test --warnings-as-errors
+    - name: Compile
+      run: mix compile --warnings-as-errors
+    - name: Format
+      run: mix format --check-formatted
