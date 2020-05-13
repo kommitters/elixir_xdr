@@ -2,6 +2,8 @@
 
 **Process XDR types based on the [rfc4506](https://www.ietf.org/rfc/rfc4506.txt)**
 
+![](https://github.com/kommitters/xdr/workflows/.github/workflows/main.yml/badge.svg)
+
 Documentation: [TO-DO](https://github.com/kommitters/xdr/tree/develop)
 
 ## Installation
