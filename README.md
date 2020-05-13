@@ -2,8 +2,6 @@
 
 **Process XDR types based on the [rfc4506](https://www.ietf.org/rfc/rfc4506.txt)**
 
-![Elixir CI](https://github.com/kommitters/xdr/workflows/Elixir%20CI/badge.svg?branch=develop)
-
 Documentation: [TO-DO](https://github.com/kommitters/xdr/tree/develop)
 
 ## Installation
