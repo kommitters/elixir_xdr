@@ -21,6 +21,7 @@ jobs:
         otp-version: 22.0.7 
     - name: Install Dependencies
       run: mix deps.get 
+      run: mix deps.update --all
     - name: Run Tests
       run: mix test
     - name: Compile
