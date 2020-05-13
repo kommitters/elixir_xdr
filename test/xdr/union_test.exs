@@ -38,9 +38,7 @@ defmodule XDR.UnionTest do
 
     test "Enum example" do
       {status, result} =
-        SCPStatementType.new(:SCP_ST_PREPARE)
-        # Union type definition, it contains the same arms that you can see on the line 21
-        |> UnionEnum.new()
+        UnionSCPStatementType.new(:SCP_ST_PREPARE)
         # It also can use the XDR.UnionEnum.decode_xdr()/1 function
         |> Union.encode_xdr()
 
@@ -50,11 +48,9 @@ defmodule XDR.UnionTest do
 
     test "Uint example" do
       {status, result} =
-        XDR.UInt.new(3)
-        # Union type definition, it contains the same arms that you can see on the line 21
-        |> UnionNumber.new()
+        UnionNumber.new(3)
         # It also can use the XDR.UnionNumber.decode_xdr()/1 function
-        |> Union.encode_xdr()
+        |> UnionNumber.encode_xdr()
 
       assert status == :ok
       assert result == <<0, 0, 0, 3, 64, 93, 112, 164>>
@@ -104,23 +100,16 @@ defmodule XDR.UnionTest do
     end
 
     test "Enum example" do
-      union =
-        SCPStatementType.new(nil)
-        # Union type definition, it contains the same arms that you can see on the line 21
-        |> UnionEnum.new()
-
       # It also can use the XDR.UnionEnum.decode_xdr()/1 function
-      {status, result} = Union.decode_xdr(<<0, 0, 0, 0, 0, 0, 0, 60>>, union)
+      {status, result} = UnionSCPStatementType.decode_xdr(<<0, 0, 0, 0, 0, 0, 0, 60>>)
 
       assert status == :ok
       assert result == {{:SCP_ST_PREPARE, %XDR.Int{datum: 60}}, ""}
     end
 
     test "Uint example" do
-      # Union type definition, it contains the same arms that you can see on the line 21
-      union = UnionNumber.new(nil)
       # It also can use the XDR.UnionNumber.decode_xdr()/1 function
-      {status, result} = Union.decode_xdr(<<0, 0, 0, 3, 64, 93, 112, 164>>, union)
+      {status, result} = UnionNumber.decode_xdr(<<0, 0, 0, 3, 64, 93, 112, 164>>) |> IO.inspect()
 
       assert status == :ok
       assert result == {{3, %XDR.Float{float: 3.4600000381469727}}, ""}
@@ -128,7 +117,7 @@ defmodule XDR.UnionTest do
   end
 end
 
-defmodule UnionEnum do
+defmodule UnionSCPStatementType do
   @behaviour XDR.Declaration
 
   defstruct discriminant: XDR.Enum, arms: nil, struct: nil
@@ -140,24 +129,28 @@ defmodule UnionEnum do
     SCP_ST_NOMINATE: XDR.Float.new(3.46)
   ]
 
-  def new(discriminant),
-    do: %UnionEnum{
-      discriminant: discriminant,
+  def new(identifier),
+    do: %UnionSCPStatementType{
+      discriminant: SCPStatementType.new(identifier),
       arms: @arms,
-      struct: UnionEnum.__struct__()
+      struct: %{discriminant: XDR.Enum}
     }
 
   @impl XDR.Declaration
-  def encode_xdr(%UnionEnum{} = union), do: XDR.Union.encode_xdr(union)
+  def encode_xdr(%UnionSCPStatementType{} = union), do: XDR.Union.encode_xdr(union)
 
   @impl XDR.Declaration
-  def encode_xdr!(%UnionEnum{} = union), do: encode_xdr(union) |> elem(1)
+  def encode_xdr!(%UnionSCPStatementType{} = union), do: encode_xdr(union) |> elem(1)
 
   @impl XDR.Declaration
-  def decode_xdr(bytes, %UnionEnum{} = union), do: XDR.Union.decode_xdr(bytes, union)
+  def decode_xdr(bytes, union \\ new(nil))
+  def decode_xdr(bytes, %UnionSCPStatementType{} = union), do: XDR.Union.decode_xdr(bytes, union)
 
   @impl XDR.Declaration
-  def decode_xdr!(bytes, %UnionEnum{} = union), do: XDR.Union.decode_xdr!(bytes, union)
+  def decode_xdr!(bytes, union \\ new(nil))
+
+  def decode_xdr!(bytes, %UnionSCPStatementType{} = union),
+    do: XDR.Union.decode_xdr!(bytes, union)
 end
 
 defmodule UnionNumber do
@@ -172,16 +165,22 @@ defmodule UnionNumber do
     3 => XDR.Float.new(3.46)
   }
 
-  def new(discriminant),
-    do: %UnionNumber{discriminant: discriminant, arms: @arms, struct: UnionNumber.__struct__()}
+  def new(identifier),
+    do: %UnionNumber{
+      discriminant: XDR.UInt.new(identifier),
+      arms: @arms,
+      struct: %{discriminant: XDR.UInt}
+    }
 
   @impl XDR.Declaration
   def encode_xdr(%UnionNumber{} = union), do: XDR.Union.encode_xdr(union)
   @impl XDR.Declaration
   def encode_xdr!(%UnionNumber{} = union), do: XDR.Union.encode_xdr!(union)
   @impl XDR.Declaration
+  def decode_xdr(bytes, union \\ new(nil))
   def decode_xdr(bytes, %UnionNumber{} = union), do: XDR.Union.decode_xdr(bytes, union)
   @impl XDR.Declaration
+  def decode_xdr!(bytes, union \\ new(nil))
   def decode_xdr!(bytes, %UnionNumber{} = union), do: XDR.Union.decode_xdr!(bytes, union)
 end
 

@@ -29,18 +29,18 @@ defmodule XDR.FixedArray do
 
   returns an :ok tuple with the resulted XDR
   """
-  @spec encode_xdr(t()) :: {:ok, binary}
-  def encode_xdr(%XDR.FixedArray{length: length}) when not is_integer(length),
+  @spec encode_xdr(map()) :: {:ok, binary}
+  def encode_xdr(%{length: length}) when not is_integer(length),
     do: raise(FixedArray, :not_number)
 
-  def encode_xdr(%XDR.FixedArray{elements: elements, length: length})
+  def encode_xdr(%{elements: elements, length: length})
       when length(elements) !== length,
       do: raise(FixedArray, :invalid_length)
 
-  def encode_xdr(%XDR.FixedArray{elements: elements}) when not is_list(elements),
+  def encode_xdr(%{elements: elements}) when not is_list(elements),
     do: raise(FixedArray, :not_list)
 
-  def encode_xdr(%XDR.FixedArray{elements: elements, type: type}) do
+  def encode_xdr(%{elements: elements, type: type}) do
     {:ok,
      Enum.reduce(elements, <<>>, fn element, bytes ->
        bytes <> apply(type, :encode_xdr!, [apply(type, :new, [element])])
@@ -54,7 +54,7 @@ defmodule XDR.FixedArray do
 
   returns the resulted XDR
   """
-  @spec encode_xdr!(t()) :: binary()
+  @spec encode_xdr!(map()) :: binary()
   def encode_xdr!(fixed_array), do: encode_xdr(fixed_array) |> elem(1)
 
   @impl XDR.Declaration
@@ -64,8 +64,8 @@ defmodule XDR.FixedArray do
 
   returns an :ok tuple with the resulted list
   """
-  @spec decode_xdr(bytes :: binary, struct :: t()) :: {:ok, {list, binary}}
-  def decode_xdr(_bytes, %XDR.FixedArray{length: length}) when not is_integer(length),
+  @spec decode_xdr(bytes :: binary, struct :: map()) :: {:ok, {list, binary}}
+  def decode_xdr(_bytes, %{length: length}) when not is_integer(length),
     do: raise(FixedArray, :not_number)
 
   def decode_xdr(bytes, _struct) when not is_binary(bytes),
@@ -74,7 +74,7 @@ defmodule XDR.FixedArray do
   def decode_xdr(bytes, _struct) when rem(byte_size(bytes), 4) != 0,
     do: raise(FixedArray, :not_valid_binary)
 
-  def decode_xdr(bytes, %XDR.FixedArray{type: type, length: length}) do
+  def decode_xdr(bytes, %{type: type, length: length}) do
     {decoded_array, rest} = decode_elements_from_fixed_array(type, [], bytes, length)
 
     {:ok, {Enum.reverse(decoded_array), rest}}
@@ -87,7 +87,7 @@ defmodule XDR.FixedArray do
 
   returns the resulted list
   """
-  @spec decode_xdr!(bytes :: binary, struct :: t()) :: {list, binary}
+  @spec decode_xdr!(bytes :: binary, struct :: map()) :: {list, binary}
   def decode_xdr!(bytes, struct), do: decode_xdr(bytes, struct) |> elem(1)
 
   @spec decode_elements_from_fixed_array(

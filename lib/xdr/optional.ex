@@ -26,18 +26,18 @@ defmodule XDR.Optional do
   returns an :ok tuple with the encoded XDR
   """
   @spec encode_xdr(t()) :: {:ok, binary}
-  def encode_xdr(%XDR.Optional{type: type}) when is_bitstring(type),
+  def encode_xdr(%{type: type}) when is_bitstring(type),
     do: raise(Optional, :not_valid)
 
-  def encode_xdr(%XDR.Optional{type: type}) when is_list(type), do: raise(Optional, :not_valid)
-  def encode_xdr(%XDR.Optional{type: type}) when is_tuple(type), do: raise(Optional, :not_valid)
-  def encode_xdr(%XDR.Optional{type: type}) when is_boolean(type), do: raise(Optional, :not_valid)
+  def encode_xdr(%{type: type}) when is_list(type), do: raise(Optional, :not_valid)
+  def encode_xdr(%{type: type}) when is_tuple(type), do: raise(Optional, :not_valid)
+  def encode_xdr(%{type: type}) when is_boolean(type), do: raise(Optional, :not_valid)
 
-  def encode_xdr(%XDR.Optional{type: type}) when is_nil(type) do
+  def encode_xdr(%{type: type}) when is_nil(type) do
     Bool.new(false) |> Bool.encode_xdr()
   end
 
-  def encode_xdr(%XDR.Optional{type: type}) do
+  def encode_xdr(%{type: type}) do
     module = type.__struct__
 
     encoded_value = module.encode_xdr!(type)

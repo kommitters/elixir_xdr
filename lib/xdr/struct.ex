@@ -28,7 +28,7 @@ defmodule XDR.Struct do
 
   returns an :ok tuple with the resulted XDR
   """
-  @spec encode_xdr(t()) :: {:ok, binary}
+  @spec encode_xdr(map()) :: {:ok, binary}
   def encode_xdr(%{components: components}) when not is_list(components),
     do: raise(Struct, :not_list)
 
@@ -52,7 +52,7 @@ defmodule XDR.Struct do
 
   returns the resulted XDR
   """
-  @spec encode_xdr!(t()) :: binary
+  @spec encode_xdr!(map()) :: binary
   def encode_xdr!(struct), do: encode_xdr(struct) |> elem(1)
 
   @impl XDR.Declaration
@@ -62,7 +62,7 @@ defmodule XDR.Struct do
 
   returns an :ok tuple with the resulted struct
   """
-  @spec decode_xdr(bytes :: binary, struct :: t()) :: {:ok, {t(), binary()}}
+  @spec decode_xdr(bytes :: binary, struct :: map()) :: {:ok, {t(), binary()}}
   def decode_xdr(bytes, _struct) when not is_binary(bytes),
     do: raise(Struct, :not_binary)
 
@@ -84,7 +84,7 @@ defmodule XDR.Struct do
 
   returns an :ok tuple with the resulted struct
   """
-  @spec decode_xdr!(bytes :: binary, struct :: t()) :: {t(), binary()}
+  @spec decode_xdr!(bytes :: binary, struct :: map()) :: {t(), binary()}
   def decode_xdr!(bytes, struct), do: decode_xdr(bytes, struct) |> elem(1)
 
   defp decode_struct(bytes, []), do: bytes

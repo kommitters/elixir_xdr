@@ -31,24 +31,24 @@ defmodule XDR.VariableArray do
 
   returns an :ok tuple with the resulted XDR
   """
-  @spec encode_xdr(t()) :: {:ok, binary}
-  def encode_xdr(%XDR.VariableArray{max_length: max_length}) when not is_integer(max_length),
+  @spec encode_xdr(map()) :: {:ok, binary}
+  def encode_xdr(%{max_length: max_length}) when not is_integer(max_length),
     do: raise(VariableArray, :not_number)
 
-  def encode_xdr(%XDR.VariableArray{max_length: max_length}) when max_length <= 0,
+  def encode_xdr(%{max_length: max_length}) when max_length <= 0,
     do: raise(VariableArray, :exceed_lower_bound)
 
-  def encode_xdr(%XDR.VariableArray{max_length: max_length}) when max_length > 4_294_967_295,
+  def encode_xdr(%{max_length: max_length}) when max_length > 4_294_967_295,
     do: raise(VariableArray, :exceed_upper_bound)
 
-  def encode_xdr(%XDR.VariableArray{elements: elements}) when not is_list(elements),
+  def encode_xdr(%{elements: elements}) when not is_list(elements),
     do: raise(VariableArray, :not_list)
 
-  def encode_xdr(%XDR.VariableArray{elements: elements, max_length: max_length})
+  def encode_xdr(%{elements: elements, max_length: max_length})
       when length(elements) > max_length,
       do: raise(VariableArray, :length_over_max)
 
-  def encode_xdr(%XDR.VariableArray{elements: elements, type: type}) do
+  def encode_xdr(%{elements: elements, type: type}) do
     array_length = length(elements)
 
     encoded_length =
@@ -69,7 +69,7 @@ defmodule XDR.VariableArray do
 
   returns the resulted XDR
   """
-  @spec encode_xdr!(t()) :: binary
+  @spec encode_xdr!(map()) :: binary
   def encode_xdr!(variable_array), do: encode_xdr(variable_array) |> elem(1)
 
   @impl XDR.Declaration
@@ -79,19 +79,19 @@ defmodule XDR.VariableArray do
 
   returns an :ok tuple with the resulted array
   """
-  @spec decode_xdr(bytes :: binary, struct :: t()) :: {:ok, {list, binary}}
-  def decode_xdr(_bytes, %XDR.VariableArray{max_length: max_length})
+  @spec decode_xdr(bytes :: binary, struct :: map()) :: {:ok, {list, binary}}
+  def decode_xdr(_bytes, %{max_length: max_length})
       when not is_integer(max_length),
       do: raise(VariableArray, :not_number)
 
-  def decode_xdr(_bytes, %XDR.VariableArray{max_length: max_length}) when max_length <= 0,
+  def decode_xdr(_bytes, %{max_length: max_length}) when max_length <= 0,
     do: raise(VariableArray, :exceed_lower_bound)
 
-  def decode_xdr(_bytes, %XDR.VariableArray{max_length: max_length})
+  def decode_xdr(_bytes, %{max_length: max_length})
       when max_length > 4_294_967_295,
       do: raise(VariableArray, :exceed_upper_bound)
 
-  def decode_xdr(<<xdr_len::big-unsigned-integer-size(32), _::binary>>, %XDR.VariableArray{
+  def decode_xdr(<<xdr_len::big-unsigned-integer-size(32), _::binary>>, %{
         max_length: max_length
       })
       when xdr_len > max_length,
@@ -104,7 +104,7 @@ defmodule XDR.VariableArray do
   def decode_xdr(bytes, _struct) when not is_binary(bytes),
     do: raise(VariableArray, :not_binary)
 
-  def decode_xdr(bytes, %XDR.VariableArray{type: type}) do
+  def decode_xdr(bytes, %{type: type}) do
     {array_length, rest} = UInt.decode_xdr!(bytes)
 
     fixed_array =
@@ -121,6 +121,6 @@ defmodule XDR.VariableArray do
 
   returns the resulted array
   """
-  @spec decode_xdr!(bytes :: binary, struct :: t()) :: {list, binary}
+  @spec decode_xdr!(bytes :: binary, struct :: map()) :: {list, binary}
   def decode_xdr!(bytes, struct), do: decode_xdr(bytes, struct) |> elem(1)
 end
