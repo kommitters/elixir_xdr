@@ -1,8 +1,8 @@
 defmodule XDR.Union do
+  @behaviour XDR.Declaration
   @moduledoc """
   this module is in charge of process the Discriminated Union types based on the RFC4506 XDR Standard
   """
-  @behaviour XDR.Declaration
 
   defstruct discriminant: nil, arms: nil
 

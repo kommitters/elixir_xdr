@@ -1,9 +1,8 @@
 defmodule XDR.VariableArray do
+  @behaviour XDR.Declaration
   @moduledoc """
   this module is in charge of process the variable array types based on the RFC4506 XDR Standard
   """
-
-  @behaviour XDR.Declaration
 
   defstruct elements: nil, type: nil, max_length: nil
 

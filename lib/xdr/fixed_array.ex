@@ -1,9 +1,8 @@
 defmodule XDR.FixedArray do
+  @behaviour XDR.Declaration
   @moduledoc """
   this module is in charge of process the Fixed Array types based on the RFC4506 XDR Standard
   """
-
-  @behaviour XDR.Declaration
 
   defstruct elements: nil, type: nil, length: nil
 

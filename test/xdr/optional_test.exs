@@ -82,8 +82,7 @@ defmodule XDR.OptionalTest do
     end
 
     test "with valid binary and Enum type" do
-      {status, result} =
-        Optional.decode_xdr(<<0, 0, 0, 1, 0, 0, 0, 1>>, %{type: XDR.Bool})
+      {status, result} = Optional.decode_xdr(<<0, 0, 0, 1, 0, 0, 0, 1>>, %{type: XDR.Bool})
 
       assert status == :ok
       assert result === {%XDR.Optional{type: %XDR.Bool{identifier: true}}, ""}

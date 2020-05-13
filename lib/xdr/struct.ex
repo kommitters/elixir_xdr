@@ -1,9 +1,8 @@
 defmodule XDR.Struct do
+  @behaviour XDR.Declaration
   @moduledoc """
   this module is in charge of process the struct types based on the RFC4056 XDR Standard
   """
-
-  @behaviour XDR.Declaration
 
   defstruct components: nil
 

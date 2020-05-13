@@ -1,8 +1,8 @@
 defmodule XDR.Int do
+  @behaviour XDR.Declaration
   @moduledoc """
   This module is in charge of process the integer types based on the RFC4506 XDR Standard
   """
-  @behaviour XDR.Declaration
 
   defstruct datum: nil
 

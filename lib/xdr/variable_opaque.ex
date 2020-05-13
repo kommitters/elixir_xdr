@@ -1,9 +1,8 @@
 defmodule XDR.VariableOpaque do
+  @behaviour XDR.Declaration
   @moduledoc """
   This module is in charge of process the Variable length opaque based on the RFC4506 XDR Standard
   """
-
-  @behaviour XDR.Declaration
 
   defstruct opaque: nil, max_size: nil
 

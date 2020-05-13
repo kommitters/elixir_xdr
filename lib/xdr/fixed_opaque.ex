@@ -1,8 +1,8 @@
 defmodule XDR.FixedOpaque do
+  @behaviour XDR.Declaration
   @moduledoc """
   This module is in charge of process the Fixed Length Opaque based on the RFC4506 XDR Standard
   """
-  @behaviour XDR.Declaration
 
   defstruct opaque: nil, length: nil
 

@@ -1,9 +1,8 @@
 defmodule XDR.QuadFloat do
+  @behaviour XDR.Declaration
   @moduledoc """
   This module is not supported by the actual byte size
   """
-
-  @behaviour XDR.Declaration
 
   @impl XDR.Declaration
   @doc """

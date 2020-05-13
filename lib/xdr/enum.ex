@@ -1,9 +1,8 @@
 defmodule XDR.Enum do
+  @behaviour XDR.Declaration
   @moduledoc """
   This module is in charge to process the Enum type based on the RFC4506 XDR Standard
   """
-
-  @behaviour XDR.Declaration
 
   alias XDR.Error.Enum, as: EnumErr
 

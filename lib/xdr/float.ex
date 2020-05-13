@@ -1,8 +1,8 @@
 defmodule XDR.Float do
+  @behaviour XDR.Declaration
   @moduledoc """
   This module is in charge of process the Single-Precision Floating-Point types based on the RFC4506 XDR Standard
   """
-  @behaviour XDR.Declaration
 
   defstruct float: nil
 
