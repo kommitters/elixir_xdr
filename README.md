@@ -2,7 +2,7 @@
 
 **Process XDR types based on the [rfc4506](https://www.ietf.org/rfc/rfc4506.txt)**
 
-[](https://github.com/kommitters/xdr/workflows/.github/workflows/elixir.yml/badge.svg)
+[![Actions Status](https://github.com/kommitters/xdr/workflows/.github/workflows/elixir.yml/badge.svg)](https://github.com/kommitters/xdr/actions)
 
 Documentation: [TO-DO](https://github.com/kommitters/xdr/tree/develop)
 
