@@ -109,7 +109,7 @@ defmodule XDR.UnionTest do
 
     test "Uint example" do
       # It also can use the XDR.UnionNumber.decode_xdr()/1 function
-      {status, result} = UnionNumber.decode_xdr(<<0, 0, 0, 3, 64, 93, 112, 164>>) |> IO.inspect()
+      {status, result} = UnionNumber.decode_xdr(<<0, 0, 0, 3, 64, 93, 112, 164>>)
 
       assert status == :ok
       assert result == {{3, %XDR.Float{float: 3.4600000381469727}}, ""}
