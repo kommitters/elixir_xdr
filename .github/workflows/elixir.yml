@@ -24,6 +24,6 @@ jobs:
     - name: Run Tests
       run: mix test
     - name: Compile
-      run: mix compile --warnings-as-errors
+      run: mix compile
     - name: Format
       run: mix format --check-formatted
