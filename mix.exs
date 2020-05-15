@@ -1,25 +1,22 @@
 defmodule XDR.MixProject do
   use Mix.Project
 
+  @github_url "https://github.com/kommitters/xdr"
+  @version "0.1.1"
+
   def project do
     [
       app: :elixir_xdr,
-      version: "0.1.0",
+      version: @version,
       elixir: "~> 1.10.0",
-      deps: deps(),
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
-      description: "Process XDR data with elixir, based on the standard RFC4506",
+      description: description(),
       package: package(),
-      name: "elixir XDR",
-      source_url: "https://github.com/kommitters/xdr",
-      files: ~w(mix.exs lib LICENSE README.md),
-      homepage_url: "https://kommit.co",
-      docs: [
-        main: "readme",
-        extras: ["README.md"]
-      ],
-      package: package()
+      deps: deps(),
+      docs: docs(),
+      name: "Elixir XDR",
+      source_url: @github_url,
     ]
   end
 
@@ -29,13 +26,30 @@ defmodule XDR.MixProject do
     ]
   end
 
+  defp description() do
+    "Process XDR data with elixir, based on the RFC4506 standard."
+  end
+
+  defp docs() do
+    [
+      main: "readme",
+      name: "Elixir XDR",
+      source_ref: "v#{@version}",
+      canonical: "http://hexdocs.pm/elixir_xdr",
+      source_url: @github_url,
+      extras: [
+        "README.md",
+        "CHANGELOG.md"
+      ]
+    ]
+  end
+
   defp package() do
     [
-      maintainers: ["Francisco Molina", "Luis Hurtado"],
-      licenses: ["GNU"],
-      links: %{
-        "GitHub" => "https://github.com/kommitters/xdr"
-      }
+      name: "elixir_xdr",
+      organization: "kommitters",
+      licenses: ["MIT"],
+      links: %{"GitHub" => @github_url}
     ]
   end
 end
