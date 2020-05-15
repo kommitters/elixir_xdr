@@ -16,7 +16,7 @@ defmodule XDR.MixProject do
       deps: deps(),
       docs: docs(),
       name: "Elixir XDR",
-      source_url: @github_url,
+      source_url: @github_url
     ]
   end
 
