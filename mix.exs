@@ -34,7 +34,7 @@ defmodule XDR.MixProject do
       maintainers: ["Francisco Molina", "Luis Hurtado"],
       licenses: ["GNU"],
       links: %{
-        "GitHub" => "https://github.com/kommitters/xdr",
+        "GitHub" => "https://github.com/kommitters/xdr"
       }
     ]
   end
