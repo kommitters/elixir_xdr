@@ -47,7 +47,6 @@ defmodule XDR.MixProject do
   defp package() do
     [
       name: "elixir_xdr",
-      organization: "kommitters",
       licenses: ["MIT"],
       links: %{"GitHub" => @github_url}
     ]
