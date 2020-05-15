@@ -64,7 +64,7 @@ defmodule XDR.FixedOpaque do
 
   returns an :ok tuple with the resulted binary
   """
-  @spec decode_xdr(bytes :: binary(), opts :: map()) :: {:ok, {map(), binary}}
+  @spec decode_xdr(bytes :: binary(), opts :: map()) :: {:ok, {t(), binary}}
   def decode_xdr(bytes, _opts) when not is_binary(bytes),
     do: raise(FixedOpaqueErr, :not_binary)
 
@@ -96,7 +96,7 @@ defmodule XDR.FixedOpaque do
 
   returns the resulted binary
   """
-  @spec decode_xdr!(bytes :: binary, opts :: map()) :: {map(), binary()}
+  @spec decode_xdr!(bytes :: binary, opaque :: map()) :: {t(), binary()}
   def decode_xdr!(bytes, opaque), do: decode_xdr(bytes, opaque) |> elem(1)
 
   @spec get_required_padding(integer()) :: integer()

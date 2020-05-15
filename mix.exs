@@ -3,38 +3,39 @@ defmodule XDR.MixProject do
 
   def project do
     [
-      app: :xdr_kommit,
+      app: :elixir_xdr,
       version: "0.1.0",
-      elixir: "~> 1.10.3",
+      elixir: "~> 1.10.0",
       deps: deps(),
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
-      description: description(),
+      description: "Process XDR data with elixir, based on the standard RFC4506",
       package: package(),
-      name: "XDR kommit",
+      name: "elixir XDR",
       source_url: "https://github.com/kommitters/xdr",
+      files: ~w(mix.exs lib LICENSE README.md),
+      homepage_url: "https://kommit.co",
       docs: [
-        main: "XDR kommit",
+        main: "readme",
         extras: ["README.md"]
-      ]
+      ],
+      package: package()
     ]
   end
 
   def deps do
     [
-      {:ex_doc, "~> 0.21", only: :dev, runtime: false},
+      {:ex_doc, "~> 0.21", only: :dev, runtime: false}
     ]
-  end
-
-  defp description() do
-    "Process XDR data with elixir, based on the standard RFC4506"
   end
 
   defp package() do
     [
-      name: "XDR kommit",
+      maintainers: ["Francisco Molina", "Luis Hurtado"],
       licenses: ["GNU"],
-      links: %{"GitHub" => "https://github.com/kommitters/xdr"}
+      links: %{
+        "GitHub" => "https://github.com/kommitters/xdr",
+      }
     ]
   end
 end

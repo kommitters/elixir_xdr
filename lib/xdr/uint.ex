@@ -18,7 +18,7 @@ defmodule XDR.UInt do
 
   returns a XDR.UInt struct with the value received as parameter
   """
-  @spec new(datum :: integer | binary) :: t
+  @spec new(datum :: any) :: t
   def new(datum), do: %XDR.UInt{datum: datum}
 
   @impl XDR.Declaration

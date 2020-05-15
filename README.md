@@ -1,495 +1,186 @@
-# XDR kommit
+# elixir XDR
 
-**Process XDR types based on the [rfc4506](https://www.ietf.org/rfc/rfc4506.txt)**
-
-![Elixir CI](https://github.com/kommitters/xdr/workflows/Elixir%20CI/badge.svg?branch=develop)
-
-Documentation: [TO-DO](https://github.com/kommitters/xdr/tree/develop)
+Process XDR types based on the [rfc4506](https://www.ietf.org/rfc/rfc4506.txt). It allows you to create your own XDR types without complex code.
 
 ## Installation
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `xdr_kommit` to your list of dependencies in `mix.exs`:
+[Available in Hex](https://hex.pm/packages/elixir_xdr), Add `elixir_xdr` to your list of dependencies in `mix.exs`:
 
 ```elixir
 def deps do
   [
-    {:xdr_kommit, "~> 0.1.0"}
+    {:elixir_XDR, "~> 0.1.0"}
   ]
 end
 ```
 
 ## Implemented types
 
-You can find the following types completely implemented in XDR kommit:
+The implemente types are implemented basing on the REF4506 standard and you can find the following types completely implemented in elixir XDR:
 
 ```elixir
-XDR.Int                  #Section 4.1, RFC4506
-XDR.UInt                 #Section 4.2, RFC4506
-XDR.Enum                 #Section 4.3, RFC4506
-XDR.Bool                 #Section 4.4, RFC4506
-XDR.HyperInt             #Section 4.5, RFC4506
-XDR.HyperUInt            #Section 4.5, RFC4506
-XDR.Float                #Section 4.6, RFC4506
-XDR.DoubleFloat          #Section 4.7, RFC4506
-XDR.FixedOpaque          #Section 4.9, RFC4506
-XDR.VariableOpaque       #Section 4.10, RFC4506
-XDR.String               #Section 4.11, RFC4506
-XDR.FixedArray           #Section 4.12, RFC4506
-XDR.VariableArray        #Section 4.13, RFC4506  
-XDR.Struct               #Section 4.14, RFC4506
-XDR.Union                #Section 4.15, RFC4506
-XDR.Void                 #Section 4.16, RFC4506
-XDR.Optional             #Section 4.19, RFC4506
+# Basic types
+XDR.Int                  # Section 4.1
+XDR.UInt                 # Section 4.2
+XDR.Bool                 # Section 4.4
+XDR.HyperInt             # Section 4.5
+XDR.HyperUInt            # Section 4.5
+XDR.Float                # Section 4.6
+XDR.DoubleFloat          # Section 4.7
+XDR.Void                 # Section 4.16
+
+# Complex types
+XDR.Enum                 # Section 4.3
+XDR.FixedOpaque          # Section 4.9
+XDR.VariableOpaque       # Section 4.10
+XDR.String               # Section 4.11
+XDR.FixedArray           # Section 4.12
+XDR.VariableArray        # Section 4.13 
+XDR.Struct               # Section 4.14
+XDR.Union                # Section 4.15
+XDR.Optional             # Section 4.19
 ```
+### The following types were not implemented:
 
-**The following types were not implemented:**
-XDR.QuadFloat, Section 4.8, RFC4506, not supported 128 byte size
+**XDR.QuadFloat**, Section 4.8, not supported 128-byte size
 
-XDR.Const, Section 4.17, RFC4506, you can use elixir constants
+**XDR.Const**, Section 4.17, use elixir constants
 
-XDR.Typedef, Section 4.18, RFC4506, better to implement it with elixir modules, you can see some examples below
+**XDR.Typedef**, Section 4.18, better to implement it with elixir modules, you can see some examples in the [documentation](https://hexdocs.pm/elixir_xdr/readme.html).
 
 ## Behaviour is the key
 
-All the XDR types are implemented under the specifications of behavior, this behavior declares 4 functions which must have all the XDR types, following is the behavior:
-
-```elixir
-defmodule XDR.Declaration do
-  @moduledoc """
-    Behaviour definition that is in charge of keeping the types declared by the RFC4506 standard
-    with these specifications
-  """
-  alias XDR.Error
-
-  # encode XDR for any type returns a tuple with the resulted binary value
-  @callback encode_xdr(struct) :: {:ok, binary} | Error.t()
-
-  # encode XDR for any type returns the resulted binary value
-  @callback encode_xdr!(struct) :: binary | Error.t()
-
-  # decode XDR for any type returns a tuple with the converted value
-  @callback decode_xdr(binary, term) :: {:ok, {term, binary}} | Error.t()
-
-  # decode XDR for any type returns the resulted converted value
-  @callback decode_xdr!(binary, term) :: {term, binary} | Error.t()
-end
-```
-All the XDR types implemented on this project satisfy this @behaviour
+All the XDR types are implemented under the specifications of a `behavior` which declares 4 functions, all the XDR implementations must satisfy the [Behaviour](https://github.com/kommitters/xdr/blob/develop/lib/xdr/declaration.ex), this is important because these functions will be used in all the new implementations of XDR types.
 
 ## How to implement basic XDR types?
-Each module of the XDR accomplishes with an XDR.Declaration behaviour, for the above all the types have implemented functions like encode_xdr and decode_xdr, the basic XDR types can be used as they are
+All the functions have implemented the [Behaviour](https://github.com/kommitters/xdr/blob/develop/lib/xdr/declaration.ex) functions, these functions will make all the work for us, for example, if you want to encode a basic type you only need to create a new XDR structure with the help of the `new/1` function and sent it to the function encode_xdr/2 as you see in the following example.
 
-### Basic types
+### XDR.Int
 ```elixir
-XDR.Int
-XDR.Uint
-XDR.Bool
-XDR.HyperInt
-XDR.HyperUint
-XDR.Float
-XDR.DoubleFloat
-XDR.QuadrupleFloat  # not implemented
-XDR.Void
+iex> XDR.Int.new(1234) |> XDR.Int.encode_xdr() 
+{:ok, <<0, 0, 4, 210>>}
+```
+To decode this binary value you can use the `decode_xdr/2` function, in these basic types you only need the fist parameter to send the data.
+
+```elixir
+iex> XDR.Int.decode_xdr(<<0, 0, 4, 210>>)
+{:ok, {%XDR.Int{datum: 1234}, <<>>}}
 ```
 
-### Integer example
-If you need to create a new integer type you can use the new/1 function which receives the integer value and creates an XDR.Int structure as this:
+If you don't like or need the tuples, you can use the encode_xdr!/1 and decode_xdr!/2 functions to get only the decoded value.
 ```elixir
-XDR.Int.new(1234) #returns the following structure %XDR.Int{datum: 1234}
-```
-
-To encode an Integer value you'll need to call the encode_xdr/1 function, it receives an structure of the current type, XDR.Int in this case
-```elixir
-XDR.Int.encode_xdr(%XDR.Int{datum: 1234}) 
-#returns the following tuple {:ok, <<0, 0, 4, 210>>} the binary resulted from encode the integer is the XDR value
-```
-
-To decode an Integer value you'll need to call the decode_xdr/2 function, it receives a bunch of bytes and a structure which represents the XDR type, the basic types don't need this structure, look at the following example
-```elixir
-# The function decode_xdr implemented on the basic types could receive
-# a single one parameter as shown in the following example:
-XDR.Int.decode_xdr(<<0, 0, 4, 210>>)
-# This call will return a tuple with the decoded value as this:
-{:ok, {%XDR.Int{datum: 1234}, ""}}
-```
-
-If you don't like or need the tuples, you can use the encode_xdr!/1 and decode_xdr!/2 functions to get only the decoded value
-```elixir
-XDR.Int.decode_xdr!(<<0, 0, 4, 210>>)
-# This call will return a tuple with the decoded value as this:
-{%XDR.Int{datum: 1234}, ""}
+iex> XDR.Int.decode_xdr!(<<0, 0, 4, 210>>)
+{%XDR.Int{datum: 1234}, <<>>}
 ```
 
 If you pay attention to the return you can see that is a tuple, that is because when we have a bunch of bytes that exceeds the byte size of the type (4 in this case) the second item will contain the rest of the binary, see the following example to solve your doubts.
 ```elixir
-# The function decode_xdr implemented on the basic types could receive a single one parameter
-# as shown in the following example:
-XDR.Int.decode_xdr!(<<0, 0, 4, 210, 0, 0, 0, 0>>)
-# This call will return a tuple with the decoded value as this:
+iex> XDR.Int.decode_xdr!(<<0, 0, 4, 210, 0, 0, 0, 0>>)
 {%XDR.Int{datum: 1234}, <<0, 0, 0, 0>>}
 ```
-The rest binaries will be very helpful when we start to use more complex types!
+The rest binaries will be very helpful when we start to use more complex types! If you need examples for the other basic types you can see the documentation, it's so intuitive with this type in mind.
 
-## How to implement compound XDR types?
-The following modules also are XDR implementations, so, remember the XDR.Declaration behaviour and let's start:
+## How to implement complex XDR types?
+Remember these types also are XDR implementations and satisfy the XDR.Declaration `@behaviour`
 
-### Compound types
+### XDR.Enum
+This type is simple, consists of things the declarations and the identifier, the declarations represent the possible values of the enum representation and the identifier represent the value to select from the declarations, Let's put on the context, in an Enumtype the declarations are a keyword list which contains the keys (identifiers).
 
-´´´elixir
-XDR.Type.Enum
-XDR.Type.FixedOpaque
-XDR.Type.VariableOpaque
-XDR.Type.String
-XDR.Type.FixedArray
-XDR.Type.VariableArray
-XDR.Type.Struct
-XDR.Type.Union
-XDR.Type.Optional
-´´´
-
-## Implements an Enum type
-This type is a simple type that consists of two very important things, the declarations, and the identifier, the declarations represent the possible values of the enum representation and the identifier represents the value to select in the declaration:
+Let's put on the context, in an Enum Type the declarations are a keyword list that contains the keys which can be selected, this selection can be performed with the help of the identifier which is received by parameter, but what we really need is the value associated with the key... this value will be encoded.
 
 ### What I'm talking about?
-Let's see the implementation for an example enum type
+Let's see the implementation for the [XDR.Bool](https://github.com/kommitters/xdr/blob/develop/lib/xdr/bool.ex) type which is basically an Enum implementation, and sees how can we use it 
+
+First, we need to define what item needs from the keyword, `true` in this case and we can encode it
 ```elixir
-defmodule XDR.Bool do
-  @behaviour XDR.Declaration
-
-  alias XDR.Enum
-  alias XDR.Error.Bool
-
-  @boolean [false: 0, true: 1]
-
-  defstruct declarations: @boolean, identifier: nil
-
-  @type t :: %XDR.Bool{declarations: keyword(), identifier: boolean()}
-
-  @spec new(atom()) :: t()
-  def new(identifier), do: %XDR.Bool{declarations: @boolean, identifier: identifier}
-
-  @impl XDR.Declaration
-  @spec encode_xdr(t()) :: {:ok, binary}
-  def encode_xdr(%XDR.Bool{identifier: identifier}) when not is_boolean(identifier),
-    do: raise(Bool, :not_boolean)
-
-  def encode_xdr(%XDR.Bool{} = boolean), do: Enum.encode_xdr(boolean)
-
-  @impl XDR.Declaration
-  @spec encode_xdr!(t()) :: binary()
-  def encode_xdr!(boolean), do: encode_xdr(boolean) |> elem(1)
-
-  @impl XDR.Declaration
-  @spec decode_xdr(bytes :: binary, struct :: t | any) :: {:ok, {t, binary}}
-  def decode_xdr(bytes, struct \\ %XDR.Bool{declarations: @boolean})
-  def decode_xdr(bytes, _struct) when not is_binary(bytes), do: raise(Bool, :invalid_value)
-  def decode_xdr(bytes, struct) do
-    {enum, rest} = Enum.decode_xdr!(bytes, struct)
-
-    decoded_bool = new(enum.identifier)
-
-    {:ok, {decoded_bool, rest}}
-  end
-
-  @impl XDR.Declaration
-  @spec decode_xdr!(bytes :: binary, struct :: t | any) :: {t(), binary}
-  def decode_xdr!(bytes, struct \\ %XDR.Bool{declarations: @boolean})
-  def decode_xdr!(bytes, struct), do: decode_xdr(bytes, struct) |> elem(1)
-end
+iex> XDR.Bool.new(true) |> XDR.Bool.encode_xdr()
+{:ok, <<0, 0, 0, 0>>}
 ```
-
-The XDR.Bool module is the perfect example to show an Enum implementation, as you see first we create a keyword which will be used as declarations, the declarations in an Enum type are always statically defined because in a boolean or an enum type you must have these declarations to use them.
-
-In this case, we must create a type of XDR.Bool to encode it and decode it with the help of the new / 1 function, once we have the boolean defined we can encode it for this we can use the XDR.Enum functions but remember! we must always satisfy behavior.
-
-As you can see all the functions of the XDR.Bool module use the Enum functions to work
-
-Now we can continue with the decoding, something very important that we must take into account when decoding any structure is to send the correct parameters, the decode_xdr / 2 function always receives the set of binaries as the first parameter and a structure containing the information necessary to decode those binaries in the correct structure, that is very important because you can add this structure on the code and you won't worry about it in the future, in this case, that structure represents a boolean which contains the declarations, these will be used to return the declaration to which the binaries belong.
-
-### How can I use it?
+To decode this binary you can use the following:
 
 ```elixir
-# To encode a Boolean type first create the Bool type or sent an XDR.Bool struct
-XDR.Bool.new(true)
-|> XDR.Bool.encode_xdr() # It returns an encoded true {:ok, <<0, 0, 0, 1>>}
-
-# To decode this binary you can use the following:
-XDR.Bool.decode_xdr(<0, 0, 0, 1>>) 
-# this call returns the XDR.Bool structure with the result: 
-# {:ok, {%XDR.Bool{declarations: [false: 0, true: 1], identifier: true}, ""}
+iex> XDR.Bool.decode_xdr(<0, 0, 0, 1>>) 
+{:ok, {%XDR.Bool{declarations: [false: 0, true: 1], identifier: true}, ""}
 ```
+The [XDR.Bool](https://github.com/kommitters/xdr/blob/develop/lib/xdr/bool.ex) module is the perfect example to show an Enum implementation, as you see first we create a keyword which will be used as declarations, the declarations in an Enum type are always statically defined because in an enum implementation type you must have these declarations to use them.
+
+Now we can continue with the decoding, something very important that we must have in mind when you try to decode any structure is to send the correct parameters, the decode_xdr / 2 function always receives the set of binaries as the first parameter and a structure containing the information necessary to decode those binaries in the correct structure, that is very important because you can add this structure on the code and you won't worry about it in the future, in this case, that structure represents a boolean which contains the declarations, these will be used to return the declaration to which the binaries belong.
 
 ## Implements a FixedOpaque type 
 
-This type is very simple, let's think of a string that must always match the same length regardless of whether it receives fewer characters than necessary. In these cases we can use a FixedOpaque, for example:
+This type is very simple, let's think of a string that must always match the same length regardless of whether it receives fewer characters than necessary. In these cases, we can use a [FixedOpaque implementation](https://gist.github.com/FranciscoMolina02/b480116b9972b8d40f947420ecabc7dc), for example.
+
+We have the following binary `<<1,2,3,4,5>>` but we need this with a valid length, for this cases we are going to us the FixedOpaque
 
 ```elixir
-defmodule StaticLength do
-  @behaviour XDR.Declaration
-
-  @length 12 # We can define the static length for this implementation
-
-  defstruct value: nil, length: nil
-
-  @type t :: %StaticLength{value: binary, length: integer}
-
-  def new(bytes) do #The received string must be a binary
-    %StaticLength{value: bytes, length: @length}
-  end
-
-  defdelegate encode_xdr(static_length), to: XDR.FixedOpaque # This is other way to implement the required functions
-
-  def decode_xdr(bytes, struct \\ %{length: @length}) #You can define your own functions and return what do you need
-  def decode_xdr(bytes, struct) do
-    {fixed_opaque, _rest} = XDR.FixedOpaque.decode_xdr!(bytes, struct)
-
-    decoded_static_length = fixed_opaque.opaque |> new()
-
-    {:ok, decoded_static_length}
-  end
-end
+iex> IncrementBinarySize.new(<<1,2,3,4,5>>) |> IncrementBinarySize.encode_xdr()
+{:ok, <<1, 2, 3, 4, 5, 0, 0, 0>>}
 ```
 
 ## Implements a Struct type
-A Struct type can be coded in many ways, this is one of them
+
+Let's see the next example, we can create a new [Struct Implementation](https://gist.github.com/FranciscoMolina02/3051da1851c793d3813c8a2ab3ca9231)
 
 ```elixir
-defmodule Struct_impl do
-  @behaviour XDR.Declaration
+iex(1)> name = XDR.String.new("The little prince")
+%XDR.String{max_length: 4294967295, string: "The little prince"}
 
-  defstruct file_name: XDR.String, file_size: XDR.Int
+iex(2)> size = XDR.Int.new(298)                   
+%XDR.Int{datum: 298}
 
-  @type t :: %Struct_impl{file_name: XDR.String.t(), file_size: XDR.Int.t()}
-
-  def new(file_name, file_size) do
-    %Struct_impl{file_name: file_name, file_size: file_size}
-  end
-
-  @impl XDR.Declaration
-  def encode_xdr(struct_file) do
-    component_keyword = struct_file |> Map.from_struct() |> Map.to_list()
-
-    XDR.Struct.new(component_keyword)
-    |> XDR.Struct.encode_xdr()
-  end
-
-  @impl XDR.Declaration
-  def encode_xdr!(struct_file), do: encode_xdr(struct_file) |> elem(1)
-
-  @impl XDR.Declaration
-  def decode_xdr(bytes, opts \\ nil)
-  def decode_xdr(bytes, _opts) do
-    component_keyword = Struct_impl.__struct__() |> Map.from_struct() |> Map.to_list()
-
-    XDR.Struct.decode_xdr!(bytes, %{components: component_keyword})
-    |> perform_struct()
-  end
-
-  @impl XDR.Declaration
-  def decode_xdr!(bytes, struct), do: decode_xdr(bytes, struct) |> elem(1)
-
-  defp perform_struct({components, rest}) do
-    struct_components = components.components
-    struct = Struct_impl.new(struct_components[:file_name], struct_components[:file_size])
-
-    {:ok, {struct, rest}}
-  end
-end
+iex(3)> Book.new(name, size) |> Book.encode_xdr()
+{:ok,
+ <<0, 0, 0, 17, 84, 104, 101, 32, 108, 105, 116, 116, 108, 101, 32, 112, 114,
+   105, 110, 99, 101, 0, 0, 0, 0, 0, 1, 42>>}
 ```
 
 ## Implements a Union type
-The Union type is more complex because it uses an already defined Enum, Int or Uint structure to use it, If we need to use it with an Enum we need the defined module as XDR.Boolean, In this case, we will implement an XDR.Enum module called SCPStatementType
+The Union type is more complex because you need to have defined the type with which the union will be made, this can be Enum, Int, or UInt.
+First, we are going to implement the case using an Enum, we need an Enum implementation already defined as XDR.Bool.
 
-```elixir
-defmodule SCPStatementType do
-  @behaviour XDR.Declaration
+In this case, we will implement an XDR.Enum module called [SCPStatementType](https://gist.github.com/FranciscoMolina02/61194bfe030a43bdefb7e2826f835155) this module can be any Enum module.
 
-  defstruct declarations: nil, identifier: nil
+After that we can create the Union Implementation we will name it [UnionSCPStatementType](https://gist.github.com/FranciscoMolina02/a68d75c3d27478fdbe8f6b7d1d5bf532)
 
-  @scp_statement_type [
-    SCP_ST_PREPARE: 0,
-    SCP_ST_CONFIRM: 1,
-    SCP_ST_EXTERNALIZE: 2,
-    SCP_ST_NOMINATE: 3
-  ]
-
-  def new(identifier),
-    do: %SCPStatementType{declarations: @scp_statement_type, identifier: identifier}
-
-  @impl XDR.Declaration
-  defdelegate encode_xdr(enum), to: XDR.Enum
-  @impl XDR.Declaration
-  defdelegate encode_xdr!(enum), to: XDR.Enum
-  @impl XDR.Declaration
-  defdelegate decode_xdr(bytes, struct), to: XDR.Enum
-  @impl XDR.Declaration
-  defdelegate decode_xdr!(bytes, struct), to: XDR.Enum
-end
-```
-
-After that we can create our new Union implementation:
-
-```elixir
-defmodule UnionSCPStatementType do
-  @behaviour XDR.Declaration
-
-  defstruct discriminant: XDR.Enum, arms: nil, struct: nil
-
-  @arms [
-    SCP_ST_PREPARE: XDR.Int.new(60),
-    SCP_ST_CONFIRM: XDR.String.new("Confirm"),
-    SCP_ST_EXTERNALIZE: XDR.Bool.new(false),
-    SCP_ST_NOMINATE: XDR.Float.new(3.46)
-  ]
-
-  def new(identifier),
-    do: %UnionSCPStatementType{
-      discriminant: SCPStatementType.new(identifier),
-      arms: @arms,
-      struct: %{discriminant: XDR.Enum}
-    }
-
-  @impl XDR.Declaration
-  def encode_xdr(%UnionSCPStatementType{} = union), do: XDR.Union.encode_xdr(union)
-
-  @impl XDR.Declaration
-  def encode_xdr!(%UnionSCPStatementType{} = union), do: encode_xdr(union) |> elem(1)
-
-  @impl XDR.Declaration
-  def decode_xdr(bytes, union \\ new(nil))
-  def decode_xdr(bytes, %UnionSCPStatementType{} = union), do: XDR.Union.decode_xdr(bytes, union)
-
-  @impl XDR.Declaration
-  def decode_xdr!(bytes, union \\ new(nil))
-  def decode_xdr!(bytes, %UnionSCPStatementType{} = union), do: XDR.Union.decode_xdr!(bytes, union)
-end
-```
-That's all! Now we can use it as union!
+That's all! Now we can use it as a union!
 
 ### Using UnionSCPStatementType module
 ```elixir
-  UnionSCPStatementType.new(:SCP_ST_PREPARE) # We create a Union structure with the identifier which we need
-  # It returns a Union structure like this -> 
-  # %UnionSCPStatementType{
-  #   arms: [
-  #     SCP_ST_PREPARE: %XDR.Int{datum: 60},
-  #     SCP_ST_CONFIRM: %XDR.String{max_length: 4294967295, string: "Confirm"},
-  #     SCP_ST_EXTERNALIZE: %XDR.Bool{
-  #       declarations: [false: 0, true: 1],
-  #       identifier: false
-  #     },
-  #     SCP_ST_NOMINATE: %XDR.Float{float: 3.46}
-  #   ],
-  #   discriminant: %SCPStatementType{
-  #     declarations: [
-  #       SCP_ST_PREPARE: 0,
-  #       SCP_ST_CONFIRM: 1,
-  #       SCP_ST_EXTERNALIZE: 2,
-  #       SCP_ST_NOMINATE: 3
-  #     ],
-  #     identifier: :SCP_ST_PREPARE
-  #   },
-  #   struct: %{discriminant: XDR.Enum}
-  # }
-  |> UnionSCPStatementType.encode_xdr()
-```
-And the result will be {:ok, <<0, 0, 0, 0, 0, 0, 0, 60>>}
+iex(1)> UnionSCPStatementType.new(:SCP_ST_NOMINATE) |> UnionSCPStatementType.encode_xdr()
+{:ok, <<0, 0, 0, 3, 64, 93, 112, 164>>}
 
-```elixir
-UnionSCPStatementType.decode_xdr(<<0, 0, 0, 0, 0, 0, 0, 60>>)
+iex(3)> UnionSCPStatementType.decode_xdr(<<0, 0, 0, 3, 64, 93, 112, 164>>)
+{:ok, {{:SCP_ST_NOMINATE, %XDR.Float{float: 3.4600000381469727}}, ""}}
 ```
-It will return {:ok, {{:SCP_ST_PREPARE, %XDR.Int{datum: 60}}, ""}}
 
 ### Using UnionInt or UnionUint module
 
-But remember the Union type can receive Integer types, for this we need to create another module to manage this case
+Now we are going to implement a Union type but using and UInt type instead of Enum we will call it [UnionNumber](https://gist.github.com/FranciscoMolina02/f4bd351ff69f8d77ee4edb3b20db5042)
 
 ```elixir
-defmodule UnionNumber do
-  @behaviour XDR.Declaration
+iex(1)> UnionNumber.new(2) |> UnionNumber.encode_xdr()
+{:ok, <<0, 0, 0, 2, 0, 0, 0, 0>>}
 
-  defstruct discriminant: XDR.UInt, arms: nil, struct: nil
-
-  @arms %{
-    0 => XDR.Int.new(60),
-    1 => XDR.String.new("Confirm"),
-    2 => XDR.Bool.new(false),
-    3 => XDR.Float.new(3.46)
-  }
-
-  def new(identifier),
-    do: %UnionNumber{
-      discriminant: XDR.UInt.new(identifier),
-      arms: @arms,
-      struct: %{discriminant: XDR.UInt}
-    }
-
-  @impl XDR.Declaration
-  def encode_xdr(%UnionNumber{} = union), do: XDR.Union.encode_xdr(union)
-  @impl XDR.Declaration
-  def encode_xdr!(%UnionNumber{} = union), do: XDR.Union.encode_xdr!(union)
-  @impl XDR.Declaration
-  def decode_xdr(bytes, union \\ new(nil))
-  def decode_xdr(bytes, %UnionNumber{} = union), do: XDR.Union.decode_xdr(bytes, union)
-  @impl XDR.Declaration
-  def decode_xdr!(bytes, union \\ new(nil))
-  def decode_xdr!(bytes, %UnionNumber{} = union), do: XDR.Union.decode_xdr!(bytes, union)
-end
+iex(2)> UnionNumber.decode_xdr(<<0, 0, 0, 2, 0, 0, 0, 0>>)
+{:ok,
+ {{2, %XDR.Bool{declarations: [false: 0, true: 1], identifier: false}}, ""}}
 ```
 
-**Using the code**
+## Implements an Optional type
 
-```elixir
-  UnionNumber.new(3) # We create a Union structure with the identifier which we need
-  # It returns a Union structure like this -> 
-  # %UnionNumber{
-  #   arms: %{
-  #     0 => %XDR.Int{datum: 60},
-  #     1 => %XDR.String{max_length: 4294967295, string: "Confirm"},
-  #     2 => %XDR.Bool{declarations: [false: 0, true: 1], identifier: false},
-  #     3 => %XDR.Float{float: 3.46}
-  #   },
-  #   discriminant: %XDR.UInt{datum: 3},
-  #   struct: %{discriminant: XDR.UInt}
-  # }
-  |> UnionNumber.encode_xdr()
-```
-And the result will be {:ok, <<0, 0, 0, 3, 64, 93, 112, 164>>}
-
-```elixir
-UnionNumber.decode_xdr(<<0, 0, 0, 3, 64, 93, 112, 164>>)
-```
-It will return {:ok, {{3, %XDR.Float{float: 3.4600000381469727}}, ""}}
-
-## Implements a Optional type
-We will use an Optional String, but you can use any other XDR implementation, your types also.
-
-```elixir
-defmodule OptionalString do
-  @behaviour XDR.Declaration
-
-  defstruct type: nil
-
-  def new(type), do: %OptionalString{type: type}
-
-  defdelegate encode_xdr(type), to: XDR.Optional
-  defdelegate encode_xdr!(type), to: XDR.Optional
-
-  def decode_xdr(bytes, struct \\ %{type: XDR.String})
-  def decode_xdr(bytes, struct), do: XDR.Optional.decode_xdr(bytes, struct)
-
-  def decode_xdr!(bytes, struct \\ %{type: XDR.String})
-  def decode_xdr!(bytes, struct), do: XDR.Optional.decode_xdr!(bytes, struct)
-end
-```
-
-You can use it in the following way
+We will implement an Optional type and we will call it [Optional String](https://gist.github.com/FranciscoMolina02/4ede1d0d2a12cdc84d1a30ff8d3e36cd)
 
 ```
 iex(1)> OptionalString.new(XDR.String.new("Hello")) |> OptionalString.encode_xdr()
 {:ok, <<0, 0, 0, 1, 0, 0, 0, 5, 72, 101, 108, 108, 111, 0, 0, 0>>}
 
-iex(2)> OptionalString.new(nil) |> OptionalString.encode_xdr()                    
+iex(2)> OptionalString.decode_xdr(<<0, 0, 0, 1, 0, 0, 0, 5, 72, 101, 108, 108, 111, 0, 0, 0>>)
+{:ok,
+ {%XDR.Optional{type: %XDR.String{max_length: 4294967295, string: "Hello"}}, ""}}
+
+iex(3)> OptionalString.new(nil) |> OptionalString.encode_xdr()
 {:ok, <<0, 0, 0, 0>>}
+
+iex(4)> OptionalString.decode_xdr(<<0, 0, 0, 0>>)                                             
+{:ok, {nil, ""}}
 ```
