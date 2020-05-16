@@ -27,7 +27,7 @@ defmodule XDR.MixProject do
   end
 
   defp description() do
-    "Process XDR data with elixir, based on the RFC4506 standard."
+    "Process XDR data with elixir. Based on the RFC4506 standard."
   end
 
   defp docs() do
