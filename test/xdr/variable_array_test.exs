@@ -159,7 +159,7 @@ defmodule XDR.VariableArrayTest do
           max_length: 1
         })
 
-      assert result == {[%XDR.Int{datum: 65536}], ""}
+      assert result == {[%XDR.Int{datum: 65_536}], ""}
     end
   end
 end

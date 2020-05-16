@@ -11,18 +11,27 @@ defmodule XDR.MixProject do
       elixir: ">= 1.7.0",
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
+      name: "Elixir XDR",
+      source_url: @github_url,
       description: description(),
       package: package(),
       deps: deps(),
       docs: docs(),
-      name: "Elixir XDR",
-      source_url: @github_url
+      test_coverage: [tool: ExCoveralls],
+      preferred_cli_env: [
+        coveralls: :test,
+        "coveralls.detail": :test,
+        "coveralls.post": :test,
+        "coveralls.html": :test
+      ]
     ]
   end
 
   def deps do
     [
-      {:ex_doc, "~> 0.21", only: :dev, runtime: false}
+      {:ex_doc, "~> 0.21", only: :dev, runtime: false},
+      {:credo, "~> 1.4", only: [:dev, :test], runtime: false},
+      {:excoveralls, "~> 0.10", only: :test}
     ]
   end
 

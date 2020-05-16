@@ -1,4 +1,9 @@
 # Elixir XDR
+![Build Badge](https://img.shields.io/github/workflow/status/kommitters/elixir_xdr/ElixirCI/master?style=for-the-badge)
+[![Coverage Status](https://img.shields.io/coveralls/github/kommitters/elixir_xdr?style=for-the-badge)](https://coveralls.io/github/kommitters/elixir_xdr)
+[![Version Badge](https://img.shields.io/hexpm/v/elixir_xdr?style=for-the-badge)](https://hexdocs.pm/elixir_xdr)
+![Downloads Badge](https://img.shields.io/hexpm/dt/elixir_xdr?style=for-the-badge)
+[![License badge](https://img.shields.io/hexpm/l/elixir_xdr.svg?style=for-the-badge)](https://github.com/kommitters/elixir_xdr/blob/master/LICENSE.md)
 
 Process XDR types based on the [RFC4506](https://www.ietf.org/rfc/rfc4506.txt). Extend with ease to other XDR types.
 
@@ -188,6 +193,9 @@ for guidance on how to develop for this library.
 Bug reports and pull requests are welcome on GitHub at https://github.com/kommitters/elixir_xdr.
 
 Everyone is welcome to participate in the project.
+
+## Changelog
+See the [CHANGELOG](https://github.com/kommitters/elixir_xdr/blob/master/CHENGELOG.md) for versions details.
 
 ## License
 See [LICENSE](https://github.com/kommitters/elixir_xdr/blob/master/LICENSE) for details.

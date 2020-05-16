@@ -115,7 +115,7 @@ defmodule XDR.FixedArrayTest do
           length: 2
         })
 
-      assert result == {[%XDR.Int{datum: 256}, %XDR.Int{datum: 65536}], ""}
+      assert result == {[%XDR.Int{datum: 256}, %XDR.Int{datum: 65_536}], ""}
     end
   end
 end
