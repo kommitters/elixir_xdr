@@ -8,7 +8,7 @@ defmodule XDR.MixProject do
     [
       app: :elixir_xdr,
       version: @version,
-      elixir: "~> 1.10.0",
+      elixir: ">= 1.7.0",
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
       description: description(),
