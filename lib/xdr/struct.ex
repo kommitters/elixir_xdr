@@ -71,8 +71,9 @@ defmodule XDR.Struct do
 
   def decode_xdr(bytes, %{components: components}) do
     {rest, new_components} =
-      decode_struct(bytes, components)
-      |> Keyword.pop!(:rest)
+      bytes
+      |> decode_struct(components)
+      |> Keyword.pop(:rest)
 
     {:ok, {XDR.Struct.new(new_components), rest}}
   end
