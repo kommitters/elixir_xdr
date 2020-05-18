@@ -84,6 +84,23 @@ defmodule XDR.StructTest do
       end
     end
 
+    test "when is not list" do
+      try do
+        component_keyword = Map.from_struct(TestFile.__struct__())
+
+        Struct.decode_xdr(
+          <<0, 0, 0, 17, 84, 104, 101, 32, 76, 105, 116, 116, 108, 101, 32, 80, 114, 105, 110, 99,
+            101, 0, 0, 0, 0, 0, 0, 200>>,
+          %{components: component_keyword}
+        )
+      rescue
+        error ->
+          assert error == %StructErr{
+                   message: "The :components received by parameter must be a keyword list"
+                 }
+      end
+    end
+
     test "when is a valid binary" do
       component_keyword = TestFile.__struct__() |> Map.from_struct() |> Map.to_list()
 

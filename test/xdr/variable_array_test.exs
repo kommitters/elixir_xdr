@@ -117,6 +117,54 @@ defmodule XDR.VariableArrayTest do
       end
     end
 
+    test "when exceeds the lower bound" do
+      try do
+        VariableArray.decode_xdr(<<0, 0, 1, 0>>, %XDR.VariableArray{
+          type: XDR.Int,
+          max_length: -1
+        })
+      rescue
+        error ->
+          assert error == %VariableArrayErr{
+                   message: "The minimum value of the length of the variable is 1"
+                 }
+      end
+    end
+
+    test "when exceeds the upper bound" do
+      try do
+        VariableArray.decode_xdr(<<0, 0, 1, 0>>, %XDR.VariableArray{
+          type: XDR.Int,
+          max_length: 4_294_967_296
+        })
+      rescue
+        error ->
+          assert error == %VariableArrayErr{
+                   message: "The maximum value of the length of the variable is 4_294_967_295"
+                 }
+      end
+    end
+
+    test "with invalid binary" do
+      try do
+        VariableArray.decode_xdr(
+          <<0, 0, 0, 15, 0, 0, 0, 9, 107, 111, 109, 109, 105, 116, 46, 99, 111, 0, 0, 0, 0, 0, 0,
+            9, 107, 111, 109, 109, 105, 116, 116, 101, 114, 0, 0, 0, 0, 0, 0, 6, 107, 111, 109,
+            109, 105, 116, 0, 0>>,
+          %XDR.VariableArray{
+            type: XDR.Int,
+            max_length: 15
+          }
+        )
+      rescue
+        error ->
+          assert error == %VariableArrayErr{
+                   message:
+                     "The data which you try to decode has an invalid number of bytes, it must be equal to or greater than the size of the array multiplied by 4"
+                 }
+      end
+    end
+
     test "when binary length exceeds the max_length" do
       bytes =
         <<0, 0, 0, 3, 0, 0, 0, 9, 107, 111, 109, 109, 105, 116, 46, 99, 111, 0, 0, 0, 0, 0, 0, 9,

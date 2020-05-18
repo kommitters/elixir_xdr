@@ -17,19 +17,19 @@ defmodule Error.EnumTest do
                  end
   end
 
-  test "When receives :not_valid" do
-    assert_raise Enum,
-                 "The value which you try to decode doesn't belong to the structure which you pass through parameter",
-                 fn ->
-                   raise Enum, :not_valid
-                 end
-  end
-
   test "When receives :not_binary" do
     assert_raise Enum,
                  "The value which you try to decode must be a binary value, for example: <<0, 0, 0, 2>>",
                  fn ->
                    raise Enum, :not_binary
+                 end
+  end
+
+  test "When receives :invalid_key" do
+    assert_raise Enum,
+                 "The key which you try to encode doesn't belong to the current declarations",
+                 fn ->
+                   raise Enum, :invalid_key
                  end
   end
 end

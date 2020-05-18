@@ -34,6 +34,20 @@ defmodule XDR.EnumTest do
       end
     end
 
+    test "when key doesn't belong to keyword", %{keyword: keyword} do
+      try do
+        Enum.new(keyword, :purple)
+        |> Enum.encode_xdr()
+      rescue
+        error ->
+          assert error ==
+                   %EnumErr{
+                     message:
+                       "The key which you try to encode doesn't belong to the current declarations"
+                   }
+      end
+    end
+
     test "with valid data", %{keyword: keyword} do
       {status, result} =
         Enum.new(keyword, :red)
@@ -78,6 +92,19 @@ defmodule XDR.EnumTest do
       end
     end
 
+    test "with invalid key", %{keyword: keyword} do
+      try do
+        Enum.decode_xdr(<<0, 0, 0, 3>>, %XDR.Enum{declarations: keyword})
+      rescue
+        error ->
+          assert error ==
+                   %EnumErr{
+                     message:
+                       "The key which you try to encode doesn't belong to the current declarations"
+                   }
+      end
+    end
+
     test "with valid data", %{keyword: keyword} do
       {status, result} = Enum.decode_xdr(<<0, 0, 0, 0>>, %XDR.Enum{declarations: keyword})
 
@@ -92,6 +119,19 @@ defmodule XDR.EnumTest do
 
       assert result ===
                {%XDR.Enum{declarations: [red: 0, blue: 1, yellow: 2], identifier: :red}, ""}
+    end
+
+    test "decode_xdr! with invalid key", %{keyword: keyword} do
+      try do
+        Enum.decode_xdr!(<<0, 0, 0, 3>>, %XDR.Enum{declarations: keyword})
+      rescue
+        error ->
+          assert error ==
+                   %EnumErr{
+                     message:
+                       "The key which you try to encode doesn't belong to the current declarations"
+                   }
+      end
     end
   end
 end

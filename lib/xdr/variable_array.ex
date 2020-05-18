@@ -21,7 +21,7 @@ defmodule XDR.VariableArray do
   returns a XDR.VariableArray struct with the value received as parameter
   """
   @spec new(elements :: list | binary, type :: module, max_length :: integer) :: t()
-  def new(elements, type, max_length \\ 4_294_967_295),
+  def new(elements, type, max_length),
     do: %XDR.VariableArray{elements: elements, type: type, max_length: max_length}
 
   @impl XDR.Declaration

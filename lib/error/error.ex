@@ -124,16 +124,15 @@ defmodule XDR.Error do
       %XDR.Error.Enum{message: msg}
     end
 
-    def exception(:not_valid) do
+    def exception(:not_binary) do
       msg =
-        "The value which you try to decode doesn't belong to the structure which you pass through parameter"
+        "The value which you try to decode must be a binary value, for example: <<0, 0, 0, 2>>"
 
       %XDR.Error.Enum{message: msg}
     end
 
-    def exception(:not_binary) do
-      msg =
-        "The value which you try to decode must be a binary value, for example: <<0, 0, 0, 2>>"
+    def exception(:invalid_key) do
+      msg = "The key which you try to encode doesn't belong to the current declarations"
 
       %XDR.Error.Enum{message: msg}
     end

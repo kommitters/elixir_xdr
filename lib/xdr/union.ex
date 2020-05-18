@@ -10,8 +10,7 @@ defmodule XDR.Union do
 
   alias XDR.Error.Union
 
-  def new(discriminant, arms \\ nil)
-  def new(discriminant, arms), do: %{discriminant: discriminant, arms: arms}
+  def new(discriminant, arms), do: %XDR.Union{discriminant: discriminant, arms: arms}
 
   @impl XDR.Declaration
   @doc """
@@ -85,7 +84,7 @@ defmodule XDR.Union do
   @spec decode_xdr!(bytes :: binary(), union :: map()) :: {any, binary()}
   def decode_xdr!(bytes, union), do: decode_xdr(bytes, union) |> elem(1)
 
-  defp decode_union_discriminant(bytes, %{discriminant: _discriminant})
+  defp decode_union_discriminant(bytes, %{discriminant: %{declarations: _declarations}})
        when not is_binary(bytes),
        do: raise(Union, :not_binary)
 

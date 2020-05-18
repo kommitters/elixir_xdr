@@ -4,6 +4,16 @@ defmodule XDR.FloatTest do
   alias XDR.Float
   alias XDR.Error.Float, as: FloatErr
 
+  describe "defguard tests" do
+    test "valid_float? guard" do
+      require XDR.Float
+
+      assert XDR.Float.valid_float?(3.43) == true
+      assert XDR.Float.valid_float?(4) == true
+      assert XDR.Float.valid_float?("5") == false
+    end
+  end
+
   describe "Encoding float to binary" do
     test "when receives a String" do
       try do

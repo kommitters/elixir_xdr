@@ -33,7 +33,7 @@ defmodule XDR.HyperIntTest do
 
     test "when exceeds the lower limit of an integer" do
       try do
-        HyperInt.new(-9_223_372_036_854_775_808)
+        HyperInt.new(-9_223_372_036_854_775_809)
         |> HyperInt.encode_xdr()
       rescue
         error ->
