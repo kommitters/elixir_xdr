@@ -169,14 +169,15 @@ iex(3)> XDR.UnionStatement.decode_xdr(<<0, 0, 0, 3, 64, 93, 112, 164>>)
 An example is available here: [Union Example](https://github.com/kommitters/elixir_xdr/wiki/Union-example)
 
 ### XDR.Optional
+Think that you are filling out a form and it has optional fields such as the phone number if you do not want to fill this field you can leave it empty and the field will have a nil value, on the contrary, if you want to fill it out you can do it and it will take the indicated value
+
 ```elixir
-iex(1)> XDR.String.new("Hello") |> OptionalString.new() |> OptionalString.encode_xdr()
-{:ok, <<0, 0, 0, 1, 0, 0, 0, 5, 72, 101, 108, 108, 111, 0, 0, 0>>}
+iex(1)> XDR.String.new("phone number") |> OptionalString.new() |> OptionalString.encode_xdr()
+{:ok, <<0, 0, 0, 1, 0, 0, 0, 12, 112, 104, 111, 110, 101, 32, 110, 117, 109, 98, 101, 114>>}
 
-iex(2)> OptionalString.decode_xdr(<<0, 0, 0, 1, 0, 0, 0, 5, 72, 101, 108, 108, 111, 0, 0, 0>>)
+iex(2)> OptionalString.decode_xdr(<<0, 0, 0, 1, 0, 0, 0, 12, 112, 104, 111, 110, 101, 32, 110, 117, 109, 98, 101, 114>>)
 {:ok,
- {%XDR.Optional{type: %XDR.String{max_length: 4294967295, string: "Hello"}}, ""}}
-
+ {%XDR.Optional{type: %XDR.String{max_length: 4294967295, string: "phone number"}}, ""}}
 iex(3)> OptionalString.new(nil) |> OptionalString.encode_xdr()
 {:ok, <<0, 0, 0, 0>>}
 
