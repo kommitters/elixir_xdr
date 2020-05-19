@@ -1,4 +1,4 @@
-# Floating Point
+# Double-Floating Point
 
 Represents Double-precision float values (64 bits, 8 bytes)
 ## Usage
