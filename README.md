@@ -48,7 +48,7 @@ XDR.Optional             # Section 4.19
 ```
 XDR.QuadFloat 	         # Section 4.8, not supported for 128-byte size.
 XDR.Const 		         # Section 4.17, can be replaced with elixir constants.
-XDR.Typedef 			 # Section 4.18, may be implemented with elixir modules. More info bellow in this guude.
+XDR.Typedef 			 # Section 4.18, may be implemented with elixir modules. More info bellow in this guide.
 ```
 
 ## How to implement a XDR type?

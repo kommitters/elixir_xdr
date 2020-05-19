@@ -61,6 +61,7 @@ defmodule XDR.Void do
   returns the resulted void
   """
   @spec decode_xdr!(binary, any) :: {nil, binary}
+  def decode_xdr!(bytes, opts \\ nil)
   def decode_xdr!(<<>>, _), do: {nil, ""}
   def decode_xdr!(_, _), do: raise(Void, :not_void)
 end
