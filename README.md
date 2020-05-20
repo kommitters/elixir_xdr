@@ -51,7 +51,13 @@ XDR.Const 		         # Section 4.17, can be replaced with elixir constants.
 XDR.Typedef 			 # Section 4.18, may be implemented with elixir modules. More info bellow in this guide.
 ```
 
-## How to implement a XDR type?
+## Better without macros
+
+`It is an Open Source project, not a code that only I understand`
+
+Macros are very powerful but an implementation of a macro increment the complexity of the code and it is not necessary makes the code very hard to read. Working without macros we achieve to write code very easy to understand and work with it being creative.
+
+## How to implement an XDR type?
 **Behavior is the key**. When implementing a new XDR type follow this [Behavior's Declaration](https://github.com/kommitters/elixir_xdr/blob/develop/lib/xdr/declaration.ex).
 
 ## Decoding output
