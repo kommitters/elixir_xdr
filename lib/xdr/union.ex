@@ -108,9 +108,7 @@ defmodule XDR.Union do
          bytes,
          %{discriminant: %{declarations: declarations}} = union
        ) do
-
-    {%{identifier: identifier}, rest} =
-      XDR.Enum.decode_xdr!(bytes, %{declarations: declarations})
+    {%{identifier: identifier}, rest} = XDR.Enum.decode_xdr!(bytes, %{declarations: declarations})
 
     {%{union | discriminant: identifier}, rest}
   end
