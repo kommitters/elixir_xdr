@@ -31,16 +31,8 @@ defmodule XDR.Enum do
     do: raise(EnumErr, :not_an_atom)
 
   def encode_xdr(%{declarations: declarations, identifier: identifier}) do
-    if Keyword.has_key?(declarations, identifier) do
-      binary =
-        declarations[identifier]
-        |> XDR.Int.new()
-        |> XDR.Int.encode_xdr!()
-
-      {:ok, binary}
-    else
-      raise(EnumErr, :invalid_key)
-    end
+    Keyword.has_key?(declarations, identifier)
+    |> encode_valid_data(declarations, identifier)
   end
 
   @impl XDR.Declaration
@@ -92,4 +84,17 @@ defmodule XDR.Enum do
 
   @spec get_response(nil) :: EnumErr
   defp get_response(nil), do: raise(EnumErr, :invalid_key)
+
+  @spec encode_valid_data(boolean(), declarations :: keyword(), identifier :: atom()) ::
+          {:ok, binary()}
+  defp encode_valid_data(true, declarations, identifier) do
+    binary =
+      declarations[identifier]
+      |> XDR.Int.new()
+      |> XDR.Int.encode_xdr!()
+
+    {:ok, binary}
+  end
+
+  defp encode_valid_data(false, _declarations, _identifier), do: raise(EnumErr, :invalid_key)
 end
