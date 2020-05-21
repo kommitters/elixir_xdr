@@ -6,11 +6,10 @@ defmodule XDR.VoidTest do
 
   describe "Encoding void to binary" do
     test "when not receive a void struct" do
-      {status, reason} =
-        Void.encode_xdr("hello world")
+      {status, reason} = Void.encode_xdr("hello world")
 
-        assert status == :error
-        assert reason == :not_void
+      assert status == :error
+      assert reason == :not_void
     end
 
     test "when receives a String" do
@@ -18,8 +17,8 @@ defmodule XDR.VoidTest do
         Void.new("hello world")
         |> Void.encode_xdr()
 
-        assert status == :error
-        assert reason == :not_void
+      assert status == :error
+      assert reason == :not_void
     end
 
     test "with valid data" do
@@ -53,19 +52,17 @@ defmodule XDR.VoidTest do
 
   describe "Decoding binary to integer" do
     test "when is not binary value" do
-      {status, reason} =
-        Void.decode_xdr(5860, XDR.Void)
+      {status, reason} = Void.decode_xdr(5860, XDR.Void)
 
-        assert status == :error
-        assert reason == :not_void
+      assert status == :error
+      assert reason == :not_void
     end
 
     test "with invalid binary" do
-      {status, reason} =
-        Void.decode_xdr(<<0>>, XDR.Void)
+      {status, reason} = Void.decode_xdr(<<0>>, XDR.Void)
 
-        assert status == :error
-assert reason == :not_void
+      assert status == :error
+      assert reason == :not_void
     end
 
     test "when is a valid binary" do
