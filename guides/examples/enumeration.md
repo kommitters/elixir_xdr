@@ -4,7 +4,8 @@
 
 ## Implementation
 
-To implement an Enumeration type we need to define the declarations as the possible cases to select in these cases will be defined an integer value to each case, for example in boolean case our declarations will be:
+To implement an Enumeration type we need to define the declarations as a keyword that contains the possible values to select in each key.
+In this case, we will define an integer value to each key, for example, in the boolean case, our declarations will be:
 
 ```elixir
 [false: 0, true: 1]

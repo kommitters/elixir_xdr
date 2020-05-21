@@ -55,7 +55,7 @@ XDR.Typedef 			 # Section 4.18, may be implemented with elixir modules. More inf
 
 `It is an Open Source project, not a code that only I understand`
 
-Macros are very powerful but an implementation of a macro increment the complexity of the code and it is not necessary makes the code very hard to read. Working without macros we achieve to write code very easy to understand and work with it being creative.
+Macros are harder to write than ordinary Elixir functions, implementing them increases the code complexity which is not good especially if you are planning to build an Open Source code easy to understand to everyone. We decided to go without macros, we want to let everyone to expand or implement their own XDR types with a clear model based on Elixir functions.
 
 ## How to implement an XDR type?
 **Behavior is the key**. When implementing a new XDR type follow this [Behavior's Declaration](https://github.com/kommitters/elixir_xdr/blob/develop/lib/xdr/declaration.ex).
@@ -88,7 +88,7 @@ iex> XDR.Int.decode_xdr!(<<0, 0, 4, 210>>)
 
 ### Unsigned Integer
 
- Represents integer values in the range `[0, 4294967295]`.
+ Represents integer values in a range of `[0, 4294967295]`.
 
 For encoding
 ```elixir
@@ -160,7 +160,7 @@ iex> XDR.Bool.decode_xdr!(<<0, 0, 0, 1>>)
 
 ### Hyper Integer
 
-Represents integer values in the range `[-9223372036854775808, 9223372036854775807]`
+Represents integer values in a range of `[-9223372036854775808, 9223372036854775807]`
 
 For encoding
 
@@ -182,7 +182,7 @@ iex> XDR.HyperInt.decode_xdr!(<<0, 0, 0, 0, 0, 3, 243, 147>>)
 
 ### Unsigned Hyper Integer
 
-Represents integer values in the range `[0, 18446744073709551615]`
+Represents integer values in a range of `[0, 18446744073709551615]`
 
 For encoding
 ```elixir 
@@ -298,7 +298,7 @@ iex> XDR.String.decode_xdr!(<<0, 0, 0, 17, 84, 104, 101, 32, 108, 105, 116, 116,
 
 ### Fixed-Length Array
  
-Represents a Fixed-Length array which contains the same type of elements
+Represents a Fixed-Length array that contains the same type of elements
 
 For encoding
 ```elixir 
