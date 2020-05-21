@@ -5,16 +5,49 @@ defmodule XDR.OptionalTest do
   alias XDR.Error.Optional, as: OptionalErr
 
   describe "Encoding Optional type to binary" do
-    test "when is not an valid value" do
-      try do
+    test "when receives a string" do
+      {status, reason} =
         Optional.new("hello world")
         |> Optional.encode_xdr()
-      rescue
-        error ->
-          assert error == %OptionalErr{
-                   message: "The value which you try to encode must be Int, UInt or Enum"
-                 }
-      end
+
+      assert status == :error
+      assert reason == :not_valid
+    end
+
+    test "when receives a list" do
+      {status, reason} =
+        Optional.new([])
+        |> Optional.encode_xdr()
+
+      assert status == :error
+      assert reason == :not_valid
+    end
+
+    test "when receives a tuple" do
+      {status, reason} =
+        Optional.new({:ok, []})
+        |> Optional.encode_xdr()
+
+      assert status == :error
+      assert reason == :not_valid
+    end
+
+    test "when receives a bool" do
+      {status, reason} =
+        Optional.new(true)
+        |> Optional.encode_xdr()
+
+      assert status == :error
+      assert reason == :not_valid
+    end
+
+    test "when receives nil" do
+      {status, result} =
+        Optional.new(nil)
+        |> Optional.encode_xdr()
+
+      assert status == :ok
+      assert result == <<0, 0, 0, 0>>
     end
 
     test "when is a valid integer" do
@@ -45,26 +78,32 @@ defmodule XDR.OptionalTest do
       assert result == <<0, 0, 0, 1, 0, 0, 0, 1>>
     end
 
-    test "decode_xdr! with valid data" do
+    test "encode_xdr! with valid data" do
       result =
         Optional.new(%XDR.Int{datum: 5860})
         |> Optional.encode_xdr!()
 
       assert result == <<0, 0, 0, 1, 0, 0, 22, 228>>
     end
+
+    test "encode_xdr! when receives a string" do
+      optional = Optional.new("hello world")
+
+      assert_raise OptionalErr, fn -> Optional.encode_xdr!(optional) end
+    end
   end
 
   describe "Decoding binary to integer" do
     test "when is not binary value" do
-      try do
-        Optional.decode_xdr([0, 0, 0, 1, 0, 0, 22, 228], %{type: XDR.Int})
-      rescue
-        error ->
-          assert error ==
-                   %OptionalErr{
-                     message: "The value which you try to decode must be a binary value"
-                   }
-      end
+      {status, reason} = Optional.decode_xdr([0, 0, 0, 1, 0, 0, 22, 228], %{type: XDR.Int})
+      assert status == :error
+      assert reason == :not_binary
+    end
+
+    test "when is not an atom" do
+      {status, reason} = Optional.decode_xdr(<<0, 0, 0, 1, 0, 0, 22, 228>>, %{type: "XDR.Int"})
+      assert status == :error
+      assert reason == :not_module
     end
 
     test "with valid binary and Integer type" do
@@ -86,6 +125,25 @@ defmodule XDR.OptionalTest do
 
       assert status == :ok
       assert result === {%XDR.Optional{type: %XDR.Bool{identifier: true}}, ""}
+    end
+
+    test "with void value" do
+      {status, result} = Optional.decode_xdr(<<0, 0, 0, 0>>, %{type: XDR.Bool})
+
+      assert status == :ok
+      assert result === {nil, ""}
+    end
+
+    test "decode_xdr! with valid Enum type" do
+      result = Optional.decode_xdr!(<<0, 0, 0, 1, 0, 0, 0, 1>>, %{type: XDR.Bool})
+
+      assert result === {%XDR.Optional{type: %XDR.Bool{identifier: true}}, ""}
+    end
+
+    test "decode_xdr! when is not binary value" do
+      assert_raise OptionalErr, fn ->
+        Optional.decode_xdr!([0, 0, 0, 1, 0, 0, 22, 228], %{type: XDR.Int})
+      end
     end
   end
 end

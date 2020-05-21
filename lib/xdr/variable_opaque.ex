@@ -30,22 +30,29 @@ defmodule XDR.VariableOpaque do
 
   returns an :ok tuple with the resulted XDR
   """
-  @spec encode_xdr(map()) :: {:ok, binary}
+  @spec encode_xdr(map()) ::
+          {:ok, binary}
+          | {:error,
+             :not_binary
+             | :not_number
+             | :exceed_lower_bound
+             | :exceed_upper_bound
+             | :invalid_length}
   def encode_xdr(%{opaque: opaque}) when not is_binary(opaque),
-    do: raise(VariableOpaqueErr, :not_binary)
+    do: {:error, :not_binary}
 
   def encode_xdr(%{max_size: max_size}) when not is_integer(max_size),
-    do: raise(VariableOpaqueErr, :not_number)
+    do: {:error, :not_number}
 
   def encode_xdr(%{max_size: max_size}) when max_size <= 0,
-    do: raise(VariableOpaqueErr, :exceed_lower_bound)
+    do: {:error, :exceed_lower_bound}
 
   def encode_xdr(%{max_size: max_size}) when max_size > 4_294_967_295,
-    do: raise(VariableOpaqueErr, :exceed_upper_bound)
+    do: {:error, :exceed_upper_bound}
 
   def encode_xdr(%{opaque: opaque, max_size: max_size})
       when byte_size(opaque) > max_size,
-      do: raise(VariableOpaqueErr, :invalid_length)
+      do: {:error, :invalid_length}
 
   def encode_xdr(%{opaque: opaque}) do
     length = byte_size(opaque)
@@ -70,7 +77,12 @@ defmodule XDR.VariableOpaque do
   returns the resulted XDR
   """
   @spec encode_xdr!(map()) :: binary
-  def encode_xdr!(opaque), do: encode_xdr(opaque) |> elem(1)
+  def encode_xdr!(opaque) do
+    case encode_xdr(opaque) do
+      {:ok, binary} -> binary
+      {:error, reason} -> raise(VariableOpaqueErr, reason)
+    end
+  end
 
   @impl XDR.Declaration
   @doc """
@@ -79,20 +91,28 @@ defmodule XDR.VariableOpaque do
 
   returns an :ok tuple with the resulted binary
   """
-  @spec decode_xdr(bytes :: binary, opts :: map()) :: {:ok, {t, binary}}
+  @spec decode_xdr(bytes :: binary, opts :: map()) ::
+          {:ok, {t, binary}}
+          | {:error,
+             :not_binary
+             | :not_number
+             | :exceed_lower_bound
+             | :exceed_upper_bound
+             | :length_over_max
+             | :length_over_rest}
   def decode_xdr(bytes, opts \\ %{max_size: 4_294_967_295})
 
   def decode_xdr(bytes, _opts) when not is_binary(bytes),
-    do: raise(VariableOpaqueErr, :not_binary)
+    do: {:error, :not_binary}
 
   def decode_xdr(_bytes, %{max_size: max_size}) when not is_integer(max_size),
-    do: raise(VariableOpaqueErr, :not_number)
+    do: {:error, :not_number}
 
   def decode_xdr(_bytes, %{max_size: max_size}) when max_size <= 0,
-    do: raise(VariableOpaqueErr, :exceed_lower_bound)
+    do: {:error, :exceed_lower_bound}
 
   def decode_xdr(_bytes, %{max_size: max_size}) when max_size > 4_294_967_295,
-    do: raise(VariableOpaqueErr, :exceed_upper_bound)
+    do: {:error, :exceed_upper_bound}
 
   def decode_xdr(bytes, %{max_size: max_size}) do
     {uint, rest} = UInt.decode_xdr!(bytes)
@@ -109,14 +129,20 @@ defmodule XDR.VariableOpaque do
   """
   @spec decode_xdr!(bytes :: binary, opts :: map()) :: {t, binary}
   def decode_xdr!(bytes, struct \\ %{max_size: 4_294_967_295})
-  def decode_xdr!(bytes, struct), do: decode_xdr(bytes, struct) |> elem(1)
+
+  def decode_xdr!(bytes, struct) do
+    case decode_xdr(bytes, struct) do
+      {:ok, result} -> result
+      {:error, reason} -> raise(VariableOpaqueErr, reason)
+    end
+  end
 
   @spec get_decoded_value({integer(), binary()}, max :: integer()) :: {:ok, {t, binary}}
   defp get_decoded_value({length, _rest}, max) when length > max,
-    do: raise(VariableOpaqueErr, :length_over_max)
+    do: {:error, :length_over_max}
 
   defp get_decoded_value({length, rest}, _max) when length > byte_size(rest),
-    do: raise(VariableOpaqueErr, :length_over_rest)
+    do: {:error, :length_over_rest}
 
   defp get_decoded_value({length, rest}, max) do
     {fixed_opaque, rest} = FixedOpaque.decode_xdr!(rest, %XDR.FixedOpaque{length: length})

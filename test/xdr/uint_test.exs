@@ -6,43 +6,30 @@ defmodule XDR.UIntTest do
 
   describe "Encoding unsigned integer to binary" do
     test "when is not an unsigned integer value" do
-      try do
+      {status, reason} =
         UInt.new("hello world")
         |> UInt.encode_xdr()
-      rescue
-        error ->
-          assert error == %UIntErr{
-                   message: "The value which you try to encode is not an integer"
-                 }
-      end
+
+      assert status == :error
+      assert reason == :not_integer
     end
 
     test "when exceeds the upper limit of an unsigned integer" do
-      try do
+      {status, reason} =
         UInt.new(5_147_483_647)
         |> UInt.encode_xdr()
-      rescue
-        error ->
-          assert error ==
-                   %UIntErr{
-                     message:
-                       "The integer which you try to encode exceed the upper limit of an unsigned integer, the value must be less than 4_294_967_295"
-                   }
-      end
+
+      assert status == :error
+      assert reason == :exceed_upper_limit
     end
 
     test "when exceeds the lower limit of an unsigned integer" do
-      try do
+      {status, reason} =
         UInt.new(-3_147_483_647)
         |> UInt.encode_xdr()
-      rescue
-        error ->
-          assert error ==
-                   %UIntErr{
-                     message:
-                       "The integer which you try to encode exceed the lower limit of an unsigned integer, the value must be more than 0"
-                   }
-      end
+
+      assert status == :error
+      assert reason == :exceed_lower_limit
     end
 
     test "when is a valid unsigned integer" do
@@ -54,28 +41,29 @@ defmodule XDR.UIntTest do
       assert result == <<4, 1, 201, 4>>
     end
 
-    test "decode_xdr! with valid UInt" do
+    test "encode_xdr! with valid UInt" do
       result =
         UInt.new(67_225_860)
         |> UInt.encode_xdr!()
 
       assert result == <<4, 1, 201, 4>>
     end
+
+    test "encode_xdr! with invalid data" do
+      uint = UInt.new("hello world")
+
+      assert_raise UIntErr, fn -> UInt.encode_xdr!(uint) end
+    end
   end
 
   describe "Decoding binary to integer" do
     test "when is not binary value" do
-      try do
+      {status, reason} =
         UInt.new(5860)
         |> UInt.decode_xdr()
-      rescue
-        error ->
-          assert error ==
-                   %UIntErr{
-                     message:
-                       "The value which you try to decode must be a binary value, for example: <<0, 0, 0, 2>>"
-                   }
-      end
+
+      assert status == :error
+      assert reason == :not_binary
     end
 
     test "when is a valid binary" do
@@ -96,6 +84,10 @@ defmodule XDR.UIntTest do
       result = UInt.decode_xdr!(<<4, 1, 201, 4, 10>>)
 
       assert result === {%XDR.UInt{datum: 67_225_860}, <<10>>}
+    end
+
+    test "decode_xdr! when is not binary value" do
+      assert_raise UIntErr, fn -> UInt.decode_xdr!([1, 2, 3, 6]) end
     end
   end
 end

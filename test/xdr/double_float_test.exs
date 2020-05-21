@@ -4,41 +4,42 @@ defmodule XDR.DoubleFloatTest do
   alias XDR.DoubleFloat
   alias XDR.Error.DoubleFloat, as: DoubleFloatErr
 
+  describe "defguard tests" do
+    test "valid_float? guard" do
+      require XDR.DoubleFloat
+
+      assert XDR.DoubleFloat.valid_float?(3.43) == true
+      assert XDR.DoubleFloat.valid_float?(4) == true
+      assert XDR.DoubleFloat.valid_float?("5") == false
+    end
+  end
+
   describe "Encoding float to binary" do
     test "when receives a String" do
-      try do
+      {status, reason} =
         DoubleFloat.new("hello world")
         |> DoubleFloat.encode_xdr()
-      rescue
-        error ->
-          assert error == %DoubleFloatErr{
-                   message: "The value which you try to encode is not an integer or float value"
-                 }
-      end
+
+      assert status == :error
+      assert reason == :not_number
     end
 
     test "when receives a boolean" do
-      try do
+      {status, reason} =
         DoubleFloat.new(true)
         |> DoubleFloat.encode_xdr()
-      rescue
-        error ->
-          assert error == %DoubleFloatErr{
-                   message: "The value which you try to encode is not an integer or float value"
-                 }
-      end
+
+      assert status == :error
+      assert reason == :not_number
     end
 
     test "when receives an atom" do
-      try do
+      {status, reason} =
         DoubleFloat.new(:hello)
         |> DoubleFloat.encode_xdr()
-      rescue
-        error ->
-          assert error == %DoubleFloatErr{
-                   message: "The value which you try to encode is not an integer or float value"
-                 }
-      end
+
+      assert status == :error
+      assert reason == :not_number
     end
 
     test "when is a valid integer" do
@@ -50,12 +51,18 @@ defmodule XDR.DoubleFloatTest do
       assert result == <<63, 240, 0, 0, 0, 0, 0, 0>>
     end
 
-    test "decode_xdr! with valid integer" do
+    test "encode_xdr! with valid integer" do
       result =
         DoubleFloat.new(1)
         |> DoubleFloat.encode_xdr!()
 
       assert result == <<63, 240, 0, 0, 0, 0, 0, 0>>
+    end
+
+    test "encode_xdr! when receives a String" do
+      float = DoubleFloat.new("hello world")
+
+      assert_raise DoubleFloatErr, fn -> DoubleFloat.encode_xdr!(float) end
     end
 
     test "with negative integer" do
@@ -88,17 +95,10 @@ defmodule XDR.DoubleFloatTest do
 
   describe "Decoding binary to integer" do
     test "when is not binary value" do
-      try do
-        DoubleFloat.new(5860)
-        |> DoubleFloat.decode_xdr()
-      rescue
-        error ->
-          assert error ==
-                   %DoubleFloatErr{
-                     message:
-                       "The value which you try to decode must be a binary value, for example: <<0, 0, 0, 0, 0, 0, 0, 5>>"
-                   }
-      end
+      {status, reason} = DoubleFloat.decode_xdr(5860)
+
+      assert status == :error
+      assert reason == :not_binary
     end
 
     test "when is a valid binary" do
@@ -119,6 +119,10 @@ defmodule XDR.DoubleFloatTest do
       result = DoubleFloat.decode_xdr!(<<192, 11, 174, 20, 122, 225, 71, 174>>)
 
       assert result === {%XDR.DoubleFloat{float: -3.46}, ""}
+    end
+
+    test "decode_xdr! when is not binary value" do
+      assert_raise DoubleFloatErr, fn -> DoubleFloat.decode_xdr!(5860) end
     end
   end
 end

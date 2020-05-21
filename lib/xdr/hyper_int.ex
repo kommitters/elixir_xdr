@@ -28,15 +28,16 @@ defmodule XDR.HyperInt do
 
   Returns a tuple with the XDR resulted from encoding the Hyper Integer value
   """
-  @spec encode_xdr(t()) :: {:ok, binary()}
+  @spec encode_xdr(t()) ::
+          {:ok, binary()} | {:error, :not_integer | :exceed_upper_limit | :exceed_lower_limit}
   def encode_xdr(%XDR.HyperInt{datum: datum}) when not is_integer(datum),
-    do: raise(HyperInt, :not_integer)
+    do: {:error, :not_integer}
 
   def encode_xdr(%XDR.HyperInt{datum: datum}) when datum > 9_223_372_036_854_775_807,
-    do: raise(HyperInt, :exceed_upper_limit)
+    do: {:error, :exceed_upper_limit}
 
   def encode_xdr(%XDR.HyperInt{datum: datum}) when datum < -9_223_372_036_854_775_808,
-    do: raise(HyperInt, :exceed_lower_limit)
+    do: {:error, :exceed_lower_limit}
 
   def encode_xdr(%XDR.HyperInt{datum: datum}), do: {:ok, <<datum::big-signed-integer-size(64)>>}
 
@@ -48,7 +49,12 @@ defmodule XDR.HyperInt do
   Returns the XDR resulted from encoding the Hyper Integer value
   """
   @spec encode_xdr!(t()) :: binary()
-  def encode_xdr!(datum), do: encode_xdr(datum) |> elem(1)
+  def encode_xdr!(datum) do
+    case encode_xdr(datum) do
+      {:ok, binary} -> binary
+      {:error, reason} -> raise(HyperInt, reason)
+    end
+  end
 
   @impl XDR.Declaration
   @doc """
@@ -57,11 +63,11 @@ defmodule XDR.HyperInt do
 
   Returns a tuple with the Hyper Integer resulted from decode the XDR value and its remaining bits
   """
-  @spec decode_xdr(bytes :: binary, opts :: any) :: {:ok, {t(), binary()}}
+  @spec decode_xdr(bytes :: binary, opts :: any) :: {:ok, {t(), binary()}} | {:error, :not_binary}
   def decode_xdr(bytes, opts \\ nil)
 
   def decode_xdr(bytes, _opts) when not is_binary(bytes),
-    do: raise(HyperInt, :not_binary)
+    do: {:error, :not_binary}
 
   def decode_xdr(bytes, _opts) do
     <<hyper_int::big-signed-integer-size(64), rest::binary>> = bytes
@@ -80,5 +86,11 @@ defmodule XDR.HyperInt do
   """
   @spec decode_xdr!(bytes :: binary, opts :: any) :: {t(), binary()}
   def decode_xdr!(bytes, opts \\ nil)
-  def decode_xdr!(bytes, opts), do: decode_xdr(bytes, opts) |> elem(1)
+
+  def decode_xdr!(bytes, opts) do
+    case decode_xdr(bytes, opts) do
+      {:ok, result} -> result
+      {:error, reason} -> raise(HyperInt, reason)
+    end
+  end
 end

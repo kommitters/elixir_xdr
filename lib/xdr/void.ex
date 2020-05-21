@@ -19,8 +19,7 @@ defmodule XDR.Void do
   returns an XDR.Void structure
   """
   @spec new(nil) :: t()
-  def new(nil), do: %XDR.Void{void: nil}
-  def new(_), do: raise(Void, :not_void)
+  def new(value), do: %XDR.Void{void: value}
 
   @impl XDR.Declaration
   @doc """
@@ -29,9 +28,9 @@ defmodule XDR.Void do
 
   returns and ok tuple with the resulted XDR
   """
-  @spec encode_xdr(t()) :: {:ok, binary}
+  @spec encode_xdr(t()) :: {:ok, binary} | {:error, :not_void}
   def encode_xdr(%XDR.Void{void: nil}), do: {:ok, <<>>}
-  def encode_xdr(_), do: raise(Void, :not_void)
+  def encode_xdr(_), do: {:error, :not_void}
 
   @impl XDR.Declaration
   @doc """
@@ -51,9 +50,9 @@ defmodule XDR.Void do
 
   returns and ok tuple with the resulted void
   """
-  @spec decode_xdr(binary, any) :: {:ok, {nil, binary}}
+  @spec decode_xdr(binary, any) :: {:ok, {nil, binary}} | {:error, :not_void}
   def decode_xdr(<<>>, _), do: {:ok, {nil, ""}}
-  def decode_xdr(_, _), do: raise(Void, :not_void)
+  def decode_xdr(_, _), do: {:error, :not_void}
   @impl XDR.Declaration
   @doc """
   this function is in charge of decoding the void values into an vo format, it receives an XDR.Void structure which contains

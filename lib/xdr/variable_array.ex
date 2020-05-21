@@ -21,7 +21,7 @@ defmodule XDR.VariableArray do
   returns a XDR.VariableArray struct with the value received as parameter
   """
   @spec new(elements :: list | binary, type :: module, max_length :: integer) :: t()
-  def new(elements, type, max_length \\ 4_294_967_295),
+  def new(elements, type, max_length),
     do: %XDR.VariableArray{elements: elements, type: type, max_length: max_length}
 
   @impl XDR.Declaration
@@ -31,22 +31,28 @@ defmodule XDR.VariableArray do
 
   returns an :ok tuple with the resulted XDR
   """
-  @spec encode_xdr(map()) :: {:ok, binary}
+  @spec encode_xdr(map()) ::
+          {:ok, binary}
+          | {:error,
+             :not_number
+             | :exceed_lower_bound
+             | :exceed_upper_bound
+             | :not_list
+             | :length_over_max}
   def encode_xdr(%{max_length: max_length}) when not is_integer(max_length),
-    do: raise(VariableArray, :not_number)
+    do: {:error, :not_number}
 
   def encode_xdr(%{max_length: max_length}) when max_length <= 0,
-    do: raise(VariableArray, :exceed_lower_bound)
+    do: {:error, :exceed_lower_bound}
 
   def encode_xdr(%{max_length: max_length}) when max_length > 4_294_967_295,
-    do: raise(VariableArray, :exceed_upper_bound)
+    do: {:error, :exceed_upper_bound}
 
-  def encode_xdr(%{elements: elements}) when not is_list(elements),
-    do: raise(VariableArray, :not_list)
+  def encode_xdr(%{elements: elements}) when not is_list(elements), do: {:error, :not_list}
 
   def encode_xdr(%{elements: elements, max_length: max_length})
       when length(elements) > max_length,
-      do: raise(VariableArray, :length_over_max)
+      do: {:error, :length_over_max}
 
   def encode_xdr(%{elements: elements, type: type}) do
     array_length = length(elements)
@@ -70,7 +76,12 @@ defmodule XDR.VariableArray do
   returns the resulted XDR
   """
   @spec encode_xdr!(map()) :: binary
-  def encode_xdr!(variable_array), do: encode_xdr(variable_array) |> elem(1)
+  def encode_xdr!(variable_array) do
+    case encode_xdr(variable_array) do
+      {:ok, binary} -> binary
+      {:error, reason} -> raise(VariableArray, reason)
+    end
+  end
 
   @impl XDR.Declaration
   @doc """
@@ -79,30 +90,38 @@ defmodule XDR.VariableArray do
 
   returns an :ok tuple with the resulted array
   """
-  @spec decode_xdr(bytes :: binary, struct :: map()) :: {:ok, {list, binary}}
+  @spec decode_xdr(bytes :: binary, struct :: map()) ::
+          {:ok, {list, binary}}
+          | {:error,
+             :not_number
+             | :exceed_lower_bound
+             | :exceed_upper_bound
+             | :invalid_length
+             | :invalid_binary
+             | :not_binary}
   def decode_xdr(_bytes, %{max_length: max_length})
       when not is_integer(max_length),
-      do: raise(VariableArray, :not_number)
+      do: {:error, :not_number}
 
   def decode_xdr(_bytes, %{max_length: max_length}) when max_length <= 0,
-    do: raise(VariableArray, :exceed_lower_bound)
+    do: {:error, :exceed_lower_bound}
 
   def decode_xdr(_bytes, %{max_length: max_length})
       when max_length > 4_294_967_295,
-      do: raise(VariableArray, :exceed_upper_bound)
+      do: {:error, :exceed_upper_bound}
 
   def decode_xdr(<<xdr_len::big-unsigned-integer-size(32), _::binary>>, %{
         max_length: max_length
       })
       when xdr_len > max_length,
-      do: raise(VariableArray, :invalid_length)
+      do: {:error, :invalid_length}
 
   def decode_xdr(<<xdr_len::big-unsigned-integer-size(32), rest::binary>>, _struct)
       when xdr_len * 4 > byte_size(rest),
-      do: raise(VariableArray, :invalid_binary)
+      do: {:error, :invalid_binary}
 
   def decode_xdr(bytes, _struct) when not is_binary(bytes),
-    do: raise(VariableArray, :not_binary)
+    do: {:error, :not_binary}
 
   def decode_xdr(bytes, %{type: type}) do
     {array_length, rest} = UInt.decode_xdr!(bytes)
@@ -122,5 +141,10 @@ defmodule XDR.VariableArray do
   returns the resulted array
   """
   @spec decode_xdr!(bytes :: binary, struct :: map()) :: {list, binary}
-  def decode_xdr!(bytes, struct), do: decode_xdr(bytes, struct) |> elem(1)
+  def decode_xdr!(bytes, struct) do
+    case decode_xdr(bytes, struct) do
+      {:ok, result} -> result
+      {:error, reason} -> raise(VariableArray, reason)
+    end
+  end
 end

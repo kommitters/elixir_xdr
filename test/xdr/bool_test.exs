@@ -6,15 +6,12 @@ defmodule XDR.BoolTest do
 
   describe "Encoding Boolean structures" do
     test "when the value is not boolean" do
-      try do
+      {status, reason} =
         Bool.new("true")
         |> Bool.encode_xdr()
-      rescue
-        error ->
-          assert error == %BoolErr{
-                   message: "The value which you try to encode is not a boolean"
-                 }
-      end
+
+      assert status == :error
+      assert reason == :not_boolean
     end
 
     test "with valid data" do
@@ -33,20 +30,20 @@ defmodule XDR.BoolTest do
 
       assert result === <<0, 0, 0, 1>>
     end
+
+    test "encode_xdr! when is not boolean" do
+      bool = Bool.new("true")
+
+      assert_raise BoolErr, fn -> Bool.encode_xdr!(bool) end
+    end
   end
 
   describe "Decoding boolean structures" do
     test "when is not binary value" do
-      try do
-        Bool.decode_xdr(5860)
-      rescue
-        error ->
-          assert error ==
-                   %BoolErr{
-                     message:
-                       "The value which you try to decode must be <<0, 0, 0, 0>> or <<0, 0, 0, 1>>"
-                   }
-      end
+      {status, reason} = Bool.decode_xdr(5860)
+
+      assert status == :error
+      assert reason == :invalid_value
     end
 
     test "with valid data" do
@@ -60,6 +57,10 @@ defmodule XDR.BoolTest do
       result = Bool.decode_xdr!(<<0, 0, 0, 1>>)
 
       assert result === {%XDR.Bool{declarations: [false: 0, true: 1], identifier: true}, ""}
+    end
+
+    test "decode_xdr! when is not binary value" do
+      assert_raise BoolErr, fn -> Bool.decode_xdr!(5860) end
     end
   end
 end

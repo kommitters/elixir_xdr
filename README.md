@@ -195,7 +195,7 @@ Bug reports and pull requests are welcome on GitHub at https://github.com/kommit
 Everyone is welcome to participate in the project.
 
 ## Changelog
-See the [CHANGELOG](https://github.com/kommitters/elixir_xdr/blob/master/CHENGELOG.md) for versions details.
+See the [CHANGELOG](https://github.com/kommitters/elixir_xdr/blob/master/CHANGELOG.md) for versions details.
 
 ## License
 See [LICENSE](https://github.com/kommitters/elixir_xdr/blob/master/LICENSE) for details.

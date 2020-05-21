@@ -6,64 +6,48 @@ defmodule XDR.VariableArrayTest do
 
   describe "Encoding Fixed Array" do
     test "when xdr is not list" do
-      try do
+      {status, reason} =
         VariableArray.new(<<0, 0, 1>>, XDR.Int, 3)
         |> VariableArray.encode_xdr()
-      rescue
-        error ->
-          assert error == %VariableArrayErr{
-                   message: "the value which you try to encode must be a list"
-                 }
-      end
+
+      assert status == :error
+      assert reason == :not_list
     end
 
     test "with invalid length" do
-      try do
+      {status, reason} =
         VariableArray.new([0, 0, 1], XDR.Int, 2)
         |> VariableArray.encode_xdr()
-      rescue
-        error ->
-          assert error == %VariableArrayErr{
-                   message:
-                     "The number which represents the length from decode the opaque as UInt is bigger than the defined max"
-                 }
-      end
+
+      assert status == :error
+      assert reason == :length_over_max
     end
 
     test "when length is not an integer" do
-      try do
+      {status, reason} =
         VariableArray.new([0, 0, 1], XDR.Int, "2")
         |> VariableArray.encode_xdr()
-      rescue
-        error ->
-          assert error == %VariableArrayErr{
-                   message: "the max length must be an integer value"
-                 }
-      end
+
+      assert status == :error
+      assert reason == :not_number
     end
 
     test "when exceed the upper bound" do
-      try do
+      {status, reason} =
         VariableArray.new([0, 0, 1], XDR.Int, 4_294_967_296)
         |> VariableArray.encode_xdr()
-      rescue
-        error ->
-          assert error == %VariableArrayErr{
-                   message: "The maximum value of the length of the variable is 4_294_967_295"
-                 }
-      end
+
+      assert status == :error
+      assert reason == :exceed_upper_bound
     end
 
     test "when exceed the lower bound" do
-      try do
+      {status, reason} =
         VariableArray.new([0, 0, 1], XDR.Int, -1)
         |> VariableArray.encode_xdr()
-      rescue
-        error ->
-          assert error == %VariableArrayErr{
-                   message: "The minimum value of the length of the variable is 1"
-                 }
-      end
+
+      assert status == :error
+      assert reason == :exceed_lower_bound
     end
 
     test "with valid data" do
@@ -85,36 +69,73 @@ defmodule XDR.VariableArrayTest do
                  0, 9, 107, 111, 109, 109, 105, 116, 116, 101, 114, 0, 0, 0, 0, 0, 0, 6, 107, 111,
                  109, 109, 105, 116, 0, 0>>
     end
+
+    test "encode_xdr! when xdr is not list" do
+      variable_array = VariableArray.new(<<0, 0, 1>>, XDR.Int, 3)
+
+      assert_raise VariableArrayErr, fn -> VariableArray.encode_xdr!(variable_array) end
+    end
   end
 
   describe "Decoding Fixed Array" do
     test "when xdr is not binary" do
-      try do
+      {status, reason} =
         VariableArray.decode_xdr([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], %XDR.VariableArray{
           type: XDR.Int,
           max_length: 3
         })
-      rescue
-        error ->
-          assert error == %VariableArrayErr{
-                   message:
-                     "The value which you pass through parameters must be a binary value, for example: <<0, 0, 0, 5>>"
-                 }
-      end
+
+      assert status == :error
+      assert reason == :not_binary
     end
 
     test "when length is not an integer" do
-      try do
+      {status, reason} =
         VariableArray.decode_xdr(<<0, 0, 1, 0>>, %XDR.VariableArray{
           type: XDR.Int,
           max_length: "3"
         })
-      rescue
-        error ->
-          assert error == %VariableArrayErr{
-                   message: "the max length must be an integer value"
-                 }
-      end
+
+      assert status == :error
+      assert reason == :not_number
+    end
+
+    test "when exceeds the lower bound" do
+      {status, reason} =
+        VariableArray.decode_xdr(<<0, 0, 1, 0>>, %XDR.VariableArray{
+          type: XDR.Int,
+          max_length: -1
+        })
+
+      assert status == :error
+      assert reason == :exceed_lower_bound
+    end
+
+    test "when exceeds the upper bound" do
+      {status, reason} =
+        VariableArray.decode_xdr(<<0, 0, 1, 0>>, %XDR.VariableArray{
+          type: XDR.Int,
+          max_length: 4_294_967_296
+        })
+
+      assert status == :error
+      assert reason == :exceed_upper_bound
+    end
+
+    test "with invalid binary" do
+      {status, reason} =
+        VariableArray.decode_xdr(
+          <<0, 0, 0, 15, 0, 0, 0, 9, 107, 111, 109, 109, 105, 116, 46, 99, 111, 0, 0, 0, 0, 0, 0,
+            9, 107, 111, 109, 109, 105, 116, 116, 101, 114, 0, 0, 0, 0, 0, 0, 6, 107, 111, 109,
+            109, 105, 116, 0, 0>>,
+          %XDR.VariableArray{
+            type: XDR.Int,
+            max_length: 15
+          }
+        )
+
+      assert status == :error
+      assert reason == :invalid_binary
     end
 
     test "when binary length exceeds the max_length" do
@@ -123,14 +144,11 @@ defmodule XDR.VariableArrayTest do
           107, 111, 109, 109, 105, 116, 116, 101, 114, 0, 0, 0, 0, 0, 0, 6, 107, 111, 109, 109,
           105, 116, 0, 0>>
 
-      try do
+      {status, reason} =
         VariableArray.decode_xdr(bytes, %XDR.VariableArray{type: XDR.Int, max_length: 1})
-      rescue
-        error ->
-          assert error == %VariableArrayErr{
-                   message: "The length of the binary exceeds the max_length of the type"
-                 }
-      end
+
+      assert status == :error
+      assert reason == :invalid_length
     end
 
     test "with valid data" do
@@ -160,6 +178,17 @@ defmodule XDR.VariableArrayTest do
         })
 
       assert result == {[%XDR.Int{datum: 65_536}], ""}
+    end
+
+    test "decode_xdr! when length is not an integer" do
+      variable_array = %XDR.VariableArray{
+        type: XDR.Int,
+        max_length: "3"
+      }
+
+      assert_raise VariableArrayErr, fn ->
+        VariableArray.decode_xdr!(<<0, 0, 1, 0>>, variable_array)
+      end
     end
   end
 end

@@ -21,9 +21,9 @@ defmodule XDR.Bool do
 
   returns an ok tuple with the boolean encoded into an XDR value
   """
-  @spec encode_xdr(t()) :: {:ok, binary}
+  @spec encode_xdr(t()) :: {:ok, binary} | {:error, :not_boolean}
   def encode_xdr(%XDR.Bool{identifier: identifier}) when not is_boolean(identifier),
-    do: raise(Bool, :not_boolean)
+    do: {:error, :not_boolean}
 
   def encode_xdr(%XDR.Bool{} = boolean), do: Enum.encode_xdr(boolean)
 
@@ -34,7 +34,12 @@ defmodule XDR.Bool do
   returns the boolean encoded into an XDR value
   """
   @spec encode_xdr!(t()) :: binary()
-  def encode_xdr!(boolean), do: encode_xdr(boolean) |> elem(1)
+  def encode_xdr!(boolean) do
+    case encode_xdr(boolean) do
+      {:ok, binary} -> binary
+      {:error, reason} -> raise(Bool, reason)
+    end
+  end
 
   @impl XDR.Declaration
   @doc """
@@ -42,9 +47,10 @@ defmodule XDR.Bool do
 
   returns an ok tuple with the boolean decoded from an XDR value
   """
-  @spec decode_xdr(bytes :: binary, struct :: t | any) :: {:ok, {t, binary}}
+  @spec decode_xdr(bytes :: binary, struct :: t | any) ::
+          {:ok, {t, binary}} | {:error, :invalid_value}
   def decode_xdr(bytes, struct \\ %XDR.Bool{declarations: @boolean})
-  def decode_xdr(bytes, _struct) when not is_binary(bytes), do: raise(Bool, :invalid_value)
+  def decode_xdr(bytes, _struct) when not is_binary(bytes), do: {:error, :invalid_value}
 
   def decode_xdr(bytes, struct) do
     {enum, rest} = Enum.decode_xdr!(bytes, struct)
@@ -62,5 +68,11 @@ defmodule XDR.Bool do
   """
   @spec decode_xdr!(bytes :: binary, struct :: t | any) :: {t(), binary}
   def decode_xdr!(bytes, struct \\ %XDR.Bool{declarations: @boolean})
-  def decode_xdr!(bytes, struct), do: decode_xdr(bytes, struct) |> elem(1)
+
+  def decode_xdr!(bytes, struct) do
+    case decode_xdr(bytes, struct) do
+      {:ok, result} -> result
+      {:error, reason} -> raise(Bool, reason)
+    end
+  end
 end
