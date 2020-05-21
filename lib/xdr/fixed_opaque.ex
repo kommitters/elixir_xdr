@@ -28,16 +28,16 @@ defmodule XDR.FixedOpaque do
 
   returns an ok tuple with the resulted XDR
   """
-  @spec encode_xdr(map()) :: {:ok, binary}
+  @spec encode_xdr(map()) :: {:ok, binary} | {:error, :not_binary | :not_number | :invalid_length}
   def encode_xdr(%{opaque: opaque}) when not is_binary(opaque),
-    do: raise(FixedOpaqueErr, :not_binary)
+    do: {:error, :not_binary}
 
   def encode_xdr(%{length: length}) when not is_integer(length),
-    do: raise(FixedOpaqueErr, :not_number)
+    do: {:error, :not_number}
 
   def encode_xdr(%{opaque: opaque, length: length})
       when length != byte_size(opaque),
-      do: raise(FixedOpaqueErr, :invalid_length)
+      do: {:error, :invalid_length}
 
   def encode_xdr(%{opaque: opaque, length: length}) when rem(length, 4) === 0,
     do: {:ok, opaque}
@@ -55,7 +55,12 @@ defmodule XDR.FixedOpaque do
   returns the resulted XDR
   """
   @spec encode_xdr!(map()) :: binary()
-  def encode_xdr!(opaque), do: encode_xdr(opaque) |> elem(1)
+  def encode_xdr!(opaque) do
+    case encode_xdr(opaque) do
+      {:ok, binary} -> binary
+      {:error, reason} -> raise(FixedOpaqueErr, reason)
+    end
+  end
 
   @impl XDR.Declaration
   @doc """
@@ -64,19 +69,17 @@ defmodule XDR.FixedOpaque do
 
   returns an :ok tuple with the resulted binary
   """
-  @spec decode_xdr(bytes :: binary(), opts :: map()) :: {:ok, {t(), binary}}
-  def decode_xdr(bytes, _opts) when not is_binary(bytes),
-    do: raise(FixedOpaqueErr, :not_binary)
+  @spec decode_xdr(bytes :: binary(), opts :: map()) ::
+          {:ok, {t(), binary}}
+          | {:error, :not_binary | :not_valid_binary | :not_number | :exceed_length}
+  def decode_xdr(bytes, _opts) when not is_binary(bytes), do: {:error, :not_binary}
 
-  def decode_xdr(bytes, _opts) when rem(byte_size(bytes), 4) != 0,
-    do: raise(FixedOpaqueErr, :not_valid_binary)
+  def decode_xdr(bytes, _opts) when rem(byte_size(bytes), 4) != 0, do: {:error, :not_valid_binary}
 
-  def decode_xdr(_bytes, %{length: length}) when not is_integer(length),
-    do: raise(FixedOpaqueErr, :not_number)
+  def decode_xdr(_bytes, %{length: length}) when not is_integer(length), do: {:error, :not_number}
 
-  def decode_xdr(bytes, %{length: length})
-      when length > byte_size(bytes),
-      do: raise(FixedOpaqueErr, :exceed_length)
+  def decode_xdr(bytes, %{length: length}) when length > byte_size(bytes),
+    do: {:error, :exceed_length}
 
   def decode_xdr(bytes, %{length: length}) do
     required_padding = get_required_padding(length)
@@ -97,7 +100,12 @@ defmodule XDR.FixedOpaque do
   returns the resulted binary
   """
   @spec decode_xdr!(bytes :: binary, opaque :: map()) :: {t(), binary()}
-  def decode_xdr!(bytes, opaque), do: decode_xdr(bytes, opaque) |> elem(1)
+  def decode_xdr!(bytes, opaque) do
+    case decode_xdr(bytes, opaque) do
+      {:ok, result} -> result
+      {:error, reason} -> raise(FixedOpaqueErr, reason)
+    end
+  end
 
   @spec get_required_padding(integer()) :: integer()
   defp get_required_padding(length) when rem(length, 4) == 0, do: 0

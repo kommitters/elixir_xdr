@@ -4,12 +4,9 @@ defmodule XDR.QuadFloatTest do
   alias XDR.QuadFloat
 
   test "encode_xdr" do
-    try do
-      QuadFloat.encode_xdr(:any)
-    rescue
-      error ->
-        assert error == %RuntimeError{message: "Not supported function"}
-    end
+    {status, reason} = QuadFloat.encode_xdr(:any)
+    assert status == :error
+    assert reason == :not_supported
   end
 
   test "encode_xdr!" do
@@ -22,12 +19,9 @@ defmodule XDR.QuadFloatTest do
   end
 
   test "decode_xdr" do
-    try do
-      QuadFloat.decode_xdr(:any, :any)
-    rescue
-      error ->
-        assert error == %RuntimeError{message: "Not supported function"}
-    end
+    {status, reason} = QuadFloat.decode_xdr(:any, :any)
+    assert status == :error
+    assert reason == :not_supported
   end
 
   test "decode_xdr!" do

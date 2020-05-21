@@ -6,43 +6,30 @@ defmodule XDR.HyperIntTest do
 
   describe "Encoding Hyper Integer to binary" do
     test "when is not an integer value" do
-      try do
+      {status, reason} =
         HyperInt.new("hello world")
         |> HyperInt.encode_xdr()
-      rescue
-        error ->
-          assert error == %HyperIntErr{
-                   message: "The value which you try to encode is not an integer"
-                 }
-      end
+
+      assert status == :error
+      assert reason == :not_integer
     end
 
     test "when exceeds the upper limit of an integer" do
-      try do
+      {status, reason} =
         HyperInt.new(9_223_372_036_854_775_808)
         |> HyperInt.encode_xdr()
-      rescue
-        error ->
-          assert error ==
-                   %HyperIntErr{
-                     message:
-                       "The integer which you try to encode exceed the upper limit of an Hyper Integer, the value must be less than 9_223_372_036_854_775_807"
-                   }
-      end
+
+      assert status == :error
+      assert reason == :exceed_upper_limit
     end
 
     test "when exceeds the lower limit of an integer" do
-      try do
+      {status, reason} =
         HyperInt.new(-9_223_372_036_854_775_809)
         |> HyperInt.encode_xdr()
-      rescue
-        error ->
-          assert error ==
-                   %HyperIntErr{
-                     message:
-                       "The integer which you try to encode exceed the lower limit of an Hyper Integer, the value must be more than -9_223_372_036_854_775_808"
-                   }
-      end
+
+      assert status == :error
+      assert reason == :exceed_lower_limit
     end
 
     test "when is a valid integer" do
@@ -61,21 +48,22 @@ defmodule XDR.HyperIntTest do
 
       assert result == <<0, 0, 0, 0, 0, 0, 22, 228>>
     end
+
+    test "encode_xdr! when is not an integer value" do
+      hyper_int = HyperInt.new("hello world")
+
+      assert_raise HyperIntErr, fn -> HyperInt.encode_xdr!(hyper_int) end
+    end
   end
 
   describe "Decoding binary to Hyper Integer" do
     test "when is not binary value" do
-      try do
+      {status, reason} =
         HyperInt.new(5860)
         |> HyperInt.decode_xdr()
-      rescue
-        error ->
-          assert error ==
-                   %HyperIntErr{
-                     message:
-                       "The value which you try to decode must be a binary value, for example: <<0, 0, 0, 0, 0, 0, 0, 5>>"
-                   }
-      end
+
+      assert status == :error
+      assert reason == :not_binary
     end
 
     test "when is a valid binary" do
@@ -96,6 +84,12 @@ defmodule XDR.HyperIntTest do
       result = HyperInt.decode_xdr!(<<0, 0, 0, 0, 0, 0, 22, 228>>)
 
       assert result === {%XDR.HyperInt{datum: 5860}, ""}
+    end
+
+    test "decode_xdr! when is not binary value" do
+      hyper_int = HyperInt.new(5860)
+
+      assert_raise HyperIntErr, fn -> HyperInt.decode_xdr!(hyper_int) end
     end
   end
 end

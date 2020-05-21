@@ -30,9 +30,9 @@ defmodule XDR.Float do
 
   Returns a tuple with the XDR resulted from encoding the Floating Point value
   """
-  @spec encode_xdr(t()) :: {:ok, binary()}
+  @spec encode_xdr(t()) :: {:ok, binary()} | {:error, :not_number}
   def encode_xdr(%XDR.Float{float: float}) when not valid_float?(float),
-    do: raise(Float, :not_number)
+    do: {:error, :not_number}
 
   def encode_xdr(%XDR.Float{float: float}), do: {:ok, <<float::big-signed-float-size(32)>>}
 
@@ -44,7 +44,12 @@ defmodule XDR.Float do
   Returns the XDR resulted from encoding the Floating Point value
   """
   @spec encode_xdr!(t()) :: binary()
-  def encode_xdr!(float), do: encode_xdr(float) |> elem(1)
+  def encode_xdr!(float) do
+    case encode_xdr(float) do
+      {:ok, binary} -> binary
+      {:error, reason} -> raise(Float, reason)
+    end
+  end
 
   @impl XDR.Declaration
   @doc """
@@ -53,11 +58,11 @@ defmodule XDR.Float do
 
   Returns a tuple with the Floating Point resulted from decode the XDR value and its remaining bits
   """
-  @spec decode_xdr(bytes :: binary, opts :: any) :: {:ok, {t(), binary()}}
+  @spec decode_xdr(bytes :: binary, opts :: any) :: {:ok, {t(), binary()}} | {:error, :not_binary}
   def decode_xdr(bytes, opts \\ nil)
 
   def decode_xdr(bytes, _opts) when not is_binary(bytes),
-    do: raise(Float, :not_binary)
+    do: {:error, :not_binary}
 
   def decode_xdr(bytes, _opts) do
     <<float::big-signed-float-size(32), rest::binary>> = bytes
@@ -76,5 +81,11 @@ defmodule XDR.Float do
   """
   @spec decode_xdr!(bytes :: binary, opts :: any) :: {t(), binary()}
   def decode_xdr!(bytes, opts \\ nil)
-  def decode_xdr!(bytes, opts), do: decode_xdr(bytes, opts) |> elem(1)
+
+  def decode_xdr!(bytes, opts) do
+    case decode_xdr(bytes, opts) do
+      {:ok, result} -> result
+      {:error, reason} -> raise(Float, reason)
+    end
+  end
 end

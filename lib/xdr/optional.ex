@@ -25,13 +25,11 @@ defmodule XDR.Optional do
 
   returns an :ok tuple with the encoded XDR
   """
-  @spec encode_xdr(t()) :: {:ok, binary}
-  def encode_xdr(%{type: type}) when is_bitstring(type),
-    do: raise(Optional, :not_valid)
-
-  def encode_xdr(%{type: type}) when is_list(type), do: raise(Optional, :not_valid)
-  def encode_xdr(%{type: type}) when is_tuple(type), do: raise(Optional, :not_valid)
-  def encode_xdr(%{type: type}) when is_boolean(type), do: raise(Optional, :not_valid)
+  @spec encode_xdr(t()) :: {:ok, binary} | {:error, :not_valid}
+  def encode_xdr(%{type: type}) when is_bitstring(type), do: {:error, :not_valid}
+  def encode_xdr(%{type: type}) when is_list(type), do: {:error, :not_valid}
+  def encode_xdr(%{type: type}) when is_tuple(type), do: {:error, :not_valid}
+  def encode_xdr(%{type: type}) when is_boolean(type), do: {:error, :not_valid}
 
   def encode_xdr(%{type: type}) when is_nil(type) do
     Bool.new(false) |> Bool.encode_xdr()
@@ -54,7 +52,12 @@ defmodule XDR.Optional do
   returns the encoded XDR
   """
   @spec encode_xdr!(t()) :: binary
-  def encode_xdr!(optional), do: encode_xdr(optional) |> elem(1)
+  def encode_xdr!(optional) do
+    case encode_xdr(optional) do
+      {:ok, binary} -> binary
+      {:error, reason} -> raise(Optional, reason)
+    end
+  end
 
   @impl XDR.Declaration
   @doc """
@@ -62,9 +65,10 @@ defmodule XDR.Optional do
 
   returns an :ok tuple with the decoded type
   """
-  @spec decode_xdr(bytes :: binary(), struct :: map()) :: {:ok, {t, binary()}}
-  def decode_xdr(bytes, _struct) when not is_binary(bytes), do: raise(Optional, :not_binary)
-  def decode_xdr(_bytes, %{type: type}) when not is_atom(type), do: raise(Optional, :not_binary)
+  @spec decode_xdr(bytes :: binary(), struct :: map()) ::
+          {:ok, {t, binary()}} | {:error, :not_binary | :not_module}
+  def decode_xdr(bytes, _struct) when not is_binary(bytes), do: {:error, :not_binary}
+  def decode_xdr(_bytes, %{type: type}) when not is_atom(type), do: {:error, :not_module}
 
   def decode_xdr(bytes, %{type: type}) do
     {bool, rest} = Bool.decode_xdr!(bytes)
@@ -78,7 +82,12 @@ defmodule XDR.Optional do
   returns the decoded type
   """
   @spec decode_xdr!(bytes :: binary(), struct :: map()) :: {t, binary()}
-  def decode_xdr!(bytes, struct), do: decode_xdr(bytes, struct) |> elem(1)
+  def decode_xdr!(bytes, struct) do
+    case decode_xdr(bytes, struct) do
+      {:ok, result} -> result
+      {:error, reason} -> raise(Optional, reason)
+    end
+  end
 
   @spec get_decoded_value(boolean(), rest :: binary(), type :: atom()) ::
           {:ok, {t, binary()}} | {:ok, {nil, binary()}}

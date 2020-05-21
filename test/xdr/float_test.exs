@@ -16,39 +16,30 @@ defmodule XDR.FloatTest do
 
   describe "Encoding float to binary" do
     test "when receives a String" do
-      try do
+      {status, reason} =
         Float.new("hello world")
         |> Float.encode_xdr()
-      rescue
-        error ->
-          assert error == %FloatErr{
-                   message: "The value which you try to encode is not an integer or float value"
-                 }
-      end
+
+      assert status == :error
+      assert reason == :not_number
     end
 
     test "when receives a boolean" do
-      try do
+      {status, reason} =
         Float.new(true)
         |> Float.encode_xdr()
-      rescue
-        error ->
-          assert error == %FloatErr{
-                   message: "The value which you try to encode is not an integer or float value"
-                 }
-      end
+
+      assert status == :error
+      assert reason == :not_number
     end
 
     test "when receives an atom" do
-      try do
+      {status, reason} =
         Float.new(:hello)
         |> Float.encode_xdr()
-      rescue
-        error ->
-          assert error == %FloatErr{
-                   message: "The value which you try to encode is not an integer or float value"
-                 }
-      end
+
+      assert status == :error
+      assert reason == :not_number
     end
 
     test "when is a valid integer" do
@@ -66,6 +57,12 @@ defmodule XDR.FloatTest do
         |> Float.encode_xdr!()
 
       assert result == <<63, 128, 0, 0>>
+    end
+
+    test "encode_xdr! when receives an atom" do
+      float = Float.new(:hello)
+
+      assert_raise FloatErr, fn -> Float.encode_xdr!(float) end
     end
 
     test "with negative integer" do
@@ -98,17 +95,12 @@ defmodule XDR.FloatTest do
 
   describe "Decoding binary to integer" do
     test "when is not binary value" do
-      try do
+      {status, reason} =
         Float.new(5860)
         |> Float.decode_xdr()
-      rescue
-        error ->
-          assert error ==
-                   %FloatErr{
-                     message:
-                       "The value which you try to decode must be a binary value, for example: <<0, 0, 0, 2>>"
-                   }
-      end
+
+      assert status == :error
+      assert reason == :not_binary
     end
 
     test "when is a valid binary" do
@@ -129,6 +121,12 @@ defmodule XDR.FloatTest do
       result = Float.decode_xdr!(<<192, 93, 112, 164>>)
 
       assert result === {%XDR.Float{float: -3.4600000381469727}, ""}
+    end
+
+    test "decode_xdr! when is not binary value" do
+      float = Float.new(5860)
+
+      assert_raise FloatErr, fn -> Float.decode_xdr!(float) end
     end
   end
 end

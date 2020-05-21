@@ -12,40 +12,30 @@ defmodule XDR.EnumTest do
 
   describe "Encoding Enum structures" do
     test "when the declarations is not a list" do
-      try do
+      {status, reason} =
         Enum.new(%{red: 0, blue: 1, yellow: 2}, :red)
         |> Enum.encode_xdr()
-      rescue
-        error ->
-          assert error == %EnumErr{
-                   message: "The declaration inside the Enum structure isn't a list"
-                 }
-      end
+
+      assert status == :error
+      assert reason == :not_list
     end
 
     test "when specification name is not an atom", %{keyword: keyword} do
-      try do
+      {status, reason} =
         Enum.new(keyword, "red")
         |> Enum.encode_xdr()
-      rescue
-        error ->
-          assert error ==
-                   %EnumErr{message: "The name of the key which you try to encode isn't an atom"}
-      end
+
+      assert status == :error
+      assert reason == :not_an_atom
     end
 
     test "when key doesn't belong to keyword", %{keyword: keyword} do
-      try do
+      {status, reason} =
         Enum.new(keyword, :purple)
         |> Enum.encode_xdr()
-      rescue
-        error ->
-          assert error ==
-                   %EnumErr{
-                     message:
-                       "The key which you try to encode doesn't belong to the current declarations"
-                   }
-      end
+
+      assert status == :error
+      assert reason == :invalid_key
     end
 
     test "with valid data", %{keyword: keyword} do
@@ -64,45 +54,34 @@ defmodule XDR.EnumTest do
 
       assert result === <<0, 0, 0, 2>>
     end
+
+    test "encode_xdr! with invalid data", %{keyword: keyword} do
+      enum = Enum.new(keyword, :purple)
+
+      assert_raise EnumErr, fn -> Enum.encode_xdr!(enum) end
+    end
   end
 
   describe "Decoding enum structures" do
     test "when is not binary value", %{keyword: keyword} do
-      try do
-        Enum.decode_xdr(5860, %XDR.Enum{declarations: keyword})
-      rescue
-        error ->
-          assert error ==
-                   %EnumErr{
-                     message:
-                       "The value which you try to decode must be a binary value, for example: <<0, 0, 0, 2>>"
-                   }
-      end
+      {status, reason} = Enum.decode_xdr(5860, %XDR.Enum{declarations: keyword})
+
+      assert status == :error
+      assert reason == :not_binary
     end
 
     test "when enum doesn't contain a list" do
-      try do
+      {status, reason} =
         Enum.decode_xdr(<<0, 0, 0, 0>>, %XDR.Enum{declarations: %{red: 0, blue: 1, yellow: 2}})
-      rescue
-        error ->
-          assert error ==
-                   %EnumErr{
-                     message: "The declaration inside the Enum structure isn't a list"
-                   }
-      end
+
+      assert status == :error
+      assert reason == :not_list
     end
 
     test "with invalid key", %{keyword: keyword} do
-      try do
-        Enum.decode_xdr(<<0, 0, 0, 3>>, %XDR.Enum{declarations: keyword})
-      rescue
-        error ->
-          assert error ==
-                   %EnumErr{
-                     message:
-                       "The key which you try to encode doesn't belong to the current declarations"
-                   }
-      end
+      {status, reason} = Enum.decode_xdr(<<0, 0, 0, 3>>, %XDR.Enum{declarations: keyword})
+      assert status == :error
+      assert reason == :invalid_key
     end
 
     test "with valid data", %{keyword: keyword} do
@@ -122,16 +101,9 @@ defmodule XDR.EnumTest do
     end
 
     test "decode_xdr! with invalid key", %{keyword: keyword} do
-      try do
-        Enum.decode_xdr!(<<0, 0, 0, 3>>, %XDR.Enum{declarations: keyword})
-      rescue
-        error ->
-          assert error ==
-                   %EnumErr{
-                     message:
-                       "The key which you try to encode doesn't belong to the current declarations"
-                   }
-      end
+      enum = %XDR.Enum{declarations: keyword}
+
+      assert_raise EnumErr, fn -> Enum.decode_xdr!(<<0, 0, 0, 3>>, enum) end
     end
   end
 end

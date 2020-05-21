@@ -48,15 +48,10 @@ defmodule XDR.UnionTest do
         SCP_ST_NOMINATE: XDR.Float.new(3.46)
       ]
 
-      try do
-        Union.encode_xdr(%{discriminant: enum, arms: arms})
-      rescue
-        error ->
-          assert error == %UnionErr{
-                   message:
-                     "The :identifier which you try to decode from the Enum Union is not an atom"
-                 }
-      end
+      {status, reason} = Union.encode_xdr(%{discriminant: enum, arms: arms})
+
+      assert status == :error
+      assert reason == :not_atom
     end
 
     test "Enum example" do
@@ -76,6 +71,27 @@ defmodule XDR.UnionTest do
         |> Union.encode_xdr!()
 
       assert result == <<0, 0, 0, 0, 0, 0, 0, 60>>
+    end
+
+    test "encode_xdr! when receives an invalid identifier" do
+      enum = %{
+        declarations: [
+          SCP_ST_PREPARE: 0,
+          SCP_ST_CONFIRM: 1,
+          SCP_ST_EXTERNALIZE: 2,
+          SCP_ST_NOMINATE: 3
+        ],
+        identifier: "SCP_ST_EXTERNALIZE"
+      }
+
+      arms = [
+        SCP_ST_PREPARE: XDR.Int.new(60),
+        SCP_ST_CONFIRM: XDR.String.new("Confirm"),
+        SCP_ST_EXTERNALIZE: XDR.Bool.new(false),
+        SCP_ST_NOMINATE: XDR.Float.new(3.46)
+      ]
+
+      assert_raise UnionErr, fn -> Union.encode_xdr!(%{discriminant: enum, arms: arms}) end
     end
 
     test "Uint example" do
@@ -107,18 +123,14 @@ defmodule XDR.UnionTest do
         SCP_ST_NOMINATE: XDR.Float.new(3.46)
       ]
 
-      try do
+      {status, reason} =
         Union.decode_xdr([0, 0, 0, 0, 0, 0, 0, 0], %{
           discriminant: %{declarations: nil, identifier: nil},
           arms: arms
         })
-      rescue
-        error ->
-          assert error == %UnionErr{
-                   message:
-                     "The :identifier received by parameter must be a binary value, for example: <<0, 0, 0, 5>>"
-                 }
-      end
+
+      assert status == :error
+      assert reason == :not_binary
     end
 
     test "when receives an invalid declarations" do
@@ -129,18 +141,14 @@ defmodule XDR.UnionTest do
         SCP_ST_NOMINATE: XDR.Float.new(3.46)
       ]
 
-      try do
+      {status, reason} =
         Union.decode_xdr(<<0, 0, 0, 0, 0, 0, 0, 0>>, %{
           discriminant: %{declarations: nil},
           arms: arms
         })
-      rescue
-        error ->
-          assert error == %UnionErr{
-                   message:
-                     "The :declarations received by parameter must be a keyword list which belongs to an XDR.Enum"
-                 }
-      end
+
+      assert status == :error
+      assert reason == :not_list
     end
 
     test "when receives an invalid binary" do
@@ -151,19 +159,15 @@ defmodule XDR.UnionTest do
         3 => XDR.Float.new(3.46)
       }
 
-      try do
+      {status, reason} =
         Union.decode_xdr([0, 0, 0, 3, 64, 93, 112, 164], %{
           discriminant: XDR.UInt.new(nil),
           arms: arms,
           struct: %{discriminant: XDR.UInt}
         })
-      rescue
-        error ->
-          assert error == %UnionErr{
-                   message:
-                     "The :identifier received by parameter must be a binary value, for example: <<0, 0, 0, 5>>"
-                 }
-      end
+
+      assert status == :error
+      assert reason == :not_binary
     end
 
     test "Enum example" do
@@ -193,6 +197,22 @@ defmodule XDR.UnionTest do
       result = UnionNumber.decode_xdr!(<<0, 0, 0, 3, 64, 93, 112, 164>>)
 
       assert result == {{3, %XDR.Float{float: 3.4600000381469727}}, ""}
+    end
+
+    test "decode_xdr! when receives an invalid identifier" do
+      arms = [
+        SCP_ST_PREPARE: XDR.Int.new(60),
+        SCP_ST_CONFIRM: XDR.String.new("Confirm"),
+        SCP_ST_EXTERNALIZE: XDR.Bool.new(false),
+        SCP_ST_NOMINATE: XDR.Float.new(3.46)
+      ]
+
+      enum = %{
+        discriminant: %{declarations: nil, identifier: nil},
+        arms: arms
+      }
+
+      assert_raise UnionErr, fn -> Union.decode_xdr!([0, 0, 0, 0, 0, 0, 0, 0], enum) end
     end
   end
 end
