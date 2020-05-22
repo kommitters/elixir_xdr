@@ -68,6 +68,8 @@ iex> XDR.Int.decode_xdr!(<<0, 0, 4, 210, 5>>)
 ```
 
 ## Usage examples
+As mentioned before all the XDR types follow the same [Behavior's Declaration](https://github.com/kommitters/elixir_xdr/blob/develop/lib/xdr/declaration.ex)
+
 ### Integer
 For encoding integers use `encode_xdr/2` or use the raising version of the function `encode_xdr!/2`.
 ```elixir
@@ -88,7 +90,7 @@ iex> XDR.Int.decode_xdr!(<<0, 0, 4, 210>>)
 
 ### Unsigned Integer
 
- Represents integer values in a range of `[0, 4294967295]`.
+Represents integer values in a range of `[0, 4294967295]`.
 
 For encoding
 ```elixir
@@ -141,7 +143,8 @@ iex> XDR.Enum.decode_xdr!(<<0, 0, 0, 1>>, %{declarations: [false: 0, true: 1]})
 ```
 
 ### Boolean
-As mentioned before all the XDR types follow the same [Behavior's Declaration](https://github.com/kommitters/elixir_xdr/blob/develop/lib/xdr/declaration.ex)
+Boolean is an Enum implementation that allows us to create boolean types
+
 ```elixir
 iex> XDR.Bool.new(true) |> XDR.Bool.encode_xdr()
 {:ok, <<0, 0, 0, 0>>}

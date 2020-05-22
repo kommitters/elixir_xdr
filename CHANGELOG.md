@@ -2,9 +2,10 @@
 
 ## 0.1.3 (22.05.2020)
 
-* increase test coverage to 100%
-* Improve returns and exceptions on all functions 
-* Add new readme examples 
+* Increase test coverage to 100%
+* The encode_xdr() and decode_xdr() functions now return error tuples
+* The encode_xdr!() and decode_xdr!() functions raise the errors
+* Add examples of all the XDR-types to README
 * Add examples to Hexdocs
 * Remove Anti-Patterns
 
