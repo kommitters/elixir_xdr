@@ -6,15 +6,12 @@ defmodule XDR.StringTest do
 
   describe "Encoding string to binary" do
     test "when is not a bitstring value" do
-      try do
+      {status, result} =
         String.new(2)
         |> String.encode_xdr()
-      rescue
-        error ->
-          assert error == %StringErr{
-                   message: "the value which you ty to encode must be a bitstring value"
-                 }
-      end
+
+      assert status == :error
+      assert result == :not_bitstring
     end
 
     test "when is a valid bitstring" do
