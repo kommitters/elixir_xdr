@@ -232,8 +232,7 @@ defmodule UnionSCPStatementType do
   def new(identifier),
     do: %UnionSCPStatementType{
       discriminant: SCPStatementType.new(identifier),
-      arms: @arms,
-      struct: %{discriminant: XDR.Enum}
+      arms: @arms
     }
 
   @impl XDR.Declaration
@@ -268,8 +267,7 @@ defmodule UnionNumber do
   def new(identifier),
     do: %UnionNumber{
       discriminant: XDR.UInt.new(identifier),
-      arms: @arms,
-      struct: %{discriminant: XDR.UInt}
+      arms: @arms
     }
 
   @impl XDR.Declaration

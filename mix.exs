@@ -46,10 +46,38 @@ defmodule XDR.MixProject do
       source_ref: "v#{@version}",
       canonical: "http://hexdocs.pm/elixir_xdr",
       source_url: @github_url,
-      extras: [
-        "README.md",
-        "CHANGELOG.md"
-      ]
+      extras: extras(),
+      groups_for_extras: groups_for_extras()
+    ]
+  end
+
+  defp extras() do
+    [
+      "README.md",
+      "CHANGELOG.md",
+      "guides/examples/integer.md",
+      "guides/examples/unsigned_integer.md",
+      "guides/examples/enumeration.md",
+      "guides/examples/boolean.md",
+      "guides/examples/hyper_integer.md",
+      "guides/examples/unsigned_hyper_integer.md",
+      "guides/examples/floating_point.md",
+      "guides/examples/double_floating_point.md",
+      "guides/examples/fixed_length_opaque.md",
+      "guides/examples/variable_length_opaque.md",
+      "guides/examples/string.md",
+      "guides/examples/fixed_length_array.md",
+      "guides/examples/variable_length_array.md",
+      "guides/examples/structure.md",
+      "guides/examples/discriminated_union.md",
+      "guides/examples/void.md",
+      "guides/examples/optional_data.md"
+    ]
+  end
+
+  defp groups_for_extras do
+    [
+      Examples: ~r/guides\/examples\/.?/
     ]
   end
 

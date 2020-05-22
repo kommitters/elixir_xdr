@@ -39,14 +39,7 @@ defmodule XDR.VoidTest do
     end
 
     test "encode_xdr! with invalid data" do
-      try do
-        Void.encode_xdr!(nil)
-      rescue
-        error ->
-          assert error == %VoidErr{
-                   message: "The value which you try to encode is not void"
-                 }
-      end
+      assert_raise VoidErr, fn -> Void.encode_xdr!(nil) end
     end
   end
 
@@ -79,14 +72,11 @@ defmodule XDR.VoidTest do
     end
 
     test "decode_xdr! with invalid data" do
-      try do
-        Void.decode_xdr!(<<0>>, XDR.Void)
-      rescue
-        error ->
-          assert error == %VoidErr{
-                   message: "The value which you try to encode is not void"
-                 }
-      end
+      assert_raise VoidErr, fn -> Void.decode_xdr!(<<0>>, XDR.Void) end
+    end
+
+    test "decode_xdr! with one parameter" do
+      assert_raise VoidErr, fn -> Void.decode_xdr!(<<0>>) end
     end
   end
 end
