@@ -6,41 +6,30 @@ defmodule XDR.IntTest do
 
   describe "Encoding integer to binary" do
     test "when is not an integer value" do
-      try do
+      {status, reason} =
         Int.new("hello world")
         |> Int.encode_xdr()
-      rescue
-        error ->
-          assert error == %IntErr{message: "The value which you try to encode is not an integer"}
-      end
+
+      assert status == :error
+      assert reason == :not_integer
     end
 
     test "when exceeds the upper limit of an integer" do
-      try do
+      {status, reason} =
         Int.new(3_147_483_647)
         |> Int.encode_xdr()
-      rescue
-        error ->
-          assert error ==
-                   %IntErr{
-                     message:
-                       "The integer which you try to encode exceed the upper limit of an integer, the value must be less than 2_147_483_647"
-                   }
-      end
+
+      assert status == :error
+      assert reason == :exceed_upper_limit
     end
 
     test "when exceeds the lower limit of an integer" do
-      try do
+      {status, reason} =
         Int.new(-3_147_483_647)
         |> Int.encode_xdr()
-      rescue
-        error ->
-          assert error ==
-                   %IntErr{
-                     message:
-                       "The integer which you try to encode exceed the lower limit of an integer, the value must be more than -2_147_483_648"
-                   }
-      end
+
+      assert status == :error
+      assert reason == :exceed_lower_limit
     end
 
     test "when is a valid integer" do
@@ -59,21 +48,22 @@ defmodule XDR.IntTest do
 
       assert result == <<0, 0, 22, 228>>
     end
+
+    test "decode_xdr! when is not an integer value" do
+      integer = Int.new("hello world")
+
+      assert_raise IntErr, fn -> Int.encode_xdr!(integer) end
+    end
   end
 
   describe "Decoding binary to integer" do
     test "when is not binary value" do
-      try do
+      {status, reason} =
         Int.new(5860)
         |> Int.decode_xdr()
-      rescue
-        error ->
-          assert error ==
-                   %IntErr{
-                     message:
-                       "The value which you try to decode must be a binary value, for example: <<0, 0, 0, 2>>"
-                   }
-      end
+
+      assert status == :error
+      assert reason == :not_binary
     end
 
     test "when is a valid binary" do
@@ -94,6 +84,12 @@ defmodule XDR.IntTest do
       result = Int.decode_xdr!(<<0, 0, 22, 228>>)
 
       assert result === {%XDR.Int{datum: 5860}, ""}
+    end
+
+    test "decode_xdr! when is not binary value" do
+      integer = Int.new(5860)
+
+      assert_raise IntErr, fn -> Int.decode_xdr!(integer) end
     end
   end
 end

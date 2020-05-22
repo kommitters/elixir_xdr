@@ -7,31 +7,26 @@ defmodule XDR.StructTest do
 
   describe "Encoding Struct to binary" do
     test "when is not a list" do
-      try do
-        # This keyword must be created based on a structure, you can see the Structure example at the end of the file
-        component_keyword = TestFile.new("The Little Prince", 200) |> Map.from_struct()
+      # This keyword must be created based on a structure, you can see the Structure example at the end of the file
 
+      component_keyword = TestFile.new("The Little Prince", 200) |> Map.from_struct()
+
+      {status, reason} =
         component_keyword
         |> Struct.new()
         |> Struct.encode_xdr()
-      rescue
-        error ->
-          assert error == %StructErr{
-                   message: "The :components received by parameter must be a keyword list"
-                 }
-      end
+
+      assert status == :error
+      assert reason == :not_list
     end
 
     test "when is an empty list" do
-      try do
+      {status, reason} =
         Struct.new([])
         |> Struct.encode_xdr()
-      rescue
-        error ->
-          assert error == %StructErr{
-                   message: "The :components must not be empty, it must be a keyword list"
-                 }
-      end
+
+      assert status == :error
+      assert reason == :empty_list
     end
 
     test "with valid data" do
@@ -52,7 +47,7 @@ defmodule XDR.StructTest do
                  110, 99, 101, 0, 0, 0, 0, 0, 0, 200>>
     end
 
-    test "decode_xdr! with valid Struct" do
+    test "encode_xdr! with valid Struct" do
       component_keyword =
         TestFile.new(XDR.String.new("The Little Prince"), XDR.Int.new(200))
         |> Map.from_struct()
@@ -67,21 +62,40 @@ defmodule XDR.StructTest do
                <<0, 0, 0, 17, 84, 104, 101, 32, 76, 105, 116, 116, 108, 101, 32, 80, 114, 105,
                  110, 99, 101, 0, 0, 0, 0, 0, 0, 200>>
     end
+
+    test "encode_xdr! when is not a list" do
+      component_keyword =
+        TestFile.new("The Little Prince", 200)
+        |> Map.from_struct()
+        |> Struct.new()
+
+      assert_raise StructErr, fn -> Struct.encode_xdr!(component_keyword) end
+    end
   end
 
   describe "Decoding binary to integer" do
     test "when is not a binary value" do
-      try do
-        component_keyword = Map.from_struct(TestFile.__struct__()) |> Map.to_list()
+      component_keyword = Map.from_struct(TestFile.__struct__()) |> Map.to_list()
 
+      {status, reason} =
         Struct.decode_xdr([0, 0, 2, 0, 3, 0, 1, 0], %{components: component_keyword})
-      rescue
-        error ->
-          assert error == %StructErr{
-                   message:
-                     "The :struct received by parameter must be a binary value, for example: <<0, 0, 0, 5>>"
-                 }
-      end
+
+      assert status == :error
+      assert reason == :not_binary
+    end
+
+    test "when is not list" do
+      component_keyword = Map.from_struct(TestFile.__struct__())
+
+      {status, reason} =
+        Struct.decode_xdr(
+          <<0, 0, 0, 17, 84, 104, 101, 32, 76, 105, 116, 116, 108, 101, 32, 80, 114, 105, 110, 99,
+            101, 0, 0, 0, 0, 0, 0, 200>>,
+          %{components: component_keyword}
+        )
+
+      assert status == :error
+      assert reason == :not_list
     end
 
     test "when is a valid binary" do
@@ -122,6 +136,14 @@ defmodule XDR.StructTest do
                     file_size: %XDR.Int{datum: 200}
                   ]
                 }, ""}
+    end
+
+    test "encode_xdr! when is not a binary value" do
+      component_keyword = Map.from_struct(TestFile.__struct__()) |> Map.to_list()
+
+      assert_raise StructErr, fn ->
+        Struct.decode_xdr!([0, 0, 2, 0, 3, 0, 1, 0], %{components: component_keyword})
+      end
     end
 
     test "with valid data, with extra bytes" do

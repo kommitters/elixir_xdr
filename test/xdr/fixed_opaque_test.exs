@@ -6,41 +6,30 @@ defmodule XDR.FixedOpaqueTest do
 
   describe "Encoding Fixed Opaque" do
     test "when xdr is not binary" do
-      try do
+      {status, reason} =
         FixedOpaque.new([0, 0, 1], 2)
         |> FixedOpaque.encode_xdr()
-      rescue
-        error ->
-          assert error == %FixedOpaqueErr{
-                   message:
-                     "The value which you pass through parameters must be a binary value, for example: <<0, 0, 0, 5>>"
-                 }
-      end
+
+      assert status == :error
+      assert reason == :not_binary
     end
 
     test "with invalid length" do
-      try do
+      {status, reason} =
         FixedOpaque.new(<<0, 0, 1>>, 2)
         |> FixedOpaque.encode_xdr()
-      rescue
-        error ->
-          assert error == %FixedOpaqueErr{
-                   message:
-                     "The length that is passed through parameters must be equal or less to the byte size of the XDR to complete"
-                 }
-      end
+
+      assert status == :error
+      assert reason == :invalid_length
     end
 
     test "when length is not an integer" do
-      try do
+      {status, reason} =
         FixedOpaque.new(<<0, 0, 1>>, "hi")
         |> FixedOpaque.encode_xdr()
-      rescue
-        error ->
-          assert error == %FixedOpaqueErr{
-                   message: "The value which you pass through parameters is not an integer"
-                 }
-      end
+
+      assert status == :error
+      assert reason == :not_number
     end
 
     test "with valid data" do
@@ -59,53 +48,37 @@ defmodule XDR.FixedOpaqueTest do
 
       assert result == <<0, 0, 1, 0>>
     end
+
+    test "encode_xdr! when length is not an integer" do
+      fixed_opaque = FixedOpaque.new(<<0, 0, 1>>, "hi")
+
+      assert_raise FixedOpaqueErr, fn -> FixedOpaque.encode_xdr!(fixed_opaque) end
+    end
   end
 
   describe "Decoding Fixed Opaque" do
     test "when xdr is not binary" do
-      try do
-        FixedOpaque.decode_xdr([0, 0, 1], %XDR.FixedOpaque{length: 2})
-      rescue
-        error ->
-          assert error == %FixedOpaqueErr{
-                   message:
-                     "The value which you pass through parameters must be a binary value, for example: <<0, 0, 0, 5>>"
-                 }
-      end
+      {status, reason} = FixedOpaque.decode_xdr([0, 0, 1], %XDR.FixedOpaque{length: 2})
+      assert status == :error
+      assert reason == :not_binary
     end
 
     test "when xdr byte size is not a multiple of 4" do
-      try do
-        FixedOpaque.decode_xdr(<<0, 0, 1>>, %XDR.FixedOpaque{length: 2})
-      rescue
-        error ->
-          assert error == %FixedOpaqueErr{
-                   message:
-                     "The binary size of the binary which you try to decode must be a multiple of 4"
-                 }
-      end
+      {status, reason} = FixedOpaque.decode_xdr(<<0, 0, 1>>, %XDR.FixedOpaque{length: 2})
+      assert status == :error
+      assert reason == :not_valid_binary
     end
 
     test "when length is not an integer" do
-      try do
-        FixedOpaque.decode_xdr(<<0, 0, 1, 0>>, %XDR.FixedOpaque{length: "2"})
-      rescue
-        error ->
-          assert error == %FixedOpaqueErr{
-                   message: "The value which you pass through parameters is not an integer"
-                 }
-      end
+      {status, reason} = FixedOpaque.decode_xdr(<<0, 0, 1, 0>>, %XDR.FixedOpaque{length: "2"})
+      assert status == :error
+      assert reason == :not_number
     end
 
     test "when the length is bigger than the XDR byte-size" do
-      try do
-        FixedOpaque.decode_xdr(<<0, 0, 1, 0>>, %XDR.FixedOpaque{length: 5})
-      rescue
-        error ->
-          assert error == %FixedOpaqueErr{
-                   message: "The length is bigger than the byte size of the XDR"
-                 }
-      end
+      {status, reason} = FixedOpaque.decode_xdr(<<0, 0, 1, 0>>, %XDR.FixedOpaque{length: 5})
+      assert status == :error
+      assert reason == :exceed_length
     end
 
     test "with valid data" do
@@ -120,6 +93,12 @@ defmodule XDR.FixedOpaqueTest do
       result = FixedOpaque.decode_xdr!(<<0, 0, 1, 0, 0, 0, 0, 0>>, %XDR.FixedOpaque{length: 4})
 
       assert result == {%XDR.FixedOpaque{length: 4, opaque: <<0, 0, 1, 0>>}, <<0, 0, 0, 0>>}
+    end
+
+    test "decode_xdr! when length is not an integer" do
+      fixed_opaque = %XDR.FixedOpaque{length: "2"}
+
+      assert_raise FixedOpaqueErr, fn -> FixedOpaque.decode_xdr!(<<0, 0, 1, 0>>, fixed_opaque) end
     end
   end
 end

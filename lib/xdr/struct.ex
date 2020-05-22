@@ -28,11 +28,11 @@ defmodule XDR.Struct do
 
   returns an :ok tuple with the resulted XDR
   """
-  @spec encode_xdr(map()) :: {:ok, binary}
+  @spec encode_xdr(map()) :: {:ok, binary} | {:error, :not_list | :empty_list}
   def encode_xdr(%{components: components}) when not is_list(components),
-    do: raise(Struct, :not_list)
+    do: {:error, :not_list}
 
-  def encode_xdr(%{components: []}), do: raise(Struct, :empty_list)
+  def encode_xdr(%{components: []}), do: {:error, :empty_list}
 
   def encode_xdr(%{components: components}) do
     xdr =
@@ -53,7 +53,12 @@ defmodule XDR.Struct do
   returns the resulted XDR
   """
   @spec encode_xdr!(map()) :: binary
-  def encode_xdr!(struct), do: encode_xdr(struct) |> elem(1)
+  def encode_xdr!(struct) do
+    case encode_xdr(struct) do
+      {:ok, binary} -> binary
+      {:error, reason} -> raise(Struct, reason)
+    end
+  end
 
   @impl XDR.Declaration
   @doc """
@@ -62,12 +67,12 @@ defmodule XDR.Struct do
 
   returns an :ok tuple with the resulted struct
   """
-  @spec decode_xdr(bytes :: binary, struct :: map()) :: {:ok, {t(), binary()}}
-  def decode_xdr(bytes, _struct) when not is_binary(bytes),
-    do: raise(Struct, :not_binary)
+  @spec decode_xdr(bytes :: binary, struct :: map()) ::
+          {:ok, {t(), binary()}} | {:error, :not_binary | :not_list}
+  def decode_xdr(bytes, _struct) when not is_binary(bytes), do: {:error, :not_binary}
 
   def decode_xdr(_bytes, %{components: components}) when not is_list(components),
-    do: raise(Struct, :not_list)
+    do: {:error, :not_list}
 
   def decode_xdr(bytes, %{components: components}) do
     {rest, new_components} =
@@ -86,7 +91,12 @@ defmodule XDR.Struct do
   returns an :ok tuple with the resulted struct
   """
   @spec decode_xdr!(bytes :: binary, struct :: map()) :: {t(), binary()}
-  def decode_xdr!(bytes, struct), do: decode_xdr(bytes, struct) |> elem(1)
+  def decode_xdr!(bytes, struct) do
+    case decode_xdr(bytes, struct) do
+      {:ok, result} -> result
+      {:error, reason} -> raise(Struct, reason)
+    end
+  end
 
   defp decode_struct(bytes, []), do: bytes
 

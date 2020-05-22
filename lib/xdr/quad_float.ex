@@ -9,7 +9,7 @@ defmodule XDR.QuadFloat do
   not supported
   """
   @spec encode_xdr(any) :: any
-  def encode_xdr(_), do: raise("Not supported function")
+  def encode_xdr(_), do: {:error, :not_supported}
 
   @impl XDR.Declaration
   @doc """
@@ -23,7 +23,7 @@ defmodule XDR.QuadFloat do
   not supported
   """
   @spec decode_xdr(any, any) :: any
-  def decode_xdr(_, _), do: raise("Not supported function")
+  def decode_xdr(_, _), do: {:error, :not_supported}
 
   @impl XDR.Declaration
   @doc """

@@ -23,20 +23,16 @@ defmodule XDR.Enum do
 
   Returns a tuple with the the XDR resulted from encode the value wich represents a key in the enum structure
   """
-  @spec encode_xdr(map) :: {:ok, binary}
+  @spec encode_xdr(map) :: {:ok, binary} | {:error, :not_list | :not_an_atom | :invalid_key}
   def encode_xdr(%{declarations: declarations}) when not is_list(declarations),
-    do: raise(EnumErr, :not_list)
+    do: {:error, :not_list}
 
   def encode_xdr(%{identifier: identifier}) when not is_atom(identifier),
-    do: raise(EnumErr, :not_an_atom)
+    do: {:error, :not_an_atom}
 
   def encode_xdr(%{declarations: declarations, identifier: identifier}) do
-    binary =
-      declarations[identifier]
-      |> XDR.Int.new()
-      |> XDR.Int.encode_xdr!()
-
-    {:ok, binary}
+    Keyword.has_key?(declarations, identifier)
+    |> encode_valid_data(declarations, identifier)
   end
 
   @impl XDR.Declaration
@@ -47,7 +43,12 @@ defmodule XDR.Enum do
   Returns the XDR resulted from encode the value wich represents a key in the enum structure
   """
   @spec encode_xdr!(enum :: map) :: binary
-  def encode_xdr!(enum), do: encode_xdr(enum) |> elem(1)
+  def encode_xdr!(enum) do
+    case encode_xdr(enum) do
+      {:ok, binary} -> binary
+      {:error, reason} -> raise(EnumErr, reason)
+    end
+  end
 
   @impl XDR.Declaration
   @doc """
@@ -56,12 +57,13 @@ defmodule XDR.Enum do
 
   Returns a tuple with the key of the decoded enum and the remaining bytes if there are.
   """
-  @spec decode_xdr(binary, map) :: {:ok, {t(), binary}}
+  @spec decode_xdr(binary, map) ::
+          {:ok, {t(), binary}} | {:error, :not_binary | :not_list | :invalid_key}
   def decode_xdr(bytes, %{}) when not is_binary(bytes),
-    do: raise(EnumErr, :not_binary)
+    do: {:error, :not_binary}
 
   def decode_xdr(_bytes, %{declarations: declarations}) when not is_list(declarations),
-    do: raise(EnumErr, :not_list)
+    do: {:error, :not_list}
 
   def decode_xdr(bytes, %{declarations: declarations}) do
     {value, rest} = XDR.Int.decode_xdr!(bytes)
@@ -70,7 +72,8 @@ defmodule XDR.Enum do
 
     decoded_enum = new(declarations, identifier)
 
-    {:ok, {decoded_enum, rest}}
+    Keyword.has_key?(declarations, identifier)
+    |> add_valid_key(decoded_enum, rest)
   end
 
   @impl XDR.Declaration
@@ -81,11 +84,35 @@ defmodule XDR.Enum do
   Returns the key of the decoded enum and the remaining bytes if there are.
   """
   @spec decode_xdr!(binary, map) :: {t(), binary}
-  def decode_xdr!(bytes, struct), do: decode_xdr(bytes, struct) |> elem(1)
+  def decode_xdr!(bytes, struct) do
+    case decode_xdr(bytes, struct) do
+      {:ok, result} -> result
+      {:error, reason} -> raise(EnumErr, reason)
+    end
+  end
 
-  @spec get_response({name :: atom, any}) :: atom
-  defp get_response({name, _}), do: name
+  @spec get_response({atom(), any}) :: atom()
+  defp get_response({identifier, _}), do: identifier
 
-  @spec get_response(nil) :: EnumErr
-  defp get_response(nil), do: raise(EnumErr, :not_valid)
+  @spec get_response(nil) :: nil
+  defp get_response(nil), do: nil
+
+  @spec add_valid_key(boolean(), map(), rest :: binary()) ::
+          {:ok, {t, binary}} | {:error, :invalid_key}
+  defp add_valid_key(true, decoded_enum, rest), do: {:ok, {decoded_enum, rest}}
+
+  defp add_valid_key(false, _enum, _rest), do: {:error, :invalid_key}
+
+  @spec encode_valid_data(boolean(), declarations :: keyword(), identifier :: atom()) ::
+          {:ok, binary()}
+  defp encode_valid_data(true, declarations, identifier) do
+    binary =
+      declarations[identifier]
+      |> XDR.Int.new()
+      |> XDR.Int.encode_xdr!()
+
+    {:ok, binary}
+  end
+
+  defp encode_valid_data(false, _declarations, _identifier), do: {:error, :invalid_key}
 end

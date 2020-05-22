@@ -16,4 +16,12 @@ defmodule Error.OptionalTest do
                    raise Optional, :not_binary
                  end
   end
+
+  test "When receives :not_module" do
+    assert_raise Optional,
+                 "The type of the optional value must be the module which it belongs",
+                 fn ->
+                   raise Optional, :not_module
+                 end
+  end
 end

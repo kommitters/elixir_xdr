@@ -29,9 +29,9 @@ defmodule XDR.String do
 
   returns an :ok tuple with the resulted XDR
   """
-  @spec encode_xdr(map()) :: {:ok, binary}
+  @spec encode_xdr(map()) :: {:ok, binary} | {:error, :not_bitstring}
   def encode_xdr(%{string: string}) when not is_bitstring(string),
-    do: raise(StringErr, :not_bitstring)
+    do: {:error, :not_bitstring}
 
   def encode_xdr(%{string: string}) do
     length = byte_size(string)
@@ -50,7 +50,12 @@ defmodule XDR.String do
   returns the resulted XDR
   """
   @spec encode_xdr!(map()) :: binary
-  def encode_xdr!(string), do: encode_xdr(string) |> elem(1)
+  def encode_xdr!(string) do
+    case encode_xdr(string) do
+      {:ok, binary} -> binary
+      {:error, reason} -> raise(StringErr, reason)
+    end
+  end
 
   @impl XDR.Declaration
   @doc """
@@ -58,8 +63,10 @@ defmodule XDR.String do
 
   returns an :ok tuple with the resulted string
   """
-  @spec decode_xdr(bytes :: binary, struct :: map() | any) :: {:ok, {t(), binary()}}
+  @spec decode_xdr(bytes :: binary, struct :: map() | any) ::
+          {:ok, {t(), binary()}} | {:error, :not_binary}
   def decode_xdr(bytes, struct \\ %{max_length: 4_294_967_295})
+  def decode_xdr(bytes, _struct) when not is_binary(bytes), do: {:error, :not_binary}
 
   def decode_xdr(bytes, %{max_length: max_length}) do
     variable_struct = VariableOpaque.new(nil, max_length)
@@ -84,5 +91,11 @@ defmodule XDR.String do
   """
   @spec decode_xdr!(bytes :: binary, struct :: map() | any) :: {t(), binary()}
   def decode_xdr!(bytes, struct \\ %{max_length: 4_294_967_295})
-  def decode_xdr!(bytes, struct), do: decode_xdr(bytes, struct) |> elem(1)
+
+  def decode_xdr!(bytes, struct) do
+    case decode_xdr(bytes, struct) do
+      {:ok, result} -> result
+      {:error, reason} -> raise(StringErr, reason)
+    end
+  end
 end

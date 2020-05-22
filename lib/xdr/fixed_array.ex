@@ -29,16 +29,16 @@ defmodule XDR.FixedArray do
 
   returns an :ok tuple with the resulted XDR
   """
-  @spec encode_xdr(map()) :: {:ok, binary}
+  @spec encode_xdr(map()) :: {:ok, binary} | {:error, :not_number | :invalid_length | :not_list}
   def encode_xdr(%{length: length}) when not is_integer(length),
-    do: raise(FixedArray, :not_number)
+    do: {:error, :not_number}
 
   def encode_xdr(%{elements: elements, length: length})
       when length(elements) !== length,
-      do: raise(FixedArray, :invalid_length)
+      do: {:error, :invalid_length}
 
   def encode_xdr(%{elements: elements}) when not is_list(elements),
-    do: raise(FixedArray, :not_list)
+    do: {:error, :not_list}
 
   def encode_xdr(%{elements: elements, type: type}) do
     {:ok,
@@ -55,7 +55,12 @@ defmodule XDR.FixedArray do
   returns the resulted XDR
   """
   @spec encode_xdr!(map()) :: binary()
-  def encode_xdr!(fixed_array), do: encode_xdr(fixed_array) |> elem(1)
+  def encode_xdr!(fixed_array) do
+    case encode_xdr(fixed_array) do
+      {:ok, result} -> result
+      {:error, reason} -> raise(FixedArray, reason)
+    end
+  end
 
   @impl XDR.Declaration
   @doc """
@@ -64,15 +69,16 @@ defmodule XDR.FixedArray do
 
   returns an :ok tuple with the resulted list
   """
-  @spec decode_xdr(bytes :: binary, struct :: map()) :: {:ok, {list, binary}}
+  @spec decode_xdr(bytes :: binary, struct :: map()) ::
+          {:ok, {list, binary}} | {:error, :not_number | :not_binary | :not_valid_binary}
   def decode_xdr(_bytes, %{length: length}) when not is_integer(length),
-    do: raise(FixedArray, :not_number)
+    do: {:error, :not_number}
 
   def decode_xdr(bytes, _struct) when not is_binary(bytes),
-    do: raise(FixedArray, :not_binary)
+    do: {:error, :not_binary}
 
   def decode_xdr(bytes, _struct) when rem(byte_size(bytes), 4) != 0,
-    do: raise(FixedArray, :not_valid_binary)
+    do: {:error, :not_valid_binary}
 
   def decode_xdr(bytes, %{type: type, length: length}) do
     {decoded_array, rest} = decode_elements_from_fixed_array(type, [], bytes, length)
@@ -88,7 +94,12 @@ defmodule XDR.FixedArray do
   returns the resulted list
   """
   @spec decode_xdr!(bytes :: binary, struct :: map()) :: {list, binary}
-  def decode_xdr!(bytes, struct), do: decode_xdr(bytes, struct) |> elem(1)
+  def decode_xdr!(bytes, struct) do
+    case decode_xdr(bytes, struct) do
+      {:ok, result} -> result
+      {:error, reason} -> raise(FixedArray, reason)
+    end
+  end
 
   @spec decode_elements_from_fixed_array(
           type :: module,

@@ -124,16 +124,15 @@ defmodule XDR.Error do
       %XDR.Error.Enum{message: msg}
     end
 
-    def exception(:not_valid) do
+    def exception(:not_binary) do
       msg =
-        "The value which you try to decode doesn't belong to the structure which you pass through parameter"
+        "The value which you try to decode must be a binary value, for example: <<0, 0, 0, 2>>"
 
       %XDR.Error.Enum{message: msg}
     end
 
-    def exception(:not_binary) do
-      msg =
-        "The value which you try to decode must be a binary value, for example: <<0, 0, 0, 2>>"
+    def exception(:invalid_key) do
+      msg = "The key which you try to encode doesn't belong to the current declarations"
 
       %XDR.Error.Enum{message: msg}
     end
@@ -460,7 +459,12 @@ defmodule XDR.Error do
     Raises an exception error when the error is produced
     """
     def exception(:not_bitstring) do
-      msg = "the value which you ty to encode must be a bitstring value"
+      msg = "the value which you try to encode must be a bitstring value"
+      %XDR.Error.String{message: msg}
+    end
+
+    def exception(:not_binary) do
+      msg = "the value which you try to decode must be a binary value"
       %XDR.Error.String{message: msg}
     end
   end
@@ -712,6 +716,12 @@ defmodule XDR.Error do
 
     def exception(:not_binary) do
       msg = "The value which you try to decode must be a binary value"
+
+      %XDR.Error.Optional{message: msg}
+    end
+
+    def exception(:not_module) do
+      msg = "The type of the optional value must be the module which it belongs"
 
       %XDR.Error.Optional{message: msg}
     end
