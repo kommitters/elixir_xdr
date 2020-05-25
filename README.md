@@ -13,7 +13,7 @@ Process XDR types based on the [RFC4506](https://www.ietf.org/rfc/rfc4506.txt). 
 ```elixir
 def deps do
   [
-    {:elixir_xdr, "~> 0.1.0"}
+    {:elixir_xdr, "~> 0.1.3"}
   ]
 end
 ```
