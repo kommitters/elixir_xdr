@@ -10,6 +10,14 @@ defmodule XDR.Union do
 
   alias XDR.Error.Union
 
+  def new({%{identifier: identifier} = discriminant, value}, arms) when not is_nil(value) do
+    arm_type = arms[identifier]
+    arm = arm_type.new(value)
+    new_arms = Keyword.replace!(arms, identifier, arm)
+
+    %XDR.Union{discriminant: discriminant, arms: new_arms}
+  end
+
   def new(discriminant, arms), do: %XDR.Union{discriminant: discriminant, arms: arms}
 
   @impl XDR.Declaration
@@ -106,6 +114,15 @@ defmodule XDR.Union do
 
   defp decode_union_discriminant(
          bytes,
+         %{discriminant: {%{declarations: declarations}, _value}} = union
+       ) do
+    {%{identifier: identifier}, rest} = XDR.Enum.decode_xdr!(bytes, %{declarations: declarations})
+
+    {%{union | discriminant: identifier}, [value: rest]}
+  end
+
+  defp decode_union_discriminant(
+         bytes,
          %{discriminant: %{declarations: declarations}} = union
        ) do
     {%{identifier: identifier}, rest} = XDR.Enum.decode_xdr!(bytes, %{declarations: declarations})
@@ -127,6 +144,15 @@ defmodule XDR.Union do
 
   @spec decode_union_arm({:error, atom}) :: {:error, atom}
   defp decode_union_arm({:error, reason}), do: {:error, reason}
+
+  @spec decode_union_arm({map(), binary}) :: {:ok, {{atom | integer, any}, binary}}
+  defp decode_union_arm({%{discriminant: discriminant, arms: arms}, [value: value]}) do
+    arm = arms[discriminant]
+
+    {decoded_arm, rest} = arm.decode_xdr!(value)
+
+    {:ok, {{discriminant, decoded_arm}, rest}}
+  end
 
   @spec decode_union_arm({map(), binary}) :: {:ok, {{atom | integer, any}, binary}}
   defp decode_union_arm({%{discriminant: discriminant, arms: arms}, rest}) do

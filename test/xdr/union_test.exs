@@ -5,6 +5,27 @@ defmodule XDR.UnionTest do
   alias XDR.Error.Union, as: UnionErr
 
   describe "new" do
+    test "when receives an extra value" do
+      enum = %{
+        declarations: [
+          SCP_ST_PREPARE: 0,
+          SCP_ST_CONFIRM: 1,
+          SCP_ST_EXTERNALIZE: 2,
+          SCP_ST_NOMINATE: 3
+        ],
+        identifier: :SCP_ST_NOMINATE
+      }
+
+      arms = [
+        SCP_ST_PREPARE: XDR.Int,
+        SCP_ST_CONFIRM: XDR.String,
+        SCP_ST_EXTERNALIZE: XDR.Bool,
+        SCP_ST_NOMINATE: XDR.Float
+      ]
+
+      Union.new({enum, 5}, arms)
+    end
+
     test "with Enum" do
       enum = %{
         declarations: [
@@ -214,6 +235,49 @@ defmodule XDR.UnionTest do
 
       assert_raise UnionErr, fn -> Union.decode_xdr!([0, 0, 0, 0, 0, 0, 0, 0], enum) end
     end
+
+    test "encode public_key example" do
+      {status, result} =
+        PublicKey.new({:PUBLIC_KEY_TYPE_ED25519, 6})
+        |> Union.encode_xdr()
+
+      assert status == :ok
+      assert result == <<0, 0, 0, 0, 0, 0, 0, 6>>
+    end
+
+    test "encode when receives other key" do
+      {status, result} =
+        PublicKey.new({:PUBLIC_KEY_TYPE_ED25520, "hello world"})
+        |> Union.encode_xdr()
+
+      assert status == :ok
+
+      assert result ==
+               <<0, 0, 0, 1, 0, 0, 0, 11, 104, 101, 108, 108, 111, 32, 119, 111, 114, 108, 100,
+                 0>>
+    end
+
+    test "decode public_key example" do
+      {status, result} =
+        PublicKey.decode_xdr(<<0, 0, 0, 0, 0, 0, 0, 6>>, PublicKey.new({nil, nil}))
+
+      assert status == :ok
+      assert result == {{:PUBLIC_KEY_TYPE_ED25519, %XDR.Int{datum: 6}}, ""}
+    end
+
+    test "decode with a string" do
+      {status, result} =
+        PublicKey.decode_xdr(
+          <<0, 0, 0, 1, 0, 0, 0, 11, 104, 101, 108, 108, 111, 32, 119, 111, 114, 108, 100, 0>>,
+          PublicKey.new({nil, nil})
+        )
+
+      assert status == :ok
+
+      assert result ==
+               {{:PUBLIC_KEY_TYPE_ED25520,
+                 %XDR.String{max_length: 4_294_967_295, string: "hello world"}}, ""}
+    end
   end
 end
 
@@ -305,4 +369,66 @@ defmodule SCPStatementType do
   defdelegate decode_xdr(bytes, struct), to: XDR.Enum
   @impl XDR.Declaration
   defdelegate decode_xdr!(bytes, struct), to: XDR.Enum
+end
+
+defmodule PublicKeyType do
+  @behaviour XDR.Declaration
+  alias XDR.Enum
+
+  @public_key [
+    PUBLIC_KEY_TYPE_ED25519: 0,
+    PUBLIC_KEY_TYPE_ED25520: 1
+  ]
+
+  @spec new(atom()) :: Enum.t()
+  defdelegate new(declarations \\ @public_key, identifier), to: Enum
+
+  @impl XDR.Declaration
+  @spec encode_xdr(Enum.t()) :: {:ok, binary} | {:error, :not_list | :not_an_atom | :invalid_key}
+  defdelegate encode_xdr(type), to: Enum
+
+  @impl XDR.Declaration
+  @spec encode_xdr!(Enum.t()) :: binary()
+  defdelegate encode_xdr!(type), to: Enum
+
+  @impl XDR.Declaration
+  @spec decode_xdr(bytes :: binary, struct :: Enum.t() | any) ::
+          {:ok, {Enum.t(), binary}} | {:error, :not_binary | :not_list | :invalid_key}
+  defdelegate decode_xdr(bytes, struct \\ %Enum{declarations: @public_key}), to: Enum
+
+  @impl XDR.Declaration
+  @spec decode_xdr!(bytes :: binary, struct :: Enum.t() | any) :: {Enum.t(), binary}
+  defdelegate decode_xdr!(bytes, struct \\ %Enum{declarations: @public_key}), to: Enum
+end
+
+defmodule PublicKey do
+  @behaviour XDR.Declaration
+  alias XDR.Union
+  alias PublicKeyType
+
+  @arms [PUBLIC_KEY_TYPE_ED25519: XDR.Int, PUBLIC_KEY_TYPE_ED25520: XDR.String]
+
+  def new({identifier, value}) do
+    discriminant = PublicKeyType.new(identifier)
+
+    {discriminant, value}
+    |> Union.new(@arms)
+  end
+
+  @impl XDR.Declaration
+  @spec encode_xdr(map()) :: {:ok, binary()} | {:error, :not_atom}
+  defdelegate encode_xdr(union), to: Union
+
+  @impl XDR.Declaration
+  @spec encode_xdr!(map()) :: binary()
+  defdelegate encode_xdr!(union), to: Union
+
+  @impl XDR.Declaration
+  @spec decode_xdr(bytes :: binary(), union :: map()) ::
+          {:ok, {any, binary()}} | {:error, :not_binary | :not_list}
+  defdelegate decode_xdr(bytes, union \\ new({nil, nil})), to: Union
+
+  @impl XDR.Declaration
+  @spec decode_xdr!(bytes :: binary(), union :: map()) :: {any, binary()}
+  defdelegate decode_xdr!(bytes, union \\ new({nil, nil})), to: Union
 end
