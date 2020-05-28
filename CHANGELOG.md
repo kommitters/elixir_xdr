@@ -2,6 +2,11 @@
 
 ## 0.1.3 (22.05.2020)
 
+* Add support to union module when receives extra parameters
+* Update README version
+
+## 0.1.3 (22.05.2020)
+
 * Increase test coverage to 100%
 * The encode_xdr() and decode_xdr() functions now return error tuples
 * The encode_xdr!() and decode_xdr!() functions raise the errors
