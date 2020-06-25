@@ -1,8 +1,12 @@
 defmodule XDR.UIntTest do
+  @moduledoc """
+  Tests for the `XDR.UInt` module.
+  """
+
   use ExUnit.Case
 
   alias XDR.UInt
-  alias XDR.Error.UInt, as: UIntErr
+  alias XDR.Error.UInt, as: UIntError
 
   describe "Encoding unsigned integer to binary" do
     test "when is not an unsigned integer value" do
@@ -52,7 +56,7 @@ defmodule XDR.UIntTest do
     test "encode_xdr! with invalid data" do
       uint = UInt.new("hello world")
 
-      assert_raise UIntErr, fn -> UInt.encode_xdr!(uint) end
+      assert_raise UIntError, fn -> UInt.encode_xdr!(uint) end
     end
   end
 
@@ -87,7 +91,7 @@ defmodule XDR.UIntTest do
     end
 
     test "decode_xdr! when is not binary value" do
-      assert_raise UIntErr, fn -> UInt.decode_xdr!([1, 2, 3, 6]) end
+      assert_raise UIntError, fn -> UInt.decode_xdr!([1, 2, 3, 6]) end
     end
   end
 end
