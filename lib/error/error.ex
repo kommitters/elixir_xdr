@@ -1,729 +1,566 @@
 defmodule XDR.Error do
   @moduledoc """
-  Module that is in charge of raise the errors resulted from encode or decode operations
+  This module contains the definitions of the errors resulted from XDR encode or decode operations.
   """
 
   defmodule Int do
     @moduledoc """
-    This module is in charge of containing the errors that may be raised by the XDR.Int module
+    This module contains the definition of `XDR.Error.Int` exception that may be raised by the `XDR.Int` module.
     """
+
     defexception [:message]
 
     @impl true
     @doc """
-    This function is in charge of raise the errors that can be returned by XDR.Int module
-      ## Parameters:
-        the function only have one parameter that is an atom which represents the type of error returned by the module
-
-      ### Example
-        def exception(:not_integer) do
-          ...
-        end
-
-    Raises an exception error when the error is produced
+    Create a `XDR.Error.Int` exception with the message of the `error_type` passed.
     """
     def exception(:not_integer) do
-      msg = "The value which you try to encode is not an integer"
-      %XDR.Error.Int{message: msg}
+      new("The value which you try to encode is not an integer")
     end
 
     def exception(:not_binary) do
-      msg =
-        "The value which you try to decode must be a binary value, for example: <<0, 0, 0, 2>>"
-
-      %XDR.Error.Int{message: msg}
+      new("The value which you try to decode must be a binary value, for example: <<0, 0, 0, 2>>")
     end
 
     def exception(:exceed_upper_limit) do
-      msg =
+      new(
         "The integer which you try to encode exceed the upper limit of an integer, the value must be less than 2_147_483_647"
-
-      %XDR.Error.Int{message: msg}
+      )
     end
 
     def exception(:exceed_lower_limit) do
-      msg =
+      new(
         "The integer which you try to encode exceed the lower limit of an integer, the value must be more than -2_147_483_648"
-
-      %XDR.Error.Int{message: msg}
+      )
     end
+
+    @spec new(msg :: String.t()) :: struct()
+    defp new(msg), do: %XDR.Error.Int{message: msg}
   end
 
   defmodule UInt do
     @moduledoc """
-    This module is in charge of containing the errors that may be raised by the XDR.UInt module
+    This module contains the definition of `XDR.Error.UInt` exception that may be raised by the `XDR.UInt` module.
     """
+
     defexception [:message]
 
     @impl true
     @doc """
-    This function is in charge of raise the errors that can be returned by XDR.UInt module
-      ## Parameters:
-        the function only have one parameter that is an atom which represents the type of error returned by the module
-
-      ### Example
-        def exception(:not_list) do
-          ...
-        end
-
-    Raises an exception error when the error is produced
+    Create a `XDR.Error.UInt` exception with the message of the `error_type` passed.
     """
     def exception(:not_integer) do
-      msg = "The value which you try to encode is not an integer"
-      %XDR.Error.UInt{message: msg}
+      new("The value which you try to encode is not an integer")
     end
 
     def exception(:not_binary) do
-      msg =
-        "The value which you try to decode must be a binary value, for example: <<0, 0, 0, 2>>"
-
-      %XDR.Error.UInt{message: msg}
+      new("The value which you try to decode must be a binary value, for example: <<0, 0, 0, 2>>")
     end
 
     def exception(:exceed_upper_limit) do
-      msg =
+      new(
         "The integer which you try to encode exceed the upper limit of an unsigned integer, the value must be less than 4_294_967_295"
-
-      %XDR.Error.UInt{message: msg}
+      )
     end
 
     def exception(:exceed_lower_limit) do
-      msg =
+      new(
         "The integer which you try to encode exceed the lower limit of an unsigned integer, the value must be more than 0"
-
-      %XDR.Error.UInt{message: msg}
+      )
     end
+
+    @spec new(msg :: String.t()) :: struct()
+    defp new(msg), do: %XDR.Error.UInt{message: msg}
   end
 
   defmodule Enum do
     @moduledoc """
-    This module is in charge of containing the errors that may be raised by the XDR.Enum module
+    This module contains the definition of `XDR.Error.Enum` exception that may be raised by the `XDR.Enum` module.
     """
+
     defexception [:message]
 
     @impl true
     @doc """
-    This function is in charge of raise the errors that can be returned by XDR.Enum module
-      ## Parameters:
-        the function only have one parameter that is an atom which represents the type of error returned by the module
-
-      ### Example
-        def exception(:not_list) do
-          ...
-        end
-
-    Raises an exception error when the error is produced
+    Create a `XDR.Error.Enum` exception with the message of the `error_type` passed.
     """
     def exception(:not_list) do
-      msg = "The declaration inside the Enum structure isn't a list"
-      %XDR.Error.Enum{message: msg}
+      new("The declaration inside the Enum structure isn't a list")
     end
 
     def exception(:not_an_atom) do
-      msg = "The name of the key which you try to encode isn't an atom"
-      %XDR.Error.Enum{message: msg}
+      new("The name of the key which you try to encode isn't an atom")
     end
 
     def exception(:not_binary) do
-      msg =
-        "The value which you try to decode must be a binary value, for example: <<0, 0, 0, 2>>"
-
-      %XDR.Error.Enum{message: msg}
+      new("The value which you try to decode must be a binary value, for example: <<0, 0, 0, 2>>")
     end
 
     def exception(:invalid_key) do
-      msg = "The key which you try to encode doesn't belong to the current declarations"
-
-      %XDR.Error.Enum{message: msg}
+      new("The key which you try to encode doesn't belong to the current declarations")
     end
+
+    @spec new(msg :: String.t()) :: struct()
+    defp new(msg), do: %XDR.Error.Enum{message: msg}
   end
 
   defmodule Bool do
     @moduledoc """
-    This module is in charge of containing the errors that may be raised by the XDR.Bool module
+    This module contains the definition of `XDR.Error.Bool` exception that may be raised by the `XDR.Bool` module.
     """
+
     defexception [:message]
 
     @impl true
     @doc """
-    This function is in charge of raise the errors that can be returned by XDR.Bool module
-      ## Parameters:
-        the function only have one parameter that is an atom which represents the type of error returned by the module
-
-      ### Example
-        def exception(:not_list) do
-          ...
-        end
-
-    Raises an exception error when the error is produced
+    Create a `XDR.Error.Bool` exception with the message of the `error_type` passed.
     """
     def exception(:not_boolean) do
-      msg = "The value which you try to encode is not a boolean"
-      %XDR.Error.Bool{message: msg}
+      new("The value which you try to encode is not a boolean")
     end
 
     def exception(:invalid_value) do
-      msg = "The value which you try to decode must be <<0, 0, 0, 0>> or <<0, 0, 0, 1>>"
-      %XDR.Error.Bool{message: msg}
+      new("The value which you try to decode must be <<0, 0, 0, 0>> or <<0, 0, 0, 1>>")
     end
+
+    @spec new(msg :: String.t()) :: struct()
+    defp new(msg), do: %XDR.Error.Bool{message: msg}
   end
 
   defmodule HyperInt do
     @moduledoc """
-    This module is in charge of containing the errors that may be raised by the XDR.HyperInt module
+    This module contains the definition of `XDR.Error.HyperInt` exception that may be raised by the `XDR.HyperInt` module.
     """
+
     defexception [:message]
 
     @impl true
     @doc """
-    This function is in charge of raise the errors that can be returned by XDR.HyperInt module
-      ## Parameters:
-        the function only have one parameter that is an atom which represents the type of error returned by the module
-
-      ### Example
-        def exception(:not_list) do
-          ...
-        end
-
-    Raises an exception error when the error is produced
+    Create a `XDR.Error.HyperInt` exception with the message of the `error_type` passed.
     """
     def exception(:not_integer) do
-      msg = "The value which you try to encode is not an integer"
-      %XDR.Error.HyperInt{message: msg}
+      new("The value which you try to encode is not an integer")
     end
 
     def exception(:not_binary) do
-      msg =
+      new(
         "The value which you try to decode must be a binary value, for example: <<0, 0, 0, 0, 0, 0, 0, 5>>"
-
-      %XDR.Error.HyperInt{message: msg}
+      )
     end
 
     def exception(:exceed_upper_limit) do
-      msg =
+      new(
         "The integer which you try to encode exceed the upper limit of an Hyper Integer, the value must be less than 9_223_372_036_854_775_807"
-
-      %XDR.Error.HyperInt{message: msg}
+      )
     end
 
     def exception(:exceed_lower_limit) do
-      msg =
+      new(
         "The integer which you try to encode exceed the lower limit of an Hyper Integer, the value must be more than -9_223_372_036_854_775_808"
-
-      %XDR.Error.HyperInt{message: msg}
+      )
     end
+
+    @spec new(msg :: String.t()) :: struct()
+    defp new(msg), do: %XDR.Error.HyperInt{message: msg}
   end
 
   defmodule HyperUInt do
     @moduledoc """
-    This module is in charge of containing the errors that may be raised by the XDR.HyperUInt module
+    This module contains the definition of `XDR.Error.HyperUInt` exception that may be raised by the `XDR.HyperUInt` module.
     """
+
     defexception [:message]
 
     @impl true
     @doc """
-    This function is in charge of raise the errors that can be returned by XDR.HyperUInt module
-      ## Parameters:
-        the function only have one parameter that is an atom which represents the type of error returned by the module
-
-      ### Example
-        def exception(:not_list) do
-          ...
-        end
-
-    Raises an exception error when the error is produced
+    Create a `XDR.Error.HyperUInt` exception with the message of the `error_type` passed.
     """
     def exception(:not_integer) do
-      msg = "The value which you try to encode is not an integer"
-      %XDR.Error.HyperUInt{message: msg}
+      new("The value which you try to encode is not an integer")
     end
 
     def exception(:not_binary) do
-      msg =
+      new(
         "The value which you try to decode must be a binary value, for example: <<0, 0, 0, 0, 0, 0, 0, 5>>"
-
-      %XDR.Error.HyperUInt{message: msg}
+      )
     end
 
     def exception(:exceed_upper_limit) do
-      msg =
+      new(
         "The integer which you try to encode exceed the upper limit of an Hyper Unsigned Integer, the value must be less than 18_446_744_073_709_551_615"
-
-      %XDR.Error.HyperUInt{message: msg}
+      )
     end
 
     def exception(:exceed_lower_limit) do
-      msg =
+      new(
         "The integer which you try to encode exceed the lower limit of an Hyper Unsigned Integer, the value must be more than 0"
-
-      %XDR.Error.HyperUInt{message: msg}
+      )
     end
+
+    @spec new(msg :: String.t()) :: struct()
+    defp new(msg), do: %XDR.Error.HyperUInt{message: msg}
   end
 
   defmodule Float do
     @moduledoc """
-    This module is in charge of containing the errors that may be raised by the XDR.Float module
+    This module contains the definition of `XDR.Error.Float` exception that may be raised by the `XDR.Float` module.
     """
+
     defexception [:message]
 
     @impl true
     @doc """
-    This function is in charge of raise the errors that can be returned by XDR.Float module
-      ## Parameters:
-        the function only have one parameter that is an atom which represents the type of error returned by the module
-
-      ### Example
-        def exception(:not_integer) do
-          ...
-        end
-
-    Raises an exception error when the error is produced
+    Create a `XDR.Error.Float` exception with the message of the `error_type` passed.
     """
     def exception(:not_number) do
-      msg = "The value which you try to encode is not an integer or float value"
-      %XDR.Error.Float{message: msg}
+      new("The value which you try to encode is not an integer or float value")
     end
 
     def exception(:not_binary) do
-      msg =
-        "The value which you try to decode must be a binary value, for example: <<0, 0, 0, 2>>"
-
-      %XDR.Error.Float{message: msg}
+      new("The value which you try to decode must be a binary value, for example: <<0, 0, 0, 2>>")
     end
+
+    @spec new(msg :: String.t()) :: struct()
+    defp new(msg), do: %XDR.Error.Float{message: msg}
   end
 
   defmodule DoubleFloat do
     @moduledoc """
-    This module is in charge of containing the errors that may be raised by the XDR.DoubleFloat module
+    This module contains the definition of `XDR.Error.DoubleFloat` exception that may be raised by the `XDR.DoubleFloat` module.
     """
+
     defexception [:message]
 
     @impl true
     @doc """
-    This function is in charge of raise the errors that can be returned by XDR.DoubleFloat module
-      ## Parameters:
-        the function only have one parameter that is an atom which represents the type of error returned by the module
-
-      ### Example
-        def exception(:not_integer) do
-          ...
-        end
-
-    Raises an exception error when the error is produced
+    Create a `XDR.Error.DoubleFloat` exception with the message of the `error_type` passed.
     """
     def exception(:not_number) do
-      msg = "The value which you try to encode is not an integer or float value"
-      %XDR.Error.DoubleFloat{message: msg}
+      new("The value which you try to encode is not an integer or float value")
     end
 
     def exception(:not_binary) do
-      msg =
+      new(
         "The value which you try to decode must be a binary value, for example: <<0, 0, 0, 0, 0, 0, 0, 5>>"
-
-      %XDR.Error.DoubleFloat{message: msg}
+      )
     end
+
+    @spec new(msg :: String.t()) :: struct()
+    defp new(msg), do: %XDR.Error.DoubleFloat{message: msg}
   end
 
   defmodule FixedOpaque do
     @moduledoc """
-    This module is in charge of containing the errors that may be raised by the XDR.FixedOpaque module
+    This module contains the definition of `XDR.Error.FixedOpaque` exception that may be raised by the `XDR.FixedOpaque` module.
     """
+
     defexception [:message]
 
     @impl true
     @doc """
-    This function is in charge of raise the errors that can be returned by XDR.FixedOpaque module
-      ## Parameters:
-        the function only have one parameter that is an atom which represents the type of error returned by the module
-
-      ### Example
-        def exception(:not_integer) do
-          ...
-        end
-
-    Raises an exception error when the error is produced
+    Create a `XDR.Error.FixedOpaque` exception with the message of the `error_type` passed.
     """
     def exception(:not_number) do
-      msg = "The value which you pass through parameters is not an integer"
-      %XDR.Error.FixedOpaque{message: msg}
+      new("The value which you pass through parameters is not an integer")
     end
 
     def exception(:not_binary) do
-      msg =
+      new(
         "The value which you pass through parameters must be a binary value, for example: <<0, 0, 0, 5>>"
-
-      %XDR.Error.FixedOpaque{message: msg}
+      )
     end
 
     def exception(:invalid_length) do
-      msg =
+      new(
         "The length that is passed through parameters must be equal or less to the byte size of the XDR to complete"
-
-      %XDR.Error.FixedOpaque{message: msg}
+      )
     end
 
     def exception(:exceed_length) do
-      msg = "The length is bigger than the byte size of the XDR"
-
-      %XDR.Error.FixedOpaque{message: msg}
+      new("The length is bigger than the byte size of the XDR")
     end
 
     def exception(:not_valid_binary) do
-      msg = "The binary size of the binary which you try to decode must be a multiple of 4"
-
-      %XDR.Error.FixedOpaque{message: msg}
+      new("The binary size of the binary which you try to decode must be a multiple of 4")
     end
+
+    @spec new(msg :: String.t()) :: struct()
+    defp new(msg), do: %XDR.Error.FixedOpaque{message: msg}
   end
 
   defmodule VariableOpaque do
     @moduledoc """
-    This module is in charge of containing the errors that may be raised by the XDR.VariableOpaque module
+    This module contains the definition of `XDR.Error.VariableOpaque` exception that may be raised by the `XDR.VariableOpaque` module.
     """
+
     defexception [:message]
 
     @impl true
     @doc """
-    This function is in charge of raise the errors that can be returned by XDR.VariableOpaque module
-      ## Parameters:
-        the function only have one parameter that is an atom which represents the type of error returned by the module
-
-      ### Example
-        def exception(:not_integer) do
-          ...
-        end
-
-    Raises an exception error when the error is produced
+    Create a `XDR.Error.VariableOpaque` exception with the message of the `error_type` passed.
     """
     def exception(:not_number) do
-      msg = "The value which you pass through parameters is not an integer"
-      %XDR.Error.VariableOpaque{message: msg}
+      new("The value which you pass through parameters is not an integer")
     end
 
     def exception(:not_binary) do
-      msg =
+      new(
         "The value which you pass through parameters must be a binary value, for example: <<0, 0, 0, 5>>"
-
-      %XDR.Error.VariableOpaque{message: msg}
+      )
     end
 
     def exception(:invalid_length) do
-      msg =
+      new(
         "The max length that is passed through parameters must be biger to the byte size of the XDR"
-
-      %XDR.Error.VariableOpaque{message: msg}
+      )
     end
 
     def exception(:exceed_lower_bound) do
-      msg = "The minimum value of the length of the variable is 0"
-
-      %XDR.Error.VariableOpaque{message: msg}
+      new("The minimum value of the length of the variable is 0")
     end
 
     def exception(:exceed_upper_bound) do
-      msg = "The maximum value of the length of the variable is 4_294_967_295"
-
-      %XDR.Error.VariableOpaque{message: msg}
+      new("The maximum value of the length of the variable is 4_294_967_295")
     end
 
     def exception(:length_over_max) do
-      msg =
+      new(
         "The number which represents the length from decode the opaque as UInt is bigger than the defined max (max by default is 4_294_967_295)"
-
-      %XDR.Error.VariableOpaque{message: msg}
+      )
     end
 
     def exception(:length_over_rest) do
-      msg = "The XDR has an invalid length, it must be less than byte-size of the rest"
-
-      %XDR.Error.VariableOpaque{message: msg}
+      new("The XDR has an invalid length, it must be less than byte-size of the rest")
     end
+
+    @spec new(msg :: String.t()) :: struct()
+    defp new(msg), do: %XDR.Error.VariableOpaque{message: msg}
   end
 
   defmodule String do
     @moduledoc """
-    This module is in charge of containing the errors that may be raised by the XDR.String module
+    This module contains the definition of `XDR.Error.String` exception that may be raised by the `XDR.String` module.
     """
+
     defexception [:message]
 
     @impl true
     @doc """
-    This function is in charge of raise the errors that can be returned by XDR.String module
-      ## Parameters:
-        the function only have one parameter that is an atom which represents the type of error returned by the module
-
-      ### Example
-        def exception(:not_integer) do
-          ...
-        end
-
-    Raises an exception error when the error is produced
+    Create a `XDR.Error.String` exception with the message of the `error_type` passed.
     """
     def exception(:not_bitstring) do
-      msg = "the value which you try to encode must be a bitstring value"
-      %XDR.Error.String{message: msg}
+      new("the value which you try to encode must be a bitstring value")
     end
 
     def exception(:not_binary) do
-      msg = "the value which you try to decode must be a binary value"
-      %XDR.Error.String{message: msg}
+      new("the value which you try to decode must be a binary value")
     end
+
+    @spec new(msg :: binary()) :: struct()
+    defp new(msg), do: %XDR.Error.String{message: msg}
   end
 
   defmodule FixedArray do
     @moduledoc """
-    This module is in charge of containing the errors that may be raised by the XDR.FixedArray module
+    This module contains the definition of `XDR.Error.FixedArray` exception that may be raised by the `XDR.FixedArray` module.
     """
+
     defexception [:message]
 
     @impl true
     @doc """
-    This function is in charge of raise the errors that can be returned by XDR.FixedArray module
-      ## Parameters:
-        the function only have one parameter that is an atom which represents the type of error returned by the module
-
-      ### Example
-        def exception(:not_integer) do
-          ...
-        end
-
-    Raises an exception error when the error is produced
+    Create a `XDR.Error.FixedArray` exception with the message of the `error_type` passed.
     """
     def exception(:invalid_length) do
-      msg = "the length of the array and the length must be the same"
-      %XDR.Error.FixedArray{message: msg}
+      new("the length of the array and the length must be the same")
     end
 
     def exception(:not_list) do
-      msg = "the value which you try to encode must be a list"
-      %XDR.Error.FixedArray{message: msg}
+      new("the value which you try to encode must be a list")
     end
 
     def exception(:not_number) do
-      msg = "the length received by parameter must be an integer"
-      %XDR.Error.FixedArray{message: msg}
+      new("the length received by parameter must be an integer")
     end
 
     def exception(:not_binary) do
-      msg = "the value which you try to decode must be a binary value"
-      %XDR.Error.FixedArray{message: msg}
+      new("the value which you try to decode must be a binary value")
     end
 
     def exception(:not_valid_binary) do
-      msg = "the value which you try to decode must have a multiple of 4 byte-size"
-      %XDR.Error.FixedArray{message: msg}
+      new("the value which you try to decode must have a multiple of 4 byte-size")
     end
+
+    def exception(:invalid_type) do
+      new("the type must be a module")
+    end
+
+    @spec new(msg :: String.t()) :: struct()
+    defp new(msg), do: %XDR.Error.FixedArray{message: msg}
   end
 
   defmodule VariableArray do
     @moduledoc """
-    This module is in charge of containing the errors that may be raised by the XDR.VariableArray module
+    This module contains the definition of `XDR.Error.VariableArray` exception that may be raised by the `XDR.VariableArray` module.
     """
+
     defexception [:message]
 
     @impl true
     @doc """
-    This function is in charge of raise the errors that can be returned by XDR.VariableArray module
-      ## Parameters:
-        the function only have one parameter that is an atom which represents the type of error returned by the module
-
-      ### Example
-        def exception(:not_integer) do
-          ...
-        end
-
-    Raises an exception error when the error is produced
+    Create a `XDR.Error.VariableArray` exception with the message of the `error_type` passed.
     """
     def exception(:not_list) do
-      msg = "the value which you try to encode must be a list"
-      %XDR.Error.VariableArray{message: msg}
+      new("the value which you try to encode must be a list")
     end
 
     def exception(:not_number) do
-      msg = "the max length must be an integer value"
-      %XDR.Error.VariableArray{message: msg}
+      new("the max length must be an integer value")
     end
 
     def exception(:not_binary) do
-      msg =
+      new(
         "The value which you pass through parameters must be a binary value, for example: <<0, 0, 0, 5>>"
-
-      %XDR.Error.VariableArray{message: msg}
+      )
     end
 
     def exception(:exceed_lower_bound) do
-      msg = "The minimum value of the length of the variable is 1"
-
-      %XDR.Error.VariableArray{message: msg}
+      new("The minimum value of the length of the variable is 1")
     end
 
     def exception(:exceed_upper_bound) do
-      msg = "The maximum value of the length of the variable is 4_294_967_295"
-
-      %XDR.Error.VariableArray{message: msg}
+      new("The maximum value of the length of the variable is 4_294_967_295")
     end
 
     def exception(:length_over_max) do
-      msg =
+      new(
         "The number which represents the length from decode the opaque as UInt is bigger than the defined max"
-
-      %XDR.Error.VariableArray{message: msg}
+      )
     end
 
     def exception(:invalid_length) do
-      msg = "The length of the binary exceeds the max_length of the type"
-
-      %XDR.Error.VariableArray{message: msg}
+      new("The length of the binary exceeds the max_length of the type")
     end
 
     def exception(:invalid_binary) do
-      msg =
+      new(
         "The data which you try to decode has an invalid number of bytes, it must be equal to or greater than the size of the array multiplied by 4"
-
-      %XDR.Error.VariableArray{message: msg}
+      )
     end
+
+    @spec new(msg :: String.t()) :: struct()
+    defp new(msg), do: %XDR.Error.VariableArray{message: msg}
   end
 
   defmodule Struct do
     @moduledoc """
-    This module is in charge of containing the errors that may be raised by the XDR.Struct module
+    This module contains the definition of `XDR.Error.Struct` exception that may be raised by the `XDR.Struct` module.
     """
+
     defexception [:message]
 
     @impl true
     @doc """
-    This function is in charge of raise the errors that can be returned by XDR.Struct module
-      ## Parameters:
-        the function only have one parameter that is an atom which represents the type of error returned by the module
-      ### Example
-        def exception(:not_integer) do
-          ...
-        end
-    Raises an exception error when the error is produced
+    Create a `XDR.Error.Struct` exception with the message of the `error_type` passed.
     """
     def exception(:not_list) do
-      msg = "The :components received by parameter must be a keyword list"
-      %XDR.Error.Struct{message: msg}
+      new("The :components received by parameter must be a keyword list")
     end
 
     def exception(:empty_list) do
-      msg = "The :components must not be empty, it must be a keyword list"
-      %XDR.Error.Struct{message: msg}
+      new("The :components must not be empty, it must be a keyword list")
     end
 
     def exception(:not_binary) do
-      msg =
-        "The :struct received by parameter must be a binary value, for example: <<0, 0, 0, 5>>"
-
-      %XDR.Error.Struct{message: msg}
+      new("The :struct received by parameter must be a binary value, for example: <<0, 0, 0, 5>>")
     end
+
+    @spec new(msg :: String.t()) :: struct()
+    defp new(msg), do: %XDR.Error.Struct{message: msg}
   end
 
   defmodule Union do
     @moduledoc """
-    This module is in charge of containing the errors that may be raised by the XDR.Union module
+    This module contains the definition of `XDR.Error.Union` exception that may be raised by the `XDR.Union` module.
     """
+
     defexception [:message]
 
     @impl true
     @doc """
-    This function is in charge of raise the errors that can be returned by XDR.Union module
-      ## Parameters:
-        the function only have one parameter that is an atom which represents the type of error returned by the module
-      ### Example
-        def exception(:not_integer) do
-          ...
-        end
-    Raises an exception error when the error is produced
+    Create a `XDR.Error.Union` exception with the message of the `error_type` passed.
     """
     def exception(:not_list) do
-      msg =
+      new(
         "The :declarations received by parameter must be a keyword list which belongs to an XDR.Enum"
-
-      %XDR.Error.Union{message: msg}
+      )
     end
 
     def exception(:not_binary) do
-      msg =
+      new(
         "The :identifier received by parameter must be a binary value, for example: <<0, 0, 0, 5>>"
-
-      %XDR.Error.Union{message: msg}
+      )
     end
 
     def exception(:not_number) do
-      msg = "The value which you try to decode is not an integer value"
-      %XDR.Error.Union{message: msg}
+      new("The value which you try to decode is not an integer value")
     end
 
     def exception(:not_atom) do
-      msg = "The :identifier which you try to decode from the Enum Union is not an atom"
-      %XDR.Error.Union{message: msg}
+      new("The :identifier which you try to decode from the Enum Union is not an atom")
     end
+
+    @spec new(msg :: String.t()) :: struct()
+    defp new(msg), do: %XDR.Error.Union{message: msg}
   end
 
   defmodule Void do
     @moduledoc """
-    This module is in charge of containing the errors that may be raised by the XDR.Void module
+    This module contains the definition of `XDR.Error.Void` exception that may be raised by the `XDR.Void` module.
     """
+
     defexception [:message]
 
     @impl true
     @doc """
-    This function is in charge of raise the errors that can be returned by XDR.Void module
-      ## Parameters:
-        the function only have one parameter that is an atom which represents the type of error returned by the module
-      ### Example
-        def exception(:not_integer) do
-          ...
-        end
-    Raises an exception error when the error is produced
+    Create a `XDR.Error.Void` exception with the message of the `error_type` passed.
     """
     def exception(:not_binary) do
-      msg =
-        "The value which you try to decode must be a binary value, for example: <<0, 0, 0, 5>>"
-
-      %XDR.Error.Void{message: msg}
+      new("The value which you try to decode must be a binary value, for example: <<0, 0, 0, 5>>")
     end
 
     def exception(:not_void) do
-      msg = "The value which you try to encode is not void"
-
-      %XDR.Error.Void{message: msg}
+      new("The value which you try to encode is not void")
     end
+
+    @spec new(msg :: String.t()) :: struct()
+    defp new(msg), do: %XDR.Error.Void{message: msg}
   end
 
   defmodule Optional do
     @moduledoc """
-    This module is in charge of containing the errors that may be raised by the XDR.Optional module
+    This module contains the definition of `XDR.Error.Optional` exception that may be raised by the `XDR.Optional` module.
     """
+
     defexception [:message]
 
     @impl true
     @doc """
-    This function is in charge of raise the errors that can be returned by XDR.Optional module
-      ## Parameters:
-        the function only have one parameter that is an atom which represents the type of error returned by the module
-      ### Example
-        def exception(:not_integer) do
-          ...
-        end
-    Raises an exception error when the error is produced
+    Create a `XDR.Error.Optional` exception with the message of the `error_type` passed.
     """
     def exception(:not_valid) do
-      msg = "The value which you try to encode must be Int, UInt or Enum"
-
-      %XDR.Error.Optional{message: msg}
+      new("The value which you try to encode must be Int, UInt or Enum")
     end
 
     def exception(:not_binary) do
-      msg = "The value which you try to decode must be a binary value"
-
-      %XDR.Error.Optional{message: msg}
+      new("The value which you try to decode must be a binary value")
     end
 
     def exception(:not_module) do
-      msg = "The type of the optional value must be the module which it belongs"
-
-      %XDR.Error.Optional{message: msg}
+      new("The type of the optional value must be the module which it belongs")
     end
+
+    @spec new(msg :: String.t()) :: struct()
+    defp new(msg), do: %XDR.Error.Optional{message: msg}
   end
 end
