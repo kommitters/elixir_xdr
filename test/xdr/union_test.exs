@@ -1,8 +1,12 @@
 defmodule XDR.UnionTest do
+  @moduledoc """
+  Tests for the `XDR.Union` module.
+  """
+
   use ExUnit.Case
 
   alias XDR.Union
-  alias XDR.Error.Union, as: UnionErr
+  alias XDR.Error.Union, as: UnionError
 
   describe "new" do
     test "with Enum" do
@@ -91,7 +95,7 @@ defmodule XDR.UnionTest do
         SCP_ST_NOMINATE: XDR.Float.new(3.46)
       ]
 
-      assert_raise UnionErr, fn -> Union.encode_xdr!(%{discriminant: enum, arms: arms}) end
+      assert_raise UnionError, fn -> Union.encode_xdr!(%{discriminant: enum, arms: arms}) end
     end
 
     test "Uint example" do
@@ -126,7 +130,7 @@ defmodule XDR.UnionTest do
     end
 
     test "encode_xdr! when receives an invalid identifier" do
-      assert_raise UnionErr, fn ->
+      assert_raise UnionError, fn ->
         "SCP_ST_EXTERNALIZE"
         |> UnionSCPStatementWithTypes.new()
         |> UnionSCPStatementWithTypes.encode_xdr!()
@@ -262,7 +266,7 @@ defmodule XDR.UnionTest do
         arms: arms
       }
 
-      assert_raise UnionErr, fn -> Union.decode_xdr!([0, 0, 0, 0, 0, 0, 0, 0], enum) end
+      assert_raise UnionError, fn -> Union.decode_xdr!([0, 0, 0, 0, 0, 0, 0, 0], enum) end
     end
   end
 
