@@ -52,6 +52,7 @@ defmodule XDR.Void do
   """
   @spec decode_xdr(binary, any) :: {:ok, {nil, binary}} | {:error, :not_void}
   def decode_xdr(<<>>, _), do: {:ok, {nil, ""}}
+  def decode_xdr(<<rest::binary>>, _), do: {:ok, {nil, rest}}
   def decode_xdr(_, _), do: {:error, :not_void}
   @impl XDR.Declaration
   @doc """
@@ -63,5 +64,6 @@ defmodule XDR.Void do
   @spec decode_xdr!(binary, any) :: {nil, binary}
   def decode_xdr!(bytes, opts \\ nil)
   def decode_xdr!(<<>>, _), do: {nil, ""}
+  def decode_xdr!(<<rest::binary>>, _), do: {nil, rest}
   def decode_xdr!(_, _), do: raise(Void, :not_void)
 end

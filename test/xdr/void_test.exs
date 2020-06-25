@@ -43,7 +43,7 @@ defmodule XDR.VoidTest do
     end
   end
 
-  describe "Decoding binary to integer" do
+  describe "Decoding binary to void" do
     test "when is not binary value" do
       {status, reason} = Void.decode_xdr(5860, XDR.Void)
 
@@ -51,11 +51,11 @@ defmodule XDR.VoidTest do
       assert reason == :not_void
     end
 
-    test "with invalid binary" do
-      {status, reason} = Void.decode_xdr(<<0>>, XDR.Void)
+    test "with binary rest" do
+      {status, reason} = Void.decode_xdr(<<116, 101, 115, 116>>, XDR.Void)
 
-      assert status == :error
-      assert reason == :not_void
+      assert status == :ok
+      assert reason == {nil, <<116, 101, 115, 116>>}
     end
 
     test "when is a valid binary" do
@@ -71,12 +71,18 @@ defmodule XDR.VoidTest do
       assert reason === {nil, ""}
     end
 
+    test "decode_xdr! with rest" do
+      reason = Void.decode_xdr!(<<116, 101, 115, 116>>, XDR.Void)
+
+      assert reason === {nil, <<116, 101, 115, 116>>}
+    end
+
     test "decode_xdr! with invalid data" do
-      assert_raise VoidErr, fn -> Void.decode_xdr!(<<0>>, XDR.Void) end
+      assert_raise VoidErr, fn -> Void.decode_xdr!(12_345, XDR.Void) end
     end
 
     test "decode_xdr! with one parameter" do
-      assert_raise VoidErr, fn -> Void.decode_xdr!(<<0>>) end
+      assert_raise VoidErr, fn -> Void.decode_xdr!(nil) end
     end
   end
 end
