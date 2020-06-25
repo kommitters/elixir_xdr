@@ -1,9 +1,13 @@
 defmodule XDR.StructTest do
+  @moduledoc """
+  Tests for the `XDR.Struct` module.
+  """
+
   use ExUnit.Case
 
   alias TestFile
   alias XDR.Struct
-  alias XDR.Error.Struct, as: StructErr
+  alias XDR.Error.Struct, as: StructError
 
   describe "Encoding Struct to binary" do
     test "when is not a list" do
@@ -69,7 +73,7 @@ defmodule XDR.StructTest do
         |> Map.from_struct()
         |> Struct.new()
 
-      assert_raise StructErr, fn -> Struct.encode_xdr!(component_keyword) end
+      assert_raise StructError, fn -> Struct.encode_xdr!(component_keyword) end
     end
   end
 
@@ -141,7 +145,7 @@ defmodule XDR.StructTest do
     test "encode_xdr! when is not a binary value" do
       component_keyword = Map.from_struct(TestFile.__struct__()) |> Map.to_list()
 
-      assert_raise StructErr, fn ->
+      assert_raise StructError, fn ->
         Struct.decode_xdr!([0, 0, 2, 0, 3, 0, 1, 0], %{components: component_keyword})
       end
     end

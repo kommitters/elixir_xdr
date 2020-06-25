@@ -1,115 +1,91 @@
 defmodule XDR.Struct do
-  @behaviour XDR.Declaration
   @moduledoc """
-  this module is in charge of process the struct types based on the RFC4056 XDR Standard
+  This module manages the `Structure` type based on the RFC4506 XDR Standard.
   """
 
-  defstruct components: nil
+  @behaviour XDR.Declaration
+
+  alias XDR.Error.Struct, as: StructError
+
+  defstruct [:components]
 
   @typedoc """
-  Every Struct structure has a component keyword which contains the keys and its representation value
+  `XDR.Struct` structure type specification.
   """
-  @type t :: %XDR.Struct{components: keyword}
-
-  alias XDR.Error.Struct
+  @type t :: %XDR.Struct{components: keyword()}
 
   @doc """
-  this function provides an easy way to create an XDR.DoubleFloat type
-
-  returns a XDR.DoubleFloat struct with the value received as parameter
+  Create a new `XDR.Struct` structure with the `opaque` and `length` passed.
   """
-  @spec new(components :: keyword) :: t()
+  @spec new(components :: keyword()) :: t
   def new(components), do: %XDR.Struct{components: components}
 
   @impl XDR.Declaration
   @doc """
-  This function is in charge of encode structure types into and XDR format, it receives an XDR.Struct structure
-  which contains the structure to encode
-
-  returns an :ok tuple with the resulted XDR
+  Encode a `XDR.Struct` structure into a XDR format.
   """
-  @spec encode_xdr(map()) :: {:ok, binary} | {:error, :not_list | :empty_list}
-  def encode_xdr(%{components: components}) when not is_list(components),
-    do: {:error, :not_list}
-
+  @spec encode_xdr(struct :: t) :: {:ok, binary} | {:error, :not_list | :empty_list}
+  def encode_xdr(%{components: components}) when not is_list(components), do: {:error, :not_list}
   def encode_xdr(%{components: []}), do: {:error, :empty_list}
-
-  def encode_xdr(%{components: components}) do
-    xdr =
-      components
-      |> Enum.reduce(<<>>, fn {_key, component}, bytes ->
-        component_module = component.__struct__
-        bytes <> component_module.encode_xdr!(component)
-      end)
-
-    {:ok, xdr}
-  end
+  def encode_xdr(%{components: components}), do: {:ok, encode_components(components)}
 
   @impl XDR.Declaration
   @doc """
-  This function is in charge of encode structure types into and XDR format, it receives an XDR.Struct structure
-  which contains the structure to encode
-
-  returns the resulted XDR
+  Encode a `XDR.Struct` structure into a XDR format.
+  If the `struct` is not valid, an exception is raised.
   """
-  @spec encode_xdr!(map()) :: binary
+  @spec encode_xdr!(struct :: t) :: binary()
   def encode_xdr!(struct) do
     case encode_xdr(struct) do
       {:ok, binary} -> binary
-      {:error, reason} -> raise(Struct, reason)
+      {:error, reason} -> raise(StructError, reason)
     end
   end
 
   @impl XDR.Declaration
   @doc """
-    This function is in charge of decode an XDR into an structure, it receives an XDR.Struct structure
-  which contains the binary to encode
-
-  returns an :ok tuple with the resulted struct
+  Decode the Structure in XDR format to a `XDR.Struct` structure.
   """
-  @spec decode_xdr(bytes :: binary, struct :: map()) ::
-          {:ok, {t(), binary()}} | {:error, :not_binary | :not_list}
+  @spec decode_xdr(bytes :: binary, struct :: t | map()) ::
+          {:ok, {t, binary()}} | {:error, :not_binary | :not_list}
   def decode_xdr(bytes, _struct) when not is_binary(bytes), do: {:error, :not_binary}
 
   def decode_xdr(_bytes, %{components: components}) when not is_list(components),
     do: {:error, :not_list}
 
   def decode_xdr(bytes, %{components: components}) do
-    {rest, new_components} =
-      bytes
-      |> decode_struct(components)
-      |> Keyword.pop(:rest)
-
-    {:ok, {XDR.Struct.new(new_components), rest}}
+    {decoded_components, rest} = bytes |> decode_components(components)
+    decoded_struct = decoded_components |> Enum.reverse() |> new()
+    {:ok, {decoded_struct, rest}}
   end
 
   @impl XDR.Declaration
   @doc """
-    This function is in charge of decode an XDR into an structure, it receives an XDR.Struct structure
-  which contains the binary to encode
-
-  returns an :ok tuple with the resulted struct
+  Decode the Structure in XDR format to a `XDR.Struct` structure.
+  If the binaries are not valid, an exception is raised.
   """
-  @spec decode_xdr!(bytes :: binary, struct :: map()) :: {t(), binary()}
+  @spec decode_xdr!(bytes :: binary, struct :: t | map()) :: {t, binary()}
   def decode_xdr!(bytes, struct) do
     case decode_xdr(bytes, struct) do
       {:ok, result} -> result
-      {:error, reason} -> raise(Struct, reason)
+      {:error, reason} -> raise(StructError, reason)
     end
   end
 
-  defp decode_struct(bytes, []), do: bytes
-
-  defp decode_struct(bytes, [{key, component} | tail]) do
-    {decoded_component, rest} = component.decode_xdr!(bytes)
-
-    keyword1 = Keyword.new([{key, decoded_component}])
-    merge_keyword(keyword1, decode_struct(rest, tail))
+  @spec encode_components(components :: keyword()) :: binary()
+  defp encode_components(components) do
+    Enum.reduce(components, <<>>, fn {_key, component}, bytes ->
+      component_module = component.__struct__
+      bytes <> component_module.encode_xdr!(component)
+    end)
   end
 
-  @spec merge_keyword(keyword1 :: keyword, keyword) :: keyword
-  defp merge_keyword(keyword1, rest) when not is_list(rest),
-    do: Keyword.merge(keyword1, rest: rest)
-
-  defp merge_keyword(keyword1, keyword2), do: Keyword.merge(keyword1, keyword2)
+  @spec decode_components(bytes :: binary(), components :: keyword()) :: keyword()
+  defp decode_components(bytes, components) do
+    components
+    |> Enum.reduce({[], bytes}, fn {key, component}, {decoded_components, rest_bytes} ->
+      {decoded_component, rest} = component.decode_xdr!(rest_bytes)
+      {[{key, decoded_component} | decoded_components], rest}
+    end)
+  end
 end
