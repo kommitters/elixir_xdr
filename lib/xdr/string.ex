@@ -1,35 +1,32 @@
 defmodule XDR.String do
-  @behaviour XDR.Declaration
   @moduledoc """
-  this module is in charge of process the  String types based on the RFC4506 XDR Standard
+  This module manages the `String` type based on the RFC4506 XDR Standard.
   """
 
-  defstruct string: nil, max_length: nil
-
-  @typedoc """
-  Every String structure has a String which represent the value which you try to encode
-  """
-  @type t :: %XDR.String{string: String.t() | binary(), max_length: integer}
+  @behaviour XDR.Declaration
 
   alias XDR.VariableOpaque
-  alias XDR.Error.String, as: StringErr
+  alias XDR.Error.String, as: StringError
+
+  defstruct [:string, :max_length]
+
+  @typedoc """
+  `XDR.String` structure type specification.
+  """
+  @type t :: %XDR.String{string: binary(), max_length: integer}
 
   @doc """
-  this function provides an easy way to create an XDR.String type
-
-  returns a XDR.String struct with the value received as parameter
+  Create a new `XDR.String` structure with the `opaque` and `length` passed.
   """
-  @spec new(string :: bitstring(), max_length :: integer()) :: t()
+  @spec new(string :: bitstring(), max_length :: integer()) :: t
   def new(string, max_length \\ 4_294_967_295)
   def new(string, max_length), do: %XDR.String{string: string, max_length: max_length}
 
   @impl XDR.Declaration
   @doc """
-  this function is in charge of encode an string into an XDR format,it receives an XDR.String which contains the value to encode
-
-  returns an :ok tuple with the resulted XDR
+  Encode a `XDR.String` structure into a XDR format.
   """
-  @spec encode_xdr(map()) :: {:ok, binary} | {:error, :not_bitstring}
+  @spec encode_xdr(string :: t) :: {:ok, binary} | {:error, :not_bitstring}
   def encode_xdr(%{string: string}) when not is_bitstring(string),
     do: {:error, :not_bitstring}
 
@@ -45,28 +42,25 @@ defmodule XDR.String do
 
   @impl XDR.Declaration
   @doc """
-  this function is in charge of encode an string into an XDR format,it receives an XDR.String which contains the value to encode
-
-  returns the resulted XDR
+  Encode a `XDR.String` structure into a XDR format.
+  If the `string` is not valid, an exception is raised.
   """
-  @spec encode_xdr!(map()) :: binary
+  @spec encode_xdr!(string :: t) :: binary
   def encode_xdr!(string) do
     case encode_xdr(string) do
       {:ok, binary} -> binary
-      {:error, reason} -> raise(StringErr, reason)
+      {:error, reason} -> raise(StringError, reason)
     end
   end
 
   @impl XDR.Declaration
   @doc """
-  this function is in charge of decode an XDR into a string, it receives and XDR.String structure which contains the binary to encode
-
-  returns an :ok tuple with the resulted string
+  Decode the String in XDR format to a `XDR.String` structure.
   """
-  @spec decode_xdr(bytes :: binary, struct :: map() | any) ::
-          {:ok, {t(), binary()}} | {:error, :not_binary}
-  def decode_xdr(bytes, struct \\ %{max_length: 4_294_967_295})
-  def decode_xdr(bytes, _struct) when not is_binary(bytes), do: {:error, :not_binary}
+  @spec decode_xdr(bytes :: binary, string :: t | map()) ::
+          {:ok, {t, binary()}} | {:error, :not_binary}
+  def decode_xdr(bytes, string \\ %{max_length: 4_294_967_295})
+  def decode_xdr(bytes, _string) when not is_binary(bytes), do: {:error, :not_binary}
 
   def decode_xdr(bytes, %{max_length: max_length}) do
     variable_struct = VariableOpaque.new(nil, max_length)
@@ -85,17 +79,16 @@ defmodule XDR.String do
 
   @impl XDR.Declaration
   @doc """
-  this function is in charge of decode an XDR into a string, it receives and XDR.String structure which contains the binary to encode
-
-  returns the resulted string
+  Decode the String in XDR format to a `XDR.String` structure.
+  If the binaries are not valid, an exception is raised.
   """
-  @spec decode_xdr!(bytes :: binary, struct :: map() | any) :: {t(), binary()}
-  def decode_xdr!(bytes, struct \\ %{max_length: 4_294_967_295})
+  @spec decode_xdr!(bytes :: binary, string :: t | map()) :: {t, binary()}
+  def decode_xdr!(bytes, string \\ %{max_length: 4_294_967_295})
 
-  def decode_xdr!(bytes, struct) do
-    case decode_xdr(bytes, struct) do
+  def decode_xdr!(bytes, string) do
+    case decode_xdr(bytes, string) do
       {:ok, result} -> result
-      {:error, reason} -> raise(StringErr, reason)
+      {:error, reason} -> raise(StringError, reason)
     end
   end
 end
