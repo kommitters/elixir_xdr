@@ -1,8 +1,12 @@
 defmodule XDR.HyperUIntTest do
+  @moduledoc """
+  Tests for the `XDR.HyperUInt` module.
+  """
+
   use ExUnit.Case
 
   alias XDR.HyperUInt
-  alias XDR.Error.HyperUInt, as: HyperUIntErr
+  alias XDR.Error.HyperUInt, as: HyperUIntError
 
   describe "Encoding Hyper Unsigned Integer to binary" do
     test "when is not an integer value" do
@@ -52,7 +56,7 @@ defmodule XDR.HyperUIntTest do
     test "encode_xdr! when is not an integer value" do
       hyper_uint = HyperUInt.new("hello world")
 
-      assert_raise HyperUIntErr, fn -> HyperUInt.encode_xdr!(hyper_uint) end
+      assert_raise HyperUIntError, fn -> HyperUInt.encode_xdr!(hyper_uint) end
     end
   end
 
@@ -84,7 +88,7 @@ defmodule XDR.HyperUIntTest do
     end
 
     test "decode_xdr!when is not binary value" do
-      assert_raise HyperUIntErr, fn -> HyperUInt.decode_xdr!(5860) end
+      assert_raise HyperUIntError, fn -> HyperUInt.decode_xdr!(5860) end
     end
   end
 end
