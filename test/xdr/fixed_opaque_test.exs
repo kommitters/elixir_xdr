@@ -1,8 +1,12 @@
 defmodule XDR.FixedOpaqueTest do
+  @moduledoc """
+  Tests for the `XDR.FixedOpaque` module.
+  """
+
   use ExUnit.Case
 
   alias XDR.FixedOpaque
-  alias XDR.Error.FixedOpaque, as: FixedOpaqueErr
+  alias XDR.Error.FixedOpaque, as: FixedOpaqueError
 
   describe "Encoding Fixed Opaque" do
     test "when xdr is not binary" do
@@ -52,7 +56,7 @@ defmodule XDR.FixedOpaqueTest do
     test "encode_xdr! when length is not an integer" do
       fixed_opaque = FixedOpaque.new(<<0, 0, 1>>, "hi")
 
-      assert_raise FixedOpaqueErr, fn -> FixedOpaque.encode_xdr!(fixed_opaque) end
+      assert_raise FixedOpaqueError, fn -> FixedOpaque.encode_xdr!(fixed_opaque) end
     end
   end
 
@@ -98,7 +102,9 @@ defmodule XDR.FixedOpaqueTest do
     test "decode_xdr! when length is not an integer" do
       fixed_opaque = %XDR.FixedOpaque{length: "2"}
 
-      assert_raise FixedOpaqueErr, fn -> FixedOpaque.decode_xdr!(<<0, 0, 1, 0>>, fixed_opaque) end
+      assert_raise FixedOpaqueError, fn ->
+        FixedOpaque.decode_xdr!(<<0, 0, 1, 0>>, fixed_opaque)
+      end
     end
   end
 end
