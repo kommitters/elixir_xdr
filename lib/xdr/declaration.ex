@@ -1,18 +1,17 @@
 defmodule XDR.Declaration do
   @moduledoc """
-    Behaviour definition that is in charge of keeping the types declared by the RFC4506 standard with these specifications
+  Behaviour definition for the types declared based on RFC4506 XDR standard.
   """
-  alias XDR.Error
 
-  # encode XDR for any type returns a tuple with the resulted binary value
-  @callback encode_xdr(struct) :: {:ok, binary} | Error.t()
+  @doc "Encode XDR for any type returns a tuple with the resulted binary value."
+  @callback encode_xdr(struct) :: {:ok, binary} | {:error, atom()}
 
-  # encode XDR for any type returns the resulted binary value
-  @callback encode_xdr!(struct) :: binary | Error.t()
+  @doc "Encode XDR for any type returns the resulted binary value."
+  @callback encode_xdr!(struct) :: binary | {:error, atom()}
 
-  # decode XDR for any type returns a tuple with the converted value
-  @callback decode_xdr(binary, term) :: {:ok, {term, binary}} | Error.t()
+  @doc "Encode XDR for any type returns a tuple with the converted value."
+  @callback decode_xdr(binary, term) :: {:ok, {term, binary}} | {:error, atom()}
 
-  # decode XDR for any type returns the resulted converted value
-  @callback decode_xdr!(binary, term) :: {term, binary} | Error.t()
+  @doc "Decode XDR for any type returns the resulted converted value."
+  @callback decode_xdr!(binary, term) :: {term, binary} | {:error, atom()}
 end
