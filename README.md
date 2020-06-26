@@ -375,13 +375,13 @@ A discriminated union is a type composed of a discriminant followed by a type se
 
 The type of discriminant is either `XDR.Int`, `XDR.UInt`, or an `XDR.Enum` type. 
 
-The `arms` can be a keyword list or a map and the value of each arm can be either a struct or a module of any XDR type.
+The `arms` can be a keyword list or a map and the value of each arm can be either a struct or a module of any XDR type. You can define a default arm using `:default` as key (The default arm is optional).
 
 Encoding:
 
 ```elixir
 iex(1)> enum = %XDR.Enum{declarations: [case_1: 1, case_2: 2, case_3: 3], identifier: :case_1}
-iex(2)> arms = [case_1: %XDR.Int{datum: 123}, case_2: %XDR.Int{datum: 2}, case_3: XDR.Float]
+iex(2)> arms = [case_1: %XDR.Int{datum: 123}, case_2: %XDR.Int{datum: 2}, case_3: XDR.Float, default: XDR.String]
 iex(3)> enum |> XDR.Union.new(arms) |> XDR.Union.encode_xdr()
 {:ok, <<0, 0, 0, 1, 0, 0, 0, 123>>}
 ```
@@ -390,13 +390,13 @@ Decoding:
 
 ```elixir
 iex(1)> enum = %XDR.Enum{declarations: [case_1: 1, case_2: 2, case_3: 3]}
-iex(2)> arms = [case_1: %XDR.Int{datum: 123}, case_2: %XDR.Int{datum: 2}, case_3: XDR.Float]
+iex(2)> arms = [case_1: %XDR.Int{datum: 123}, case_2: %XDR.Int{datum: 2}, case_3: XDR.Float, default: XDR.String]
 iex(3)> union = XDR.Union.new(enum, arms) # Define the union specification to decode.
 iex(4)> XDR.Union.decode_xdr(<<0, 0, 0, 1, 0, 0, 0, 123>>, union)
 {:ok, {{:case_1, %XDR.Int{datum: 123}}, ""}} 
 ```
 
-An example is available here: [Union Example](https://github.com/kommitters/elixir_xdr/wiki/Union-example)
+Some usage and implementation examples are available here: [Union Example](https://github.com/kommitters/elixir_xdr/wiki/Union-example)
 
 ### Void
 
