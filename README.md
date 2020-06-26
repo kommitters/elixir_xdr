@@ -13,7 +13,7 @@ Process XDR types based on the [RFC4506](https://www.ietf.org/rfc/rfc4506.txt). 
 ```elixir
 def deps do
   [
-    {:elixir_xdr, "~> 0.1.3"}
+    {:elixir_xdr, "~> 0.1.4"}
   ]
 end
 ```
@@ -370,15 +370,30 @@ iex(3)> Book.new(name, size) |> Book.encode_xdr()
 ```
 An example is available here: [Struct Type](https://github.com/kommitters/elixir_xdr/wiki/Struct-example).
 
-### Union
-A union is a type composed of a discriminant **(Statement)** followed by a type selected from a set of prearranged types **(UnionStatement)**. The type of discriminant is either "Int", "Unsigned Int", or an Enumerated type, such as "Bool". The **(UnionStatement)** types are called "arms" of the union and are preceded by the value of the discriminant that implies their encoding.
+### Discriminated Union
+A discriminated union is a type composed of a discriminant followed by a type selected from a set of prearranged types according to the value of the discriminant. The component types are called `arms` of the union and are preceded by the value of the discriminant that implies their encoding or decoding. 
+
+The type of discriminant is either `XDR.Int`, `XDR.UInt`, or an `XDR.Enum` type. 
+
+The `arms` can be a keyword list or a map and the value of each arm can be either a struct or a module of any XDR type.
+
+Encoding:
 
 ```elixir
-iex(1)> XDR.UnionStatement.new(:ST_NOMINATE) |> XDR.UnionStatement.encode_xdr()
-{:ok, <<0, 0, 0, 3, 64, 93, 112, 164>>}
+iex(1)> enum = %XDR.Enum{declarations: [case_1: 1, case_2: 2, case_3: 3], identifier: :case_1}
+iex(2)> arms = [case_1: %XDR.Int{datum: 123}, case_2: %XDR.Int{datum: 2}, case_3: XDR.Float]
+iex(3)> enum |> XDR.Union.new(arms) |> XDR.Union.encode_xdr()
+{:ok, <<0, 0, 0, 1, 0, 0, 0, 123>>}
+```
 
-iex(3)> XDR.UnionStatement.decode_xdr(<<0, 0, 0, 3, 64, 93, 112, 164>>)
-{:ok, {{:ST_NOMINATE, %XDR.Float{float: 3.4600000381469727}}, ""}}
+Decoding:
+
+```elixir
+iex(1)> enum = %XDR.Enum{declarations: [case_1: 1, case_2: 2, case_3: 3]}
+iex(2)> arms = [case_1: %XDR.Int{datum: 123}, case_2: %XDR.Int{datum: 2}, case_3: XDR.Float]
+iex(3)> union = XDR.Union.new(enum, arms) # Define the union specification to decode.
+iex(4)> XDR.Union.decode_xdr(<<0, 0, 0, 1, 0, 0, 0, 123>>, union)
+{:ok, {{:case_1, %XDR.Int{datum: 123}}, ""}} 
 ```
 
 An example is available here: [Union Example](https://github.com/kommitters/elixir_xdr/wiki/Union-example)
@@ -396,12 +411,12 @@ iex> XDR.Void.new(nil) |> XDR.Void.encode_xdr!()
 <<>>
 ```
 For decoding
-```elixir 
+```elixir
 iex> XDR.Void.decode_xdr(<<>>)
 {:ok, {nil, <<>>}}
 
-iex> XDR.Void.decode_xdr!(<<>>)
-{nil, <<>>}
+iex> XDR.Void.decode_xdr!(<<72, 101, 108, 108, 111>>)
+{nil, <<72, 101, 108, 108, 111, 0>>}
 ```
 
 ### Optional
