@@ -1,35 +1,31 @@
 defmodule XDR.HyperUInt do
-  @behaviour XDR.Declaration
   @moduledoc """
-  This module is in charge of process the Hyper Unsigned Integer types based on the RFC4506 XDR Standard
+  This module manages the `Unsigned Hyper Integer` type based on the RFC4506 XDR Standard.
   """
 
-  defstruct datum: nil
+  @behaviour XDR.Declaration
+
+  alias XDR.Error.HyperUInt, as: HyperUIntError
+
+  defstruct [:datum]
 
   @typedoc """
-  Every integer structure has a datum which represent the integer value which you try to encode
+  `XDR.HyperUInt` structure type specification.
   """
   @type t :: %XDR.HyperUInt{datum: integer | binary}
 
-  alias XDR.Error.HyperUInt
-
   @doc """
-  this function provides an easy way to create an XDR.HyperUInt type
-
-  returns a XDR.HyperInt struct with the value received as parameter
+  Create a new `XDR.HyperUInt` structure with the `opaque` and `length` passed.
   """
-  @spec new(datum :: integer | binary) :: t()
+  @spec new(datum :: integer | binary) :: t
   def new(datum), do: %XDR.HyperUInt{datum: datum}
 
   @impl XDR.Declaration
   @doc """
-  This function is in charge of encoding the Hyper Unsigned Integer received by parameter if the parameters
-  are wrong an error will be raised, it recieves an XDR.HyperUInt structure which contains the hyper int
-
-  Returns a tuple with the XDR resulted from encoding the Hyper Unsigned Integer value
+  Encode a `XDR.HyperUInt` structure into a XDR format.
   """
-  @spec encode_xdr(t()) ::
-          {:ok, binary()} | {:error, :not_integer | :exceed_upper_limit | :exceed_lower_limit}
+  @spec encode_xdr(h_uint :: t) ::
+          {:ok, binary} | {:error, :not_integer | :exceed_upper_limit | :exceed_lower_limit}
   def encode_xdr(%XDR.HyperUInt{datum: datum}) when not is_integer(datum),
     do: {:error, :not_integer}
 
@@ -44,54 +40,42 @@ defmodule XDR.HyperUInt do
 
   @impl XDR.Declaration
   @doc """
-  This function is in charge of encoding the Hyper Unsigned Integer received by parameter if the parameters
-  are wrong an error will be raised, it recieves an XDR.HyperUInt structure which contains the hyper int
-
-  Returns the XDR resulted from encoding the Hyper Unsigned Integer value
+  Encode a `XDR.HyperUInt` structure into a XDR format.
+  If the `h_uint` is not valid, an exception is raised.
   """
-  @spec encode_xdr!(t()) :: binary()
-  def encode_xdr!(datum) do
-    case encode_xdr(datum) do
+  @spec encode_xdr!(h_uint :: t) :: binary
+  def encode_xdr!(h_uint) do
+    case encode_xdr(h_uint) do
       {:ok, binary} -> binary
-      {:error, reason} -> raise(HyperUInt, reason)
+      {:error, reason} -> raise(HyperUIntError, reason)
     end
   end
 
   @impl XDR.Declaration
   @doc """
-  This function is in charge of decode the XDR value which represents an Hyper Unsigned Integer value if the parameters are wrong
-  an error will be raised, it recieves an XDR.HyperUInt structure which contains the binary value
-
-  Returns a tuple with the Hyper Unsigned Integer resulted from decode the XDR value and its remaining bits
+  Decode the Unsigned Hyper Integer in XDR format to a `XDR.HyperUInt` structure.
   """
-  @spec decode_xdr(bytes :: binary, opts :: any) :: {:ok, {t(), binary()}} | {:error, :not_binary}
-  def decode_xdr(bytes, opts \\ nil)
+  @spec decode_xdr(bytes :: binary, h_uint :: any) :: {:ok, {t, binary}} | {:error, :not_binary}
+  def decode_xdr(bytes, h_uint \\ nil)
 
-  def decode_xdr(bytes, _opts) when not is_binary(bytes),
+  def decode_xdr(bytes, _h_uint) when not is_binary(bytes),
     do: {:error, :not_binary}
 
-  def decode_xdr(bytes, _opts) do
-    <<hyper_uint::big-unsigned-integer-size(64), rest::binary>> = bytes
-
-    decoded_hyper_uint = new(hyper_uint)
-
-    {:ok, {decoded_hyper_uint, rest}}
-  end
+  def decode_xdr(<<hyper_uint::big-unsigned-integer-size(64), rest::binary>>, _h_uint),
+    do: {:ok, {new(hyper_uint), rest}}
 
   @impl XDR.Declaration
   @doc """
-  This function is in charge of decode the XDR value which represents an Hyper Unsigned Integer value if the parameters are wrong
-  an error will be raised, it recieves an XDR.HyperUInt structure which contains the binary value
-
-  Returns the Hyper Unsigned Integer resulted from decode the XDR value and its remaining bits
+  Decode the Unsigned Hyper Integer in XDR format to a `XDR.HyperUInt` structure.
+  If the binaries are not valid, an exception is raised.
   """
-  @spec decode_xdr!(bytes :: binary, opts :: any) :: {t(), binary()}
-  def decode_xdr!(bytes, opts \\ nil)
+  @spec decode_xdr!(bytes :: binary, h_uint :: any) :: {t, binary}
+  def decode_xdr!(bytes, h_uint \\ nil)
 
-  def decode_xdr!(bytes, opts) do
-    case decode_xdr(bytes, opts) do
+  def decode_xdr!(bytes, h_uint) do
+    case decode_xdr(bytes, h_uint) do
       {:ok, result} -> result
-      {:error, reason} -> raise(HyperUInt, reason)
+      {:error, reason} -> raise(HyperUIntError, reason)
     end
   end
 end

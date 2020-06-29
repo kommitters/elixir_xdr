@@ -1,8 +1,12 @@
 defmodule XDR.IntTest do
+  @moduledoc """
+  Tests for the `XDR.Int` module.
+  """
+
   use ExUnit.Case
 
   alias XDR.Int
-  alias XDR.Error.Int, as: IntErr
+  alias XDR.Error.Int, as: IntError
 
   describe "Encoding integer to binary" do
     test "when is not an integer value" do
@@ -52,7 +56,7 @@ defmodule XDR.IntTest do
     test "decode_xdr! when is not an integer value" do
       integer = Int.new("hello world")
 
-      assert_raise IntErr, fn -> Int.encode_xdr!(integer) end
+      assert_raise IntError, fn -> Int.encode_xdr!(integer) end
     end
   end
 
@@ -89,7 +93,7 @@ defmodule XDR.IntTest do
     test "decode_xdr! when is not binary value" do
       integer = Int.new(5860)
 
-      assert_raise IntErr, fn -> Int.decode_xdr!(integer) end
+      assert_raise IntError, fn -> Int.decode_xdr!(integer) end
     end
   end
 end

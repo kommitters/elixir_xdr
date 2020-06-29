@@ -1,8 +1,12 @@
 defmodule XDR.EnumTest do
+  @moduledoc """
+  Tests for the `XDR.Enum` module.
+  """
+
   use ExUnit.Case
 
   alias XDR.Enum
-  alias XDR.Error.Enum, as: EnumErr
+  alias XDR.Error.Enum, as: EnumError
 
   setup do
     keyword = [red: 0, blue: 1, yellow: 2]
@@ -58,7 +62,7 @@ defmodule XDR.EnumTest do
     test "encode_xdr! with invalid data", %{keyword: keyword} do
       enum = Enum.new(keyword, :purple)
 
-      assert_raise EnumErr, fn -> Enum.encode_xdr!(enum) end
+      assert_raise EnumError, fn -> Enum.encode_xdr!(enum) end
     end
   end
 
@@ -103,7 +107,7 @@ defmodule XDR.EnumTest do
     test "decode_xdr! with invalid key", %{keyword: keyword} do
       enum = %XDR.Enum{declarations: keyword}
 
-      assert_raise EnumErr, fn -> Enum.decode_xdr!(<<0, 0, 0, 3>>, enum) end
+      assert_raise EnumError, fn -> Enum.decode_xdr!(<<0, 0, 0, 3>>, enum) end
     end
   end
 end

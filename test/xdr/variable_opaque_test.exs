@@ -1,8 +1,12 @@
 defmodule XDR.VariableOpaqueTest do
+  @moduledoc """
+  Tests for the `XDR.VariableOpaque` module.
+  """
+
   use ExUnit.Case
 
   alias XDR.VariableOpaque
-  alias XDR.Error.VariableOpaque, as: VariableOpaqueErr
+  alias XDR.Error.VariableOpaque, as: VariableOpaqueError
 
   describe "Encoding Variable Opaque" do
     test "when xdr is not binary" do
@@ -70,7 +74,7 @@ defmodule XDR.VariableOpaqueTest do
     test "encode_xdr! when xdr is not binary" do
       variable_opaque = VariableOpaque.new([0, 0, 1], 2)
 
-      assert_raise VariableOpaqueErr, fn -> VariableOpaque.encode_xdr!(variable_opaque) end
+      assert_raise VariableOpaqueError, fn -> VariableOpaque.encode_xdr!(variable_opaque) end
     end
   end
 
@@ -134,7 +138,7 @@ defmodule XDR.VariableOpaqueTest do
     end
 
     test "decode_xdr! when xdr is not binary" do
-      assert_raise VariableOpaqueErr, fn ->
+      assert_raise VariableOpaqueError, fn ->
         VariableOpaque.decode_xdr!([0, 0, 1], %XDR.VariableOpaque{max_size: 2})
       end
     end

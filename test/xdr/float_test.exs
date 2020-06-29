@@ -1,8 +1,12 @@
 defmodule XDR.FloatTest do
+  @moduledoc """
+  Tests for the `XDR.Float` module.
+  """
+
   use ExUnit.Case
 
   alias XDR.Float
-  alias XDR.Error.Float, as: FloatErr
+  alias XDR.Error.Float, as: FloatError
 
   describe "defguard tests" do
     test "valid_float? guard" do
@@ -62,7 +66,7 @@ defmodule XDR.FloatTest do
     test "encode_xdr! when receives an atom" do
       float = Float.new(:hello)
 
-      assert_raise FloatErr, fn -> Float.encode_xdr!(float) end
+      assert_raise FloatError, fn -> Float.encode_xdr!(float) end
     end
 
     test "with negative integer" do
@@ -126,7 +130,7 @@ defmodule XDR.FloatTest do
     test "decode_xdr! when is not binary value" do
       float = Float.new(5860)
 
-      assert_raise FloatErr, fn -> Float.decode_xdr!(float) end
+      assert_raise FloatError, fn -> Float.decode_xdr!(float) end
     end
   end
 end

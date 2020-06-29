@@ -1,67 +1,65 @@
 defmodule XDR.Void do
-  @behaviour XDR.Declaration
   @moduledoc """
-  This module is in charge of manage the Void types based on the RFC4506 XDR Standard
+  This module manages the `Void` type based on the RFC4506 XDR Standard.
   """
 
-  defstruct void: nil
+  @behaviour XDR.Declaration
+
+  alias XDR.Error.Void, as: VoidError
+
+  defstruct [:void]
 
   @typedoc """
-  the void type contains the value of the void it must be void or binary
+  `XDR.Void` struct type specification.
   """
-  @type t :: %XDR.Void{void: binary | nil}
-
-  alias XDR.Error.Void
+  @type t :: %XDR.Void{void: nil}
 
   @doc """
-  this function provides an easy way to create a new void type, it receives the value and create a new XDR.Void structure
-
-  returns an XDR.Void structure
+  Create a new `XDR.Void` structure from the `value` passed.
   """
-  @spec new(nil) :: t()
-  def new(value), do: %XDR.Void{void: value}
+  @spec new(value :: nil) :: t
+  def new(value \\ nil) when is_nil(value), do: %XDR.Void{}
 
   @impl XDR.Declaration
   @doc """
-  this function is in charge of encoding the void values into an XDR format, it receives an XDR.Void structure which contains
-  the void value
-
-  returns and ok tuple with the resulted XDR
+  Encode a `XDR.Void` structure into a XDR format.
   """
-  @spec encode_xdr(t()) :: {:ok, binary} | {:error, :not_void}
+  @spec encode_xdr(void :: t) :: {:ok, binary} | {:error, :not_void}
   def encode_xdr(%XDR.Void{void: nil}), do: {:ok, <<>>}
   def encode_xdr(_), do: {:error, :not_void}
 
   @impl XDR.Declaration
   @doc """
-  this function is in charge of encoding the void values into an XDR format, it receives an XDR.Void structure which contains
-  the void value
-
-  returns the resulted XDR
+  Encode a `XDR.Void` structure into a XDR format.
+  If the structure received is not `XDR.Void`, an exception is raised.
   """
-  @spec encode_xdr!(t()) :: binary
-  def encode_xdr!(%XDR.Void{void: nil}), do: <<>>
-  def encode_xdr!(_), do: raise(Void, :not_void)
+  @spec encode_xdr!(void :: t) :: binary()
+  def encode_xdr!(void) do
+    case encode_xdr(void) do
+      {:ok, result} -> result
+      {:error, reason} -> raise(VoidError, reason)
+    end
+  end
 
   @impl XDR.Declaration
   @doc """
-  this function is in charge of decoding the void values into an vo format, it receives an XDR.Void structure which contains
-  the void value
-
-  returns and ok tuple with the resulted void
+  Decode the XDR format to a void format.
   """
-  @spec decode_xdr(binary, any) :: {:ok, {nil, binary}} | {:error, :not_void}
-  def decode_xdr(<<>>, _), do: {:ok, {nil, ""}}
-  def decode_xdr(_, _), do: {:error, :not_void}
+  @spec decode_xdr(bytes :: binary(), void :: t) :: {:ok, {nil, binary}} | {:error, :not_binary}
+  def decode_xdr(bytes, _void \\ nil)
+  def decode_xdr(<<rest::binary>>, _), do: {:ok, {nil, rest}}
+  def decode_xdr(_, _), do: {:error, :not_binary}
+
   @impl XDR.Declaration
   @doc """
-  this function is in charge of decoding the void values into an vo format, it receives an XDR.Void structure which contains
-  the void value
-
-  returns the resulted void
+  Decode the XDR format to a void format.
+  If the binary is not a valid void, an exception is raised.
   """
-  @spec decode_xdr!(binary, any) :: {nil, binary}
-  def decode_xdr!(bytes, opts \\ nil)
-  def decode_xdr!(<<>>, _), do: {nil, ""}
-  def decode_xdr!(_, _), do: raise(Void, :not_void)
+  @spec decode_xdr!(bytes :: binary(), void :: t) :: {nil, binary}
+  def decode_xdr!(bytes, _void \\ nil) do
+    case decode_xdr(bytes) do
+      {:ok, result} -> result
+      {:error, reason} -> raise(VoidError, reason)
+    end
+  end
 end

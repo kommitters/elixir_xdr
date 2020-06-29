@@ -1,10 +1,23 @@
 defmodule XDR.FixedArrayTest do
+  @moduledoc """
+  Tests for the `XDR.FixedArray` module.
+  """
+
   use ExUnit.Case
 
   alias XDR.FixedArray
-  alias XDR.Error.FixedArray, as: FixedArrayErr
+  alias XDR.Error.FixedArray, as: FixedArrayError
 
   describe "Encoding Fixed Array" do
+    test "with invalid type" do
+      {status, reason} =
+        FixedArray.new([0, 0, 1], "XDR.Int", 3)
+        |> FixedArray.encode_xdr()
+
+      assert status == :error
+      assert reason == :invalid_type
+    end
+
     test "when xdr is not list" do
       {status, reason} =
         FixedArray.new(<<0, 0, 1>>, XDR.Int, 3)
@@ -55,11 +68,19 @@ defmodule XDR.FixedArrayTest do
     test "encode_xdr! when length is not an integer" do
       fixed_array = FixedArray.new([0, 0, 1], XDR.Int, "3")
 
-      assert_raise FixedArrayErr, fn -> FixedArray.encode_xdr!(fixed_array) end
+      assert_raise FixedArrayError, fn -> FixedArray.encode_xdr!(fixed_array) end
     end
   end
 
   describe "Decoding Fixed Array" do
+    test "with invalid type" do
+      {status, result} =
+        FixedArray.decode_xdr(<<0, 0, 1, 0>>, %XDR.FixedArray{type: "XDR.Int", length: 1})
+
+      assert status == :error
+      assert result == :invalid_type
+    end
+
     test "when xdr is not binary" do
       {status, result} =
         FixedArray.decode_xdr([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], %XDR.FixedArray{
@@ -108,7 +129,7 @@ defmodule XDR.FixedArrayTest do
     test "decode_xdr! with invalid data" do
       fixed_array = %XDR.FixedArray{type: XDR.Int, length: 1}
 
-      assert_raise FixedArrayErr, fn -> FixedArray.decode_xdr!(<<0, 0, 1>>, fixed_array) end
+      assert_raise FixedArrayError, fn -> FixedArray.decode_xdr!(<<0, 0, 1>>, fixed_array) end
     end
   end
 end

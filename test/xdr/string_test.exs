@@ -1,8 +1,12 @@
 defmodule XDR.StringTest do
+  @moduledoc """
+  Tests for the `XDR.String` module.
+  """
+
   use ExUnit.Case
 
   alias XDR.String
-  alias XDR.Error.String, as: StringErr
+  alias XDR.Error.String, as: StringError
 
   describe "Encoding string to binary" do
     test "when is not a bitstring value" do
@@ -34,7 +38,7 @@ defmodule XDR.StringTest do
     test "encode_xdr! when is not a bitstring value" do
       string = String.new(2)
 
-      assert_raise StringErr, fn -> String.encode_xdr!(string) end
+      assert_raise StringError, fn -> String.encode_xdr!(string) end
     end
   end
 
@@ -64,7 +68,7 @@ defmodule XDR.StringTest do
 
     test "encode_xdr! when is not binary" do
       list = [0, 0, 0, 9, 107, 111, 109, 109, 105, 116, 46, 99, 111, 0, 0, 0]
-      assert_raise StringErr, fn -> String.decode_xdr!(list) end
+      assert_raise StringError, fn -> String.decode_xdr!(list) end
     end
   end
 end
