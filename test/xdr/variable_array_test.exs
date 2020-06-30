@@ -27,6 +27,15 @@ defmodule XDR.VariableArrayTest do
       assert reason == :length_over_max
     end
 
+    test "when used default length" do
+      {status, reason} =
+        VariableArray.new([0, 0, 1], XDR.Int)
+        |> VariableArray.encode_xdr()
+
+      assert status == :ok
+      assert reason == <<0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1>>
+    end
+
     test "when length is not an integer" do
       {status, reason} =
         VariableArray.new([0, 0, 1], XDR.Int, "2")

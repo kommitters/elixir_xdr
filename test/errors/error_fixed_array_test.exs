@@ -40,4 +40,12 @@ defmodule Error.FixedArrayTest do
                    raise FixedArray, :not_valid_binary
                  end
   end
+
+  test "When receives :invalid_type" do
+    assert_raise FixedArray,
+                 "the type must be a module",
+                 fn ->
+                   raise FixedArray, :invalid_type
+                 end
+  end
 end
