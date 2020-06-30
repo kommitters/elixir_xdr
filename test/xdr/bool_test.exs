@@ -1,32 +1,30 @@
 defmodule XDR.BoolTest do
+  @moduledoc """
+  Tests for the `XDR.Bool` module.
+  """
+
   use ExUnit.Case
 
   alias XDR.Bool
-  alias XDR.Error.Bool, as: BoolErr
+  alias XDR.Error.Bool, as: BoolError
 
   describe "Encoding Boolean structures" do
     test "when the value is not boolean" do
-      {status, reason} =
-        Bool.new("true")
-        |> Bool.encode_xdr()
+      {status, reason} = Bool.new("true") |> Bool.encode_xdr()
 
       assert status == :error
       assert reason == :not_boolean
     end
 
     test "with valid data" do
-      {status, result} =
-        Bool.new(false)
-        |> Bool.encode_xdr()
+      {status, result} = Bool.new(false) |> Bool.encode_xdr()
 
       assert status === :ok
       assert result === <<0, 0, 0, 0>>
     end
 
     test "encode_xdr! with valid data" do
-      result =
-        Bool.new(true)
-        |> Bool.encode_xdr!()
+      result = Bool.new(true) |> Bool.encode_xdr!()
 
       assert result === <<0, 0, 0, 1>>
     end
@@ -34,7 +32,7 @@ defmodule XDR.BoolTest do
     test "encode_xdr! when is not boolean" do
       bool = Bool.new("true")
 
-      assert_raise BoolErr, fn -> Bool.encode_xdr!(bool) end
+      assert_raise BoolError, fn -> Bool.encode_xdr!(bool) end
     end
   end
 
@@ -60,7 +58,7 @@ defmodule XDR.BoolTest do
     end
 
     test "decode_xdr! when is not binary value" do
-      assert_raise BoolErr, fn -> Bool.decode_xdr!(5860) end
+      assert_raise BoolError, fn -> Bool.decode_xdr!(5860) end
     end
   end
 end

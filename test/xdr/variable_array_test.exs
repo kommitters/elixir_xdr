@@ -1,8 +1,12 @@
 defmodule XDR.VariableArrayTest do
+  @moduledoc """
+  Tests for the `XDR.VariableArray` module.
+  """
+
   use ExUnit.Case
 
   alias XDR.VariableArray
-  alias XDR.Error.VariableArray, as: VariableArrayErr
+  alias XDR.Error.VariableArray, as: VariableArrayError
 
   describe "Encoding Fixed Array" do
     test "when xdr is not list" do
@@ -21,6 +25,15 @@ defmodule XDR.VariableArrayTest do
 
       assert status == :error
       assert reason == :length_over_max
+    end
+
+    test "when used default length" do
+      {status, reason} =
+        VariableArray.new([0, 0, 1], XDR.Int)
+        |> VariableArray.encode_xdr()
+
+      assert status == :ok
+      assert reason == <<0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1>>
     end
 
     test "when length is not an integer" do
@@ -73,7 +86,7 @@ defmodule XDR.VariableArrayTest do
     test "encode_xdr! when xdr is not list" do
       variable_array = VariableArray.new(<<0, 0, 1>>, XDR.Int, 3)
 
-      assert_raise VariableArrayErr, fn -> VariableArray.encode_xdr!(variable_array) end
+      assert_raise VariableArrayError, fn -> VariableArray.encode_xdr!(variable_array) end
     end
   end
 
@@ -186,7 +199,7 @@ defmodule XDR.VariableArrayTest do
         max_length: "3"
       }
 
-      assert_raise VariableArrayErr, fn ->
+      assert_raise VariableArrayError, fn ->
         VariableArray.decode_xdr!(<<0, 0, 1, 0>>, variable_array)
       end
     end

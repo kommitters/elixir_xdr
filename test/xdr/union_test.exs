@@ -1,8 +1,12 @@
 defmodule XDR.UnionTest do
+  @moduledoc """
+  Tests for the `XDR.Union` module.
+  """
+
   use ExUnit.Case
 
   alias XDR.Union
-  alias XDR.Error.Union, as: UnionErr
+  alias XDR.Error.Union, as: UnionError
 
   describe "new" do
     test "with Enum" do
@@ -23,7 +27,38 @@ defmodule XDR.UnionTest do
         SCP_ST_NOMINATE: XDR.Float.new(3.46)
       ]
 
-      Union.new(enum, arms)
+      expected_union = %XDR.Union{
+        arms: [
+          SCP_ST_PREPARE: %XDR.Int{datum: 60},
+          SCP_ST_CONFIRM: %XDR.String{max_length: 4_294_967_295, string: "Confirm"},
+          SCP_ST_EXTERNALIZE: %XDR.Bool{declarations: [false: 0, true: 1], identifier: false},
+          SCP_ST_NOMINATE: %XDR.Float{float: 3.46}
+        ],
+        discriminant: %{
+          declarations: [
+            SCP_ST_PREPARE: 0,
+            SCP_ST_CONFIRM: 1,
+            SCP_ST_EXTERNALIZE: 2,
+            SCP_ST_NOMINATE: 3
+          ],
+          identifier: :SCP_ST_NOMINATE
+        },
+        value: nil
+      }
+
+      assert Union.new(enum, arms) == expected_union
+    end
+
+    test "with number map" do
+      arms = %{0 => XDR.Int, 1 => XDR.String, 2 => XDR.Bool, 3 => XDR.Float}
+
+      expected_union = %XDR.Union{
+        value: true,
+        arms: %{0 => XDR.Int, 1 => XDR.String, 2 => XDR.Bool, 3 => XDR.Float},
+        discriminant: %XDR.Int{datum: 4}
+      }
+
+      assert XDR.Int.new(4) |> Union.new(arms, true) == expected_union
     end
   end
 
@@ -91,7 +126,21 @@ defmodule XDR.UnionTest do
         SCP_ST_NOMINATE: XDR.Float.new(3.46)
       ]
 
-      assert_raise UnionErr, fn -> Union.encode_xdr!(%{discriminant: enum, arms: arms}) end
+      assert_raise UnionError, fn -> Union.encode_xdr!(%{discriminant: enum, arms: arms}) end
+    end
+
+    test "encode_xdr default arm" do
+      enum = %XDR.Enum{
+        declarations: [case_1: 1, case_2: 2, case_3: 3, case_4: 4],
+        identifier: :case_3
+      }
+
+      arms = [case_1: XDR.Int, default: XDR.Void]
+
+      {status, union_xdr} = enum |> Union.new(arms) |> Union.encode_xdr()
+
+      assert status == :ok
+      assert union_xdr == <<0, 0, 0, 3>>
     end
 
     test "Uint example" do
@@ -126,7 +175,7 @@ defmodule XDR.UnionTest do
     end
 
     test "encode_xdr! when receives an invalid identifier" do
-      assert_raise UnionErr, fn ->
+      assert_raise UnionError, fn ->
         "SCP_ST_EXTERNALIZE"
         |> UnionSCPStatementWithTypes.new()
         |> UnionSCPStatementWithTypes.encode_xdr!()
@@ -150,7 +199,7 @@ defmodule XDR.UnionTest do
       assert result == <<0, 0, 0, 0, 0, 0, 0, 60>>
     end
 
-    test "Uint example" do
+    test "encode default Uint example" do
       {status, result} = UnionNumberWithTypes.new(3, 3.46) |> UnionNumberWithTypes.encode_xdr()
 
       assert status == :ok
@@ -158,9 +207,9 @@ defmodule XDR.UnionTest do
     end
 
     test "encode_xdr! Uint example" do
-      result = UnionNumberWithTypes.new(3, 3.46) |> UnionNumberWithTypes.encode_xdr!()
+      result = UnionNumberWithTypes.new(0, 123) |> UnionNumberWithTypes.encode_xdr!()
 
-      assert result == <<0, 0, 0, 3, 64, 93, 112, 164>>
+      assert result == <<0, 0, 0, 0, 0, 0, 0, 123>>
     end
   end
 
@@ -235,6 +284,18 @@ defmodule XDR.UnionTest do
       assert result == {{:SCP_ST_PREPARE, %XDR.Int{datum: 60}}, ""}
     end
 
+    test "decode_xdr default arm" do
+      enum = %XDR.Enum{declarations: [case_1: 1, case_2: 2, case_3: 3, case_4: 4]}
+
+      arms = [case_1: XDR.Int, default: XDR.Void]
+      union_spec = Union.new(enum, arms)
+
+      {status, union} = Union.decode_xdr(<<0, 0, 0, 3>>, union_spec)
+
+      assert status == :ok
+      assert union == {{:case_3, nil}, ""}
+    end
+
     test "Uint example" do
       # It also can use the XDR.UnionNumber.decode_xdr()/1 function
       {status, result} = UnionNumber.decode_xdr(<<0, 0, 0, 3, 64, 93, 112, 164>>)
@@ -262,7 +323,7 @@ defmodule XDR.UnionTest do
         arms: arms
       }
 
-      assert_raise UnionErr, fn -> Union.decode_xdr!([0, 0, 0, 0, 0, 0, 0, 0], enum) end
+      assert_raise UnionError, fn -> Union.decode_xdr!([0, 0, 0, 0, 0, 0, 0, 0], enum) end
     end
   end
 
@@ -305,7 +366,7 @@ defmodule XDR.UnionTest do
       assert result == {{:SCP_ST_PREPARE, %XDR.Int{datum: 60}}, ""}
     end
 
-    test "Uint example" do
+    test "decode default Uint example" do
       {status, result} = UnionNumberWithTypes.decode_xdr(<<0, 0, 0, 3, 64, 93, 112, 164>>)
 
       assert status == :ok
@@ -313,9 +374,9 @@ defmodule XDR.UnionTest do
     end
 
     test "decode_xdr! with Uint Example" do
-      result = UnionNumberWithTypes.decode_xdr!(<<0, 0, 0, 3, 64, 93, 112, 164>>)
+      result = UnionNumberWithTypes.decode_xdr!(<<0, 0, 0, 0, 0, 0, 0, 123>>)
 
-      assert result == {{3, %XDR.Float{float: 3.4600000381469727}}, ""}
+      assert result == {{0, %XDR.Int{datum: 123}}, ""}
     end
   end
 end
@@ -415,7 +476,7 @@ defmodule UnionNumberWithTypes do
     0 => XDR.Int,
     1 => XDR.String,
     2 => XDR.Bool,
-    3 => XDR.Float
+    :default => XDR.Float
   }
 
   def new(identifier, value \\ nil) do

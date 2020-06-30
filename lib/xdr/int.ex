@@ -1,34 +1,30 @@
 defmodule XDR.Int do
-  @behaviour XDR.Declaration
   @moduledoc """
-  This module is in charge of process the integer types based on the RFC4506 XDR Standard
+  This module manages the `Integer` type based on the RFC4506 XDR Standard.
   """
 
-  defstruct datum: nil
+  @behaviour XDR.Declaration
+
+  alias XDR.Error.Int, as: IntError
+
+  defstruct [:datum]
 
   @typedoc """
-  Every integer structure has a datum which represent the integer value which you try to encode
+  `XDR.Int` structure type specification.
   """
   @type t :: %XDR.Int{datum: integer}
 
-  alias XDR.Error.Int
-
   @doc """
-  this function provides an easy way to create an XDR.Int type
-
-  returns a XDR.Int struct with the value received as parameter
+  Create a new `XDR.Int` structure with the `opaque` and `length` passed.
   """
   @spec new(datum :: integer) :: t
   def new(datum), do: %XDR.Int{datum: datum}
 
   @impl XDR.Declaration
   @doc """
-  this function is in charge of encoding a integer value into an XDR if the parameters are wrong an error will be raised
-  it receives an XDR.Int structure
-
-  Returns a tuple with the XDR resulted from encoding the integer value
+  Encode a `XDR.Int` structure into a XDR format.
   """
-  @spec encode_xdr(t) ::
+  @spec encode_xdr(int :: t) ::
           {:ok, binary} | {:error, :not_integer | :exceed_upper_limit | :exceed_lower_limit}
   def encode_xdr(%XDR.Int{datum: datum}) when not is_integer(datum), do: {:error, :not_integer}
 
@@ -42,52 +38,40 @@ defmodule XDR.Int do
 
   @impl XDR.Declaration
   @doc """
-  this function is in charge of encoding a integer value into an XDR if the parameters are wrong an error will be raised
-  it receives an XDR.Int structure
-
-  Returns the XDR resulted from encoding the integer value
+  Encode a `XDR.Int` structure into a XDR format.
+  If the `int` is not valid, an exception is raised.
   """
-  @spec encode_xdr!(datum :: t) :: binary
-  def encode_xdr!(datum) do
-    case encode_xdr(datum) do
+  @spec encode_xdr!(int :: t) :: binary()
+  def encode_xdr!(int) do
+    case encode_xdr(int) do
       {:ok, binary} -> binary
-      {:error, reason} -> raise(Int, reason)
+      {:error, reason} -> raise(IntError, reason)
     end
   end
 
   @impl XDR.Declaration
   @doc """
-  This function is in charge of decode the XDR value which represents an integer value if the parameters are wrong
-  an error will be raised, it receives an XDR.Int structure which contains the binary value to decode
-
-  Returns a tuple with the integer resulted from decode the XDR value and its remaining bits
+  Decode the Integer in XDR format to a `XDR.Int` structure.
   """
-  @spec decode_xdr(binary, any) :: {:ok, {t, binary}} | {:error, :not_binary}
-  def decode_xdr(bytes, opts \\ nil)
-  def decode_xdr(bytes, _opts) when not is_binary(bytes), do: {:error, :not_binary}
+  @spec decode_xdr(bytes :: binary(), int :: t) :: {:ok, {t, binary}} | {:error, :not_binary}
+  def decode_xdr(bytes, int \\ nil)
+  def decode_xdr(bytes, _int) when not is_binary(bytes), do: {:error, :not_binary}
 
-  def decode_xdr(bytes, _opts) do
-    <<datum::big-signed-integer-size(32), rest::binary>> = bytes
-
-    int = new(datum)
-
-    {:ok, {int, rest}}
-  end
+  def decode_xdr(<<datum::big-signed-integer-size(32), rest::binary>>, _int),
+    do: {:ok, {new(datum), rest}}
 
   @impl XDR.Declaration
   @doc """
-  This function is in charge of decode the XDR value which represents an integer value if the parameters are wrong
-  an error will be raised, it receives an XDR.Int structure which contains the binary value to decode
-
-  Returns the integer resulted from decode the XDR value and its remaining bits
+  Decode the Integer in XDR format to a `XDR.Int` structure.
+  If the binaries are not valid, an exception is raised.
   """
-  @spec decode_xdr!(binary, any) :: {t, binary}
-  def decode_xdr!(bytes, opts \\ nil)
+  @spec decode_xdr!(bytes :: binary(), int :: t) :: {t, binary()}
+  def decode_xdr!(bytes, int \\ nil)
 
-  def decode_xdr!(bytes, _opts) do
+  def decode_xdr!(bytes, _int) do
     case decode_xdr(bytes) do
       {:ok, result} -> result
-      {:error, reason} -> raise(Int, reason)
+      {:error, reason} -> raise(IntError, reason)
     end
   end
 end

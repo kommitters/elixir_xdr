@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.1.4 (30.06.2020)
+
+* Improve README.
+* Improve documentation of all the XDR types for Hexdocs.
+* Added custom implementations of all the XDR types to examples for Hexdocs.
+* Improve functions specs for all the XDR types.
+* Improve Discriminated Union allowing add module as arm type.
+* Add Discriminated Union with `:default` arm.
+* Improve Void allowing return remaining binary after decoding.
+* Fix maximum default length set to Variable-Length Array.
+* Add some unit tests.
+* Improve the documentation and some implementations of all XDR types modules.
+
 ## 0.1.3 (22.05.2020)
 
 * Increase test coverage to 100%

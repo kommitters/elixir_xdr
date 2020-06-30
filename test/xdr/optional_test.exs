@@ -1,8 +1,12 @@
 defmodule XDR.OptionalTest do
+  @moduledoc """
+  Tests for the `XDR.Optional` module.
+  """
+
   use ExUnit.Case
 
   alias XDR.Optional
-  alias XDR.Error.Optional, as: OptionalErr
+  alias XDR.Error.Optional, as: OptionalError
 
   describe "Encoding Optional type to binary" do
     test "when receives a string" do
@@ -89,7 +93,7 @@ defmodule XDR.OptionalTest do
     test "encode_xdr! when receives a string" do
       optional = Optional.new("hello world")
 
-      assert_raise OptionalErr, fn -> Optional.encode_xdr!(optional) end
+      assert_raise OptionalError, fn -> Optional.encode_xdr!(optional) end
     end
   end
 
@@ -141,7 +145,7 @@ defmodule XDR.OptionalTest do
     end
 
     test "decode_xdr! when is not binary value" do
-      assert_raise OptionalErr, fn ->
+      assert_raise OptionalError, fn ->
         Optional.decode_xdr!([0, 0, 0, 1, 0, 0, 22, 228], %{type: XDR.Int})
       end
     end

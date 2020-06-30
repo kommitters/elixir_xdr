@@ -1,8 +1,12 @@
 defmodule XDR.DoubleFloatTest do
+  @moduledoc """
+  Tests for the `XDR.DoubleFloat` module.
+  """
+
   use ExUnit.Case
 
   alias XDR.DoubleFloat
-  alias XDR.Error.DoubleFloat, as: DoubleFloatErr
+  alias XDR.Error.DoubleFloat, as: DoubleFloatError
 
   describe "defguard tests" do
     test "valid_float? guard" do
@@ -62,7 +66,7 @@ defmodule XDR.DoubleFloatTest do
     test "encode_xdr! when receives a String" do
       float = DoubleFloat.new("hello world")
 
-      assert_raise DoubleFloatErr, fn -> DoubleFloat.encode_xdr!(float) end
+      assert_raise DoubleFloatError, fn -> DoubleFloat.encode_xdr!(float) end
     end
 
     test "with negative integer" do
@@ -122,7 +126,7 @@ defmodule XDR.DoubleFloatTest do
     end
 
     test "decode_xdr! when is not binary value" do
-      assert_raise DoubleFloatErr, fn -> DoubleFloat.decode_xdr!(5860) end
+      assert_raise DoubleFloatError, fn -> DoubleFloat.decode_xdr!(5860) end
     end
   end
 end

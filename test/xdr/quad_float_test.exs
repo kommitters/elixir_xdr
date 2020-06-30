@@ -1,4 +1,8 @@
 defmodule XDR.QuadFloatTest do
+  @moduledoc """
+  Tests for the `XDR.QuadFloat` module.
+  """
+
   use ExUnit.Case
 
   alias XDR.QuadFloat
