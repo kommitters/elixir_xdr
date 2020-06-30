@@ -1,52 +1,13 @@
-# Discriminated Union
+# XDR.Union - Discriminated Union
+A discriminated union is a type composed of a discriminant followed by a type selected from a set of prearranged types according to the value of the discriminant. The component types are called `arms` of the union and are preceded by the value of the discriminant that implies their encoding or decoding.
 
-Represents an xdr discriminated union.
+[Discriminated Union - RFC 4506](https://tools.ietf.org/html/rfc4506#section-4.15)
 
 ## Implementation
 
 The type of discriminant is either `XDR.Int`, `XDR.UInt`, or an `XDR.Enum` type. 
 
 The `arms` can be a keyword list or a map and the value of each arm can be either a struct or a module of any XDR type. You can define a default arm using `:default` as key (The default arm is optional).
-
-### Custom Union
-
-You can define your own custom implementation:
-
-```elixir
-defmodule CustomUnion do
-
-  @arms [
-    Type_1: Type1,
-    Type_2: Type2,
-    default: Void
-  ]
-
-  @type t :: Union.t()
-
-  @spec new(value :: any(), union_code :: atom()) :: t
-  def new(value, union_code) do
-    union_code |> CustomEnum.new() |> Union.new(@arms, value)
-  end
-
-  @spec spec() :: t
-  defp spec(), do: CustomEnum.new(nil) |> Union.new(@arms)
-
-  defdelegate encode_xdr(union), to: Union
-  defdelegate encode_xdr!(union), to: Union
-  defdelegate decode_xdr(bytes, union \\ spec()), to: Union
-  defdelegate decode_xdr!(bytes, union \\ spec()), to: Union
-end
-```
-
-```elixir
-# Encode
-value_depending_on_the_type |> CustomUnion.new(:type_1) |> CustomUnion.encode_xdr()
-```
-
-```elixir
-# Decode
-CustomUnion.decode_xdr(<<1, 2, 3, 4, 5, 6, 7, 8>>)
-```
 
 ## Usage
 
@@ -134,4 +95,40 @@ iex(1)> integer = XDR.UInt.new(nil)
 iex(2)> union_spec = XDR.Union.new(integer, arms)
 iex(3)> XDR.Union.decode_xdr!(<<0, 0, 0, 2, 0, 0, 0, 7>>, union_spec)
 {{2, %XDR.Int{datum: 7}}, <<>>}
+```
+
+### Custom Union example
+
+```elixir
+defmodule CustomUnion do
+
+  @arms [
+    Type_1: Type1,
+    Type_2: Type2,
+    default: XDR.Void
+  ]
+
+  @type t :: XDR.Union.t()
+
+  @spec new(value :: any(), union_type :: atom()) :: t
+  def new(value, union_type) do
+    union_type |> CustomEnum.new() |> XDR.Union.new(@arms, value)
+  end
+
+  @spec spec() :: t
+  defp spec(), do: CustomEnum.new(nil) |> Union.new(@arms)
+
+  defdelegate encode_xdr(union), to: XDR.Union
+  defdelegate encode_xdr!(union), to: XDR.Union
+  defdelegate decode_xdr(bytes, union \\ spec()), to: XDR.Union
+  defdelegate decode_xdr!(bytes, union \\ spec()), to: XDR.Union
+end
+```
+
+```elixir
+# Encode
+value_depending_on_the_type |> CustomUnion.new(:type_1) |> CustomUnion.encode_xdr()
+
+# Decode
+CustomUnion.decode_xdr(<<1, 2, 3, 4, 5, 6, 7, 8>>)
 ```
