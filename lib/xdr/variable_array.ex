@@ -23,7 +23,7 @@ defmodule XDR.VariableArray do
   Create a new `XDR.VariableArray` structure with the `elements`, `type` and `max_length` passed.
   """
   @spec new(elements :: list() | binary(), type :: module(), max_length :: integer()) :: t
-  def new(elements, type, max_length),
+  def new(elements, type, max_length \\ 4_294_967_295),
     do: %XDR.VariableArray{elements: elements, type: type, max_length: max_length}
 
   @impl XDR.Declaration
