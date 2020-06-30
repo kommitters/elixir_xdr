@@ -530,4 +530,4 @@ See the [CHANGELOG](https://github.com/kommitters/elixir_xdr/blob/master/CHANGEL
 See [LICENSE](https://github.com/kommitters/elixir_xdr/blob/master/LICENSE) for details.
 
 ## Credits
-Made with 💙 from [kommit](https://kommit.co)
+Made with 💙 by [kommit](https://kommit.co)
