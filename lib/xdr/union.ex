@@ -37,23 +37,19 @@ defmodule XDR.Union do
     do: {:error, :not_atom}
 
   def encode_xdr(%{
-        discriminant: %{identifier: identifier} = discriminant,
+        discriminant: %{__struct__: xdr_type, identifier: identifier} = discriminant,
         arms: arms,
         value: value
       }) do
-    discriminant_module = discriminant.__struct__
-    encoded_discriminant = discriminant_module.encode_xdr!(discriminant)
-
+    encoded_discriminant = xdr_type.encode_xdr!(discriminant)
     encoded_arm = identifier |> get_arm(arms) |> encode_arm(value)
 
     {:ok, encoded_discriminant <> encoded_arm}
   end
 
-  def encode_xdr(%{discriminant: discriminant, arms: arms, value: value}) do
-    discriminant_module = discriminant.__struct__
-    encoded_discriminant = discriminant_module.encode_xdr!(discriminant)
-
-    encoded_arm = discriminant.datum |> get_arm(arms) |> encode_arm(value)
+  def encode_xdr(%{discriminant: %{__struct__: xdr_type, datum: datum} = discriminant, arms: arms, value: value}) do
+    encoded_discriminant = xdr_type.encode_xdr!(discriminant)
+    encoded_arm = datum |> get_arm(arms) |> encode_arm(value)
 
     {:ok, encoded_discriminant <> encoded_arm}
   end
@@ -78,7 +74,8 @@ defmodule XDR.Union do
   @spec decode_xdr(bytes :: binary(), union :: t | map()) ::
           {:ok, {any, binary()}} | {:error, :not_binary | :not_list}
   def decode_xdr(bytes, union) do
-    decode_union_discriminant(bytes, union)
+    bytes
+    |> decode_union_discriminant(union)
     |> decode_union_arm()
   end
 
@@ -97,9 +94,8 @@ defmodule XDR.Union do
 
   @spec decode_union_discriminant(bytes :: binary, struct :: map()) ::
           {struct(), binary} | {:error, :not_binary | :not_list}
-  defp decode_union_discriminant(bytes, %{discriminant: %{declarations: _declarations}})
-       when not is_binary(bytes),
-       do: {:error, :not_binary}
+  defp decode_union_discriminant(bytes, _union) when not is_binary(bytes),
+    do: {:error, :not_binary}
 
   defp decode_union_discriminant(_bytes, %{discriminant: %{declarations: declarations}})
        when not is_list(declarations),
@@ -107,37 +103,40 @@ defmodule XDR.Union do
 
   defp decode_union_discriminant(
          bytes,
-         %{discriminant: %{declarations: declarations}} = union
+         %{discriminant: %{__struct__: xdr_type, declarations: declarations}} = union
        ) do
-    {%{identifier: identifier}, rest} = XDR.Enum.decode_xdr!(bytes, %{declarations: declarations})
-
-    {%{union | discriminant: identifier}, rest}
+    {discriminant, rest} = xdr_type.decode_xdr!(bytes, %{declarations: declarations})
+    {%{union | discriminant: discriminant}, rest}
   end
 
-  @spec decode_union_discriminant(bytes :: binary, union :: map()) :: {struct(), binary}
-  defp decode_union_discriminant(bytes, _union) when not is_binary(bytes),
-    do: {:error, :not_binary}
-
-  defp decode_union_discriminant(bytes, %{discriminant: discriminant} = union) do
-    discriminant_module = discriminant.__struct__
-    {%{datum: datum}, rest} = discriminant_module.decode_xdr!(bytes)
+  defp decode_union_discriminant(bytes, %{discriminant: %{__struct__: xdr_type}} = union) do
+    {%{datum: datum}, rest} = xdr_type.decode_xdr!(bytes)
     {%{union | discriminant: datum}, rest}
   end
 
-  @spec encode_arm(arm :: struct() | module(), value :: any()) :: binary()
-  defp encode_arm(%_{} = arm, nil) do
-    arm_module = arm.__struct__
-    arm_module.encode_xdr!(arm)
+  @spec encode_arm(arm :: struct() | atom() | module(), value :: any()) :: binary()
+  defp encode_arm(xdr_type, %{__struct__: xdr_type} = value) do
+    xdr_type.encode_xdr!(value)
   end
 
   defp encode_arm(arm, value) when is_atom(arm) do
-    arm.new(value) |> arm.encode_xdr!()
+    value |> arm.new() |> arm.encode_xdr!()
+  end
+
+  defp encode_arm(%{__struct__: xdr_type} = arm, nil) do
+    xdr_type.encode_xdr!(arm)
   end
 
   @spec decode_union_arm({:error, atom}) :: {:error, atom}
   defp decode_union_arm({:error, reason}), do: {:error, reason}
 
-  @spec decode_union_arm({map(), binary}) :: {:ok, {{atom | integer, any}, binary}}
+  @spec decode_union_arm({struct(), binary}) :: {:ok, {{atom | integer, any}, binary}}
+  defp decode_union_arm({%{discriminant: %{identifier: identifier} = discriminant, arms: arms}, rest}) do
+    arm_module = identifier |> get_arm(arms) |> get_arm_module()
+    {decoded_arm, rest} = arm_module.decode_xdr!(rest)
+    {:ok, {{discriminant, decoded_arm}, rest}}
+  end
+
   defp decode_union_arm({%{discriminant: discriminant, arms: arms}, rest}) do
     arm_module = discriminant |> get_arm(arms) |> get_arm_module()
     {decoded_arm, rest} = arm_module.decode_xdr!(rest)
@@ -145,7 +144,7 @@ defmodule XDR.Union do
   end
 
   @spec get_arm_module(arm :: struct() | module()) :: module()
-  defp get_arm_module(%_{} = arm), do: arm.__struct__
+  defp get_arm_module(%{__struct__: xdr_type}), do: xdr_type
   defp get_arm_module(arm) when is_atom(arm), do: arm
 
   @spec get_arm(identifier :: atom() | number(), arms :: keyword() | map()) ::
