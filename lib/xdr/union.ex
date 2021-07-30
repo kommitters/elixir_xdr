@@ -47,7 +47,11 @@ defmodule XDR.Union do
     {:ok, encoded_discriminant <> encoded_arm}
   end
 
-  def encode_xdr(%{discriminant: %{__struct__: xdr_type, datum: datum} = discriminant, arms: arms, value: value}) do
+  def encode_xdr(%{
+        discriminant: %{__struct__: xdr_type, datum: datum} = discriminant,
+        arms: arms,
+        value: value
+      }) do
     encoded_discriminant = xdr_type.encode_xdr!(discriminant)
     encoded_arm = datum |> get_arm(arms) |> encode_arm(value)
 
@@ -131,7 +135,9 @@ defmodule XDR.Union do
   defp decode_union_arm({:error, reason}), do: {:error, reason}
 
   @spec decode_union_arm({struct(), binary}) :: {:ok, {{atom | integer, any}, binary}}
-  defp decode_union_arm({%{discriminant: %{identifier: identifier} = discriminant, arms: arms}, rest}) do
+  defp decode_union_arm(
+         {%{discriminant: %{identifier: identifier} = discriminant, arms: arms}, rest}
+       ) do
     arm_module = identifier |> get_arm(arms) |> get_arm_module()
     {decoded_arm, rest} = arm_module.decode_xdr!(rest)
     {:ok, {{discriminant, decoded_arm}, rest}}
