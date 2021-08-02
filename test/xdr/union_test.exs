@@ -274,26 +274,46 @@ defmodule XDR.UnionTest do
       {status, result} = UnionSCPStatementType.decode_xdr(<<0, 0, 0, 0, 0, 0, 0, 60>>)
 
       assert status == :ok
-      assert result == {{:SCP_ST_PREPARE, %XDR.Int{datum: 60}}, ""}
+
+      assert result ==
+               {{%XDR.Enum{
+                   declarations: [
+                     SCP_ST_PREPARE: 0,
+                     SCP_ST_CONFIRM: 1,
+                     SCP_ST_EXTERNALIZE: 2,
+                     SCP_ST_NOMINATE: 3
+                   ],
+                   identifier: :SCP_ST_PREPARE
+                 }, %XDR.Int{datum: 60}}, ""}
     end
 
     test "decode_xdr! with Enum example" do
       # It also can use the XDR.UnionEnum.decode_xdr()/1 function
       result = UnionSCPStatementType.decode_xdr!(<<0, 0, 0, 0, 0, 0, 0, 60>>)
 
-      assert result == {{:SCP_ST_PREPARE, %XDR.Int{datum: 60}}, ""}
+      assert result ==
+               {{%XDR.Enum{
+                   declarations: [
+                     SCP_ST_PREPARE: 0,
+                     SCP_ST_CONFIRM: 1,
+                     SCP_ST_EXTERNALIZE: 2,
+                     SCP_ST_NOMINATE: 3
+                   ],
+                   identifier: :SCP_ST_PREPARE
+                 }, %XDR.Int{datum: 60}}, ""}
     end
 
     test "decode_xdr default arm" do
-      enum = %XDR.Enum{declarations: [case_1: 1, case_2: 2, case_3: 3, case_4: 4]}
+      declarations = [case_1: 1, case_2: 2, case_3: 3, case_4: 4]
+      enum_spec = %XDR.Enum{declarations: declarations}
 
       arms = [case_1: XDR.Int, default: XDR.Void]
-      union_spec = Union.new(enum, arms)
+      union_spec = Union.new(enum_spec, arms)
 
       {status, union} = Union.decode_xdr(<<0, 0, 0, 3>>, union_spec)
 
       assert status == :ok
-      assert union == {{:case_3, nil}, ""}
+      assert union == {{%XDR.Enum{declarations: declarations, identifier: :case_3}, nil}, ""}
     end
 
     test "Uint example" do
@@ -328,6 +348,20 @@ defmodule XDR.UnionTest do
   end
 
   describe "Decoding Discriminated Union with types" do
+    setup do
+      %{
+        decoded_enum: %XDR.Enum{
+          declarations: [
+            SCP_ST_PREPARE: 0,
+            SCP_ST_CONFIRM: 1,
+            SCP_ST_EXTERNALIZE: 2,
+            SCP_ST_NOMINATE: 3
+          ],
+          identifier: :SCP_ST_PREPARE
+        }
+      }
+    end
+
     test "when receives an invalid identifier" do
       {status, reason} = UnionSCPStatementWithTypes.decode_xdr([0, 0, 0, 0, 0, 0, 0, 0])
 
@@ -353,17 +387,17 @@ defmodule XDR.UnionTest do
       assert reason == :not_binary
     end
 
-    test "Enum example" do
+    test "Enum example", %{decoded_enum: decoded_enum} do
       {status, result} = UnionSCPStatementWithTypes.decode_xdr(<<0, 0, 0, 0, 0, 0, 0, 60>>)
 
       assert status == :ok
-      assert result == {{:SCP_ST_PREPARE, %XDR.Int{datum: 60}}, ""}
+      assert result == {{decoded_enum, %XDR.Int{datum: 60}}, ""}
     end
 
-    test "decode_xdr! with Enum example" do
+    test "decode_xdr! with Enum example", %{decoded_enum: decoded_enum} do
       result = UnionSCPStatementWithTypes.decode_xdr!(<<0, 0, 0, 0, 0, 0, 0, 60>>)
 
-      assert result == {{:SCP_ST_PREPARE, %XDR.Int{datum: 60}}, ""}
+      assert result == {{decoded_enum, %XDR.Int{datum: 60}}, ""}
     end
 
     test "decode default Uint example" do
