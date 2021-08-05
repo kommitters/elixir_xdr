@@ -349,11 +349,15 @@ defmodule XDR.Error do
     Create a `XDR.Error.String` exception with the message of the `error_type` passed.
     """
     def exception(:not_bitstring) do
-      new("the value which you try to encode must be a bitstring value")
+      new("The value you are trying to encode must be a bitstring value")
+    end
+
+    def exception(:invalid_length) do
+      new("The length of the string exceeds the max length allowed")
     end
 
     def exception(:not_binary) do
-      new("the value which you try to decode must be a binary value")
+      new("The value you are trying to decode must be a binary value")
     end
 
     @spec new(msg :: binary()) :: struct()

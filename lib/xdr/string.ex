@@ -26,15 +26,17 @@ defmodule XDR.String do
   @doc """
   Encode a `XDR.String` structure into a XDR format.
   """
-  @spec encode_xdr(string :: t) :: {:ok, binary} | {:error, :not_bitstring}
+  @spec encode_xdr(string :: t) :: {:ok, binary} | {:error, :not_bitstring | :invalid_length}
   def encode_xdr(%{string: string}) when not is_bitstring(string),
     do: {:error, :not_bitstring}
 
-  def encode_xdr(%{string: string}) do
-    length = byte_size(string)
+  def encode_xdr(%{string: string, max_length: max_length}) when byte_size(string) > max_length,
+    do: {:error, :invalid_length}
 
+  def encode_xdr(%{string: string, max_length: max_length}) do
     variable_opaque =
-      VariableOpaque.new(string, length)
+      string
+      |> VariableOpaque.new(max_length)
       |> VariableOpaque.encode_xdr!()
 
     {:ok, variable_opaque}
