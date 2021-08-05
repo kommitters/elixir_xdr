@@ -114,8 +114,12 @@ defmodule XDR.Union do
   end
 
   defp decode_union_discriminant(bytes, %{discriminant: %{__struct__: xdr_type}} = union) do
-    {%{datum: datum}, rest} = xdr_type.decode_xdr!(bytes)
-    {%{union | discriminant: datum}, rest}
+    case xdr_type.decode_xdr!(bytes) do
+      {%{datum: datum}, rest} ->
+        {%{union | discriminant: datum}, rest}
+      {discriminant, rest} ->
+        {%{union | discriminant: discriminant}, rest}
+    end
   end
 
   @spec encode_arm(arm :: struct() | atom() | module(), value :: any()) :: binary()
