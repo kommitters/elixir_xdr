@@ -117,6 +117,7 @@ defmodule XDR.Union do
     case xdr_type.decode_xdr!(bytes) do
       {%{datum: datum}, rest} ->
         {%{union | discriminant: datum}, rest}
+
       {discriminant, rest} ->
         {%{union | discriminant: discriminant}, rest}
     end
