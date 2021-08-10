@@ -101,11 +101,22 @@ defmodule XDR.UnionTest do
 
     test "encode_xdr! Enum example" do
       result =
-        UnionSCPStatementType.new(:SCP_ST_PREPARE)
+        UnionSCPStatementType.new(:SCP_ST_CONFIRM)
         # It also can use the XDR.UnionEnum.decode_xdr()/1 function
         |> Union.encode_xdr!()
 
-      assert result == <<0, 0, 0, 0, 0, 0, 0, 60>>
+      assert result == <<0, 0, 0, 1, 0, 0, 0, 7, 67, 111, 110, 102, 105, 114, 109, 0>>
+    end
+
+    test "encode_xdr! with a custom implementation" do
+      arms = [NONE: XDR.Void, TEST: XDR.String]
+
+      result =
+        CustomUnionType.new(:TEST)
+        |> XDR.Union.new(arms, XDR.String.new("Confirm"))
+        |> XDR.Union.encode_xdr!()
+
+      assert result == <<0, 0, 0, 1, 0, 0, 0, 7, 67, 111, 110, 102, 105, 114, 109, 0>>
     end
 
     test "encode_xdr! when receives an invalid identifier" do
@@ -328,6 +339,21 @@ defmodule XDR.UnionTest do
       result = UnionNumber.decode_xdr!(<<0, 0, 0, 3, 64, 93, 112, 164>>)
 
       assert result == {{3, %XDR.Float{float: 3.4600000381469727}}, ""}
+    end
+
+    test "decode_xdr! with a custom implementation" do
+      arms = [NONE: XDR.Void, TEST: XDR.String]
+      type = CustomUnionType.new(:TEST)
+      spec = XDR.Union.new(type, arms)
+      value = XDR.String.new("Confirm")
+
+      result =
+        XDR.Union.decode_xdr!(
+          <<0, 0, 0, 1, 0, 0, 0, 7, 67, 111, 110, 102, 105, 114, 109, 0>>,
+          spec
+        )
+
+      assert result == {{type, value}, ""}
     end
 
     test "decode_xdr! when receives an invalid identifier" do
@@ -561,4 +587,38 @@ defmodule UnionSCPStatementWithTypes do
   @impl XDR.Declaration
   def decode_xdr!(bytes, union \\ new(nil))
   def decode_xdr!(bytes, union), do: XDR.Union.decode_xdr!(bytes, union)
+end
+
+defmodule CustomUnionType do
+  @behaviour XDR.Declaration
+
+  @declarations [NONE: 0, TEST: 1]
+
+  @enum_spec %XDR.Enum{declarations: @declarations, identifier: nil}
+
+  defstruct [:identifier]
+
+  def new(identifier \\ :NONE), do: %__MODULE__{identifier: identifier}
+
+  @impl XDR.Declaration
+  def encode_xdr(%__MODULE__{identifier: identifier}),
+    do: XDR.Enum.encode_xdr(XDR.Enum.new(@declarations, identifier))
+
+  @impl XDR.Declaration
+  def encode_xdr!(%__MODULE__{identifier: identifier}),
+    do: XDR.Enum.encode_xdr!(XDR.Enum.new(@declarations, identifier))
+
+  @impl XDR.Declaration
+  def decode_xdr(bytes, spec \\ @enum_spec) do
+    case XDR.Enum.decode_xdr(bytes, spec) do
+      {:ok, {%XDR.Enum{identifier: type}, rest}} -> {:ok, {new(type), rest}}
+      error -> error
+    end
+  end
+
+  @impl XDR.Declaration
+  def decode_xdr!(bytes, spec \\ @enum_spec) do
+    {%XDR.Enum{identifier: type}, rest} = XDR.Enum.decode_xdr!(bytes, spec)
+    {new(type), rest}
+  end
 end
