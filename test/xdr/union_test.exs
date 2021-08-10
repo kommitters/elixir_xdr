@@ -101,11 +101,22 @@ defmodule XDR.UnionTest do
 
     test "encode_xdr! Enum example" do
       result =
-        UnionSCPStatementType.new(:SCP_ST_PREPARE)
+        UnionSCPStatementType.new(:SCP_ST_CONFIRM)
         # It also can use the XDR.UnionEnum.decode_xdr()/1 function
         |> Union.encode_xdr!()
 
-      assert result == <<0, 0, 0, 0, 0, 0, 0, 60>>
+      assert result == <<0, 0, 0, 1, 0, 0, 0, 7, 67, 111, 110, 102, 105, 114, 109, 0>>
+    end
+
+    test "encode_xdr! with a custom implementation" do
+      arms = [NONE: XDR.Void, TEST: XDR.String]
+
+      result =
+        CustomUnionType.new(:TEST)
+        |> XDR.Union.new(arms, XDR.String.new("Confirm"))
+        |> XDR.Union.encode_xdr!()
+
+      assert result == <<0, 0, 0, 1, 0, 0, 0, 7, 67, 111, 110, 102, 105, 114, 109, 0>>
     end
 
     test "encode_xdr! when receives an invalid identifier" do
@@ -274,26 +285,46 @@ defmodule XDR.UnionTest do
       {status, result} = UnionSCPStatementType.decode_xdr(<<0, 0, 0, 0, 0, 0, 0, 60>>)
 
       assert status == :ok
-      assert result == {{:SCP_ST_PREPARE, %XDR.Int{datum: 60}}, ""}
+
+      assert result ==
+               {{%XDR.Enum{
+                   declarations: [
+                     SCP_ST_PREPARE: 0,
+                     SCP_ST_CONFIRM: 1,
+                     SCP_ST_EXTERNALIZE: 2,
+                     SCP_ST_NOMINATE: 3
+                   ],
+                   identifier: :SCP_ST_PREPARE
+                 }, %XDR.Int{datum: 60}}, ""}
     end
 
     test "decode_xdr! with Enum example" do
       # It also can use the XDR.UnionEnum.decode_xdr()/1 function
       result = UnionSCPStatementType.decode_xdr!(<<0, 0, 0, 0, 0, 0, 0, 60>>)
 
-      assert result == {{:SCP_ST_PREPARE, %XDR.Int{datum: 60}}, ""}
+      assert result ==
+               {{%XDR.Enum{
+                   declarations: [
+                     SCP_ST_PREPARE: 0,
+                     SCP_ST_CONFIRM: 1,
+                     SCP_ST_EXTERNALIZE: 2,
+                     SCP_ST_NOMINATE: 3
+                   ],
+                   identifier: :SCP_ST_PREPARE
+                 }, %XDR.Int{datum: 60}}, ""}
     end
 
     test "decode_xdr default arm" do
-      enum = %XDR.Enum{declarations: [case_1: 1, case_2: 2, case_3: 3, case_4: 4]}
+      declarations = [case_1: 1, case_2: 2, case_3: 3, case_4: 4]
+      enum_spec = %XDR.Enum{declarations: declarations}
 
       arms = [case_1: XDR.Int, default: XDR.Void]
-      union_spec = Union.new(enum, arms)
+      union_spec = Union.new(enum_spec, arms)
 
       {status, union} = Union.decode_xdr(<<0, 0, 0, 3>>, union_spec)
 
       assert status == :ok
-      assert union == {{:case_3, nil}, ""}
+      assert union == {{%XDR.Enum{declarations: declarations, identifier: :case_3}, nil}, ""}
     end
 
     test "Uint example" do
@@ -308,6 +339,21 @@ defmodule XDR.UnionTest do
       result = UnionNumber.decode_xdr!(<<0, 0, 0, 3, 64, 93, 112, 164>>)
 
       assert result == {{3, %XDR.Float{float: 3.4600000381469727}}, ""}
+    end
+
+    test "decode_xdr! with a custom implementation" do
+      arms = [NONE: XDR.Void, TEST: XDR.String]
+      type = CustomUnionType.new(:TEST)
+      spec = XDR.Union.new(type, arms)
+      value = XDR.String.new("Confirm")
+
+      result =
+        XDR.Union.decode_xdr!(
+          <<0, 0, 0, 1, 0, 0, 0, 7, 67, 111, 110, 102, 105, 114, 109, 0>>,
+          spec
+        )
+
+      assert result == {{type, value}, ""}
     end
 
     test "decode_xdr! when receives an invalid identifier" do
@@ -328,6 +374,20 @@ defmodule XDR.UnionTest do
   end
 
   describe "Decoding Discriminated Union with types" do
+    setup do
+      %{
+        decoded_enum: %XDR.Enum{
+          declarations: [
+            SCP_ST_PREPARE: 0,
+            SCP_ST_CONFIRM: 1,
+            SCP_ST_EXTERNALIZE: 2,
+            SCP_ST_NOMINATE: 3
+          ],
+          identifier: :SCP_ST_PREPARE
+        }
+      }
+    end
+
     test "when receives an invalid identifier" do
       {status, reason} = UnionSCPStatementWithTypes.decode_xdr([0, 0, 0, 0, 0, 0, 0, 0])
 
@@ -353,17 +413,17 @@ defmodule XDR.UnionTest do
       assert reason == :not_binary
     end
 
-    test "Enum example" do
+    test "Enum example", %{decoded_enum: decoded_enum} do
       {status, result} = UnionSCPStatementWithTypes.decode_xdr(<<0, 0, 0, 0, 0, 0, 0, 60>>)
 
       assert status == :ok
-      assert result == {{:SCP_ST_PREPARE, %XDR.Int{datum: 60}}, ""}
+      assert result == {{decoded_enum, %XDR.Int{datum: 60}}, ""}
     end
 
-    test "decode_xdr! with Enum example" do
+    test "decode_xdr! with Enum example", %{decoded_enum: decoded_enum} do
       result = UnionSCPStatementWithTypes.decode_xdr!(<<0, 0, 0, 0, 0, 0, 0, 60>>)
 
-      assert result == {{:SCP_ST_PREPARE, %XDR.Int{datum: 60}}, ""}
+      assert result == {{decoded_enum, %XDR.Int{datum: 60}}, ""}
     end
 
     test "decode default Uint example" do
@@ -527,4 +587,38 @@ defmodule UnionSCPStatementWithTypes do
   @impl XDR.Declaration
   def decode_xdr!(bytes, union \\ new(nil))
   def decode_xdr!(bytes, union), do: XDR.Union.decode_xdr!(bytes, union)
+end
+
+defmodule CustomUnionType do
+  @behaviour XDR.Declaration
+
+  @declarations [NONE: 0, TEST: 1]
+
+  @enum_spec %XDR.Enum{declarations: @declarations, identifier: nil}
+
+  defstruct [:identifier]
+
+  def new(identifier \\ :NONE), do: %__MODULE__{identifier: identifier}
+
+  @impl XDR.Declaration
+  def encode_xdr(%__MODULE__{identifier: identifier}),
+    do: XDR.Enum.encode_xdr(XDR.Enum.new(@declarations, identifier))
+
+  @impl XDR.Declaration
+  def encode_xdr!(%__MODULE__{identifier: identifier}),
+    do: XDR.Enum.encode_xdr!(XDR.Enum.new(@declarations, identifier))
+
+  @impl XDR.Declaration
+  def decode_xdr(bytes, spec \\ @enum_spec) do
+    case XDR.Enum.decode_xdr(bytes, spec) do
+      {:ok, {%XDR.Enum{identifier: type}, rest}} -> {:ok, {new(type), rest}}
+      error -> error
+    end
+  end
+
+  @impl XDR.Declaration
+  def decode_xdr!(bytes, spec \\ @enum_spec) do
+    {%XDR.Enum{identifier: type}, rest} = XDR.Enum.decode_xdr!(bytes, spec)
+    {new(type), rest}
+  end
 end

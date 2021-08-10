@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.5 (09.08.2021)
+* Fix max length issue on Strings.
+* Fix issues encoding/decoding discriminated unions.
+
 ## 0.1.4 (30.06.2020)
 
 * Improve README.
