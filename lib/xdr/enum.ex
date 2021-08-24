@@ -17,14 +17,14 @@ defmodule XDR.Enum do
   @doc """
   Create a new `XDR.Enum` structure with the `declarations` and `identifier` passed.
   """
+  @spec new(declarations :: list(), identifier :: atom()) :: t()
   def new(declarations, identifier),
     do: %XDR.Enum{declarations: declarations, identifier: identifier}
 
-  @impl XDR.Declaration
   @doc """
   Encode a `XDR.Enum` structure into a XDR format.
   """
-  @spec encode_xdr(map) :: {:ok, binary} | {:error, :not_list | :not_an_atom | :invalid_key}
+  @impl true
   def encode_xdr(%{declarations: declarations}) when not is_list(declarations),
     do: {:error, :not_list}
 
@@ -38,12 +38,11 @@ defmodule XDR.Enum do
     end
   end
 
-  @impl XDR.Declaration
   @doc """
   Encode a `XDR.Enum` structure into a XDR format.
   If the `declarations` or `identifier` of the `enum` is not valid, an exception is raised.
   """
-  @spec encode_xdr!(enum :: t) :: binary
+  @impl true
   def encode_xdr!(enum) do
     case encode_xdr(enum) do
       {:ok, binary} -> binary
@@ -51,12 +50,10 @@ defmodule XDR.Enum do
     end
   end
 
-  @impl XDR.Declaration
   @doc """
   Decode the Enumeration in XDR format to a `XDR.Enum` structure.
   """
-  @spec decode_xdr(bytes :: binary(), enum :: t) ::
-          {:ok, {t, binary}} | {:error, :not_binary | :not_list | :invalid_key}
+  @impl true
   def decode_xdr(bytes, %{}) when not is_binary(bytes), do: {:error, :not_binary}
 
   def decode_xdr(_bytes, %{declarations: declarations}) when not is_list(declarations),
@@ -70,29 +67,28 @@ defmodule XDR.Enum do
     |> decoded_enum(declarations, rest)
   end
 
-  @spec decoded_enum(
-          identifier :: {atom(), any()} | nil,
-          declarations :: keyword(),
-          rest :: binary()
-        ) :: {:ok, {t, binary}} | {:error, :invalid_key}
-  defp decoded_enum(nil, _declarations, _rest), do: {:error, :invalid_key}
-
-  defp decoded_enum({identifier, _value}, declarations, rest) do
-    decoded_enum = new(declarations, identifier)
-    {:ok, {decoded_enum, rest}}
-  end
-
-  @impl XDR.Declaration
   @doc """
   Decode the Enumeration in XDR format to a `XDR.Enum` structure.
   If the binaries are not valid, an exception is raised.
   """
-  @spec decode_xdr!(bytes :: binary(), enum :: t) :: {t, binary()}
+  @impl true
   def decode_xdr!(bytes, enum) do
     case decode_xdr(bytes, enum) do
       {:ok, result} -> result
       {:error, reason} -> raise(EnumError, reason)
     end
+  end
+
+  @spec decoded_enum(
+          identifier :: {atom(), any()} | nil,
+          declarations :: keyword(),
+          rest :: binary()
+        ) :: {:ok, {t(), binary()}} | {:error, :invalid_key}
+  defp decoded_enum(nil, _declarations, _rest), do: {:error, :invalid_key}
+
+  defp decoded_enum({identifier, _value}, declarations, rest) do
+    decoded_enum = new(declarations, identifier)
+    {:ok, {decoded_enum, rest}}
   end
 
   @spec encode_valid_data(declarations :: keyword(), identifier :: atom()) :: {:ok, binary()}

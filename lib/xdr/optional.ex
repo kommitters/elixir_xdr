@@ -13,19 +13,18 @@ defmodule XDR.Optional do
   @typedoc """
   `XDR.Optional` structure type specification.
   """
-  @type t :: %XDR.Optional{type: nil | any()}
+  @type t :: %XDR.Optional{type: any()}
 
   @doc """
   Create a new `XDR.Optional` structure with the `type` passed.
   """
-  @spec new(type :: any()) :: t
+  @spec new(type :: any()) :: t()
   def new(type), do: %XDR.Optional{type: type}
 
-  @impl XDR.Declaration
   @doc """
   Encode a `XDR.Optional` structure into a XDR format.
   """
-  @spec encode_xdr(optional :: t) :: {:ok, binary} | {:error, :not_valid}
+  @impl true
   def encode_xdr(%{type: type}) when is_bitstring(type), do: {:error, :not_valid}
   def encode_xdr(%{type: type}) when is_list(type), do: {:error, :not_valid}
   def encode_xdr(%{type: type}) when is_tuple(type), do: {:error, :not_valid}
@@ -39,12 +38,11 @@ defmodule XDR.Optional do
     {:ok, bool <> encoded_value}
   end
 
-  @impl XDR.Declaration
   @doc """
   Encode a `XDR.Optional` structure into a XDR format.
   If the `optional` is not valid, an exception is raised.
   """
-  @spec encode_xdr!(optional :: t) :: binary
+  @impl true
   def encode_xdr!(optional) do
     case encode_xdr(optional) do
       {:ok, binary} -> binary
@@ -52,12 +50,10 @@ defmodule XDR.Optional do
     end
   end
 
-  @impl XDR.Declaration
   @doc """
   Decode the Optional-Data in XDR format to a `XDR.Optional` structure.
   """
-  @spec decode_xdr(bytes :: binary(), optional :: t | map()) ::
-          {:ok, {t, binary()}} | {:error, :not_binary | :not_module}
+  @impl true
   def decode_xdr(bytes, _optional) when not is_binary(bytes), do: {:error, :not_binary}
   def decode_xdr(_bytes, %{type: type}) when not is_atom(type), do: {:error, :not_module}
 
@@ -66,12 +62,11 @@ defmodule XDR.Optional do
     get_decoded_value(bool.identifier, rest, type)
   end
 
-  @impl XDR.Declaration
   @doc """
   Decode the Optional-Data in XDR format to a `XDR.Optional` structure.
   If the binaries are not valid, an exception is raised.
   """
-  @spec decode_xdr!(bytes :: binary(), optional :: t | map()) :: {t, binary()}
+  @impl true
   def decode_xdr!(bytes, optional) do
     case decode_xdr(bytes, optional) do
       {:ok, result} -> result
