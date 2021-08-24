@@ -75,7 +75,7 @@ defmodule XDR.Struct do
     end)
   end
 
-  @spec decode_components(bytes :: binary(), components :: keyword()) :: keyword()
+  @spec decode_components(bytes :: binary(), components :: keyword()) :: {keyword(), binary()}
   defp decode_components(bytes, components) do
     components
     |> Enum.reduce({[], bytes}, fn {key, component}, {decoded_components, rest_bytes} ->
