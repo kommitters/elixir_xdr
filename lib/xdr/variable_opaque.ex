@@ -18,7 +18,7 @@ defmodule XDR.VariableOpaque do
   @doc """
   Create a new `XDR.VariableOpaque` structure with the `opaque` and `max_size` passed.
   """
-  @spec new(opaque :: binary | nil, max_size :: integer) :: t
+  @spec new(opaque :: binary() | nil, max_size :: integer()) :: t()
   def new(opaque, max_size \\ 4_294_967_295)
   def new(opaque, max_size), do: %XDR.VariableOpaque{opaque: opaque, max_size: max_size}
 
@@ -99,7 +99,7 @@ defmodule XDR.VariableOpaque do
   end
 
   @spec get_decoded_value(length :: integer(), rest :: binary(), max :: integer()) ::
-          {:ok, {t, binary}}
+          {:ok, {t(), binary()}}
   defp get_decoded_value(length, _rest, max) when length > max, do: {:error, :length_over_max}
 
   defp get_decoded_value(length, rest, _max) when length > byte_size(rest),

@@ -12,12 +12,12 @@ defmodule XDR.HyperInt do
   @typedoc """
   `XDR.HyperInt` structure type specification.
   """
-  @type t :: %XDR.HyperInt{datum: integer | binary}
+  @type t :: %XDR.HyperInt{datum: integer() | binary()}
 
   @doc """
   Create a new `XDR.HyperInt` structure with the `datum` passed.
   """
-  @spec new(datum :: integer | binary) :: t
+  @spec new(datum :: integer() | binary()) :: t()
   def new(datum), do: %XDR.HyperInt{datum: datum}
 
   @doc """

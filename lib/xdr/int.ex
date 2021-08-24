@@ -12,12 +12,12 @@ defmodule XDR.Int do
   @typedoc """
   `XDR.Int` structure type specification.
   """
-  @type t :: %XDR.Int{datum: integer}
+  @type t :: %XDR.Int{datum: integer()}
 
   @doc """
   Create a new `XDR.Int` structure with the `opaque` and `length` passed.
   """
-  @spec new(datum :: integer) :: t
+  @spec new(datum :: integer()) :: t()
   def new(datum), do: %XDR.Int{datum: datum}
 
   @doc """

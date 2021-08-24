@@ -17,7 +17,7 @@ defmodule XDR.Void do
   @doc """
   Create a new `XDR.Void` structure from the `value` passed.
   """
-  @spec new(value :: nil) :: t
+  @spec new(value :: nil) :: t()
   def new(value \\ nil) when is_nil(value), do: %XDR.Void{}
 
   @doc """

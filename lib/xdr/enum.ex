@@ -17,7 +17,7 @@ defmodule XDR.Enum do
   @doc """
   Create a new `XDR.Enum` structure with the `declarations` and `identifier` passed.
   """
-  @spec new(declarations :: list, identifier :: atom) :: t
+  @spec new(declarations :: list(), identifier :: atom()) :: t()
   def new(declarations, identifier),
     do: %XDR.Enum{declarations: declarations, identifier: identifier}
 
@@ -83,7 +83,7 @@ defmodule XDR.Enum do
           identifier :: {atom(), any()} | nil,
           declarations :: keyword(),
           rest :: binary()
-        ) :: {:ok, {t, binary}} | {:error, :invalid_key}
+        ) :: {:ok, {t(), binary()}} | {:error, :invalid_key}
   defp decoded_enum(nil, _declarations, _rest), do: {:error, :invalid_key}
 
   defp decoded_enum({identifier, _value}, declarations, rest) do

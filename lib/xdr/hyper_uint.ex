@@ -12,12 +12,12 @@ defmodule XDR.HyperUInt do
   @typedoc """
   `XDR.HyperUInt` structure type specification.
   """
-  @type t :: %XDR.HyperUInt{datum: integer | binary}
+  @type t :: %XDR.HyperUInt{datum: integer() | binary()}
 
   @doc """
   Create a new `XDR.HyperUInt` structure with the `opaque` and `length` passed.
   """
-  @spec new(datum :: integer | binary) :: t
+  @spec new(datum :: integer() | binary()) :: t()
   def new(datum), do: %XDR.HyperUInt{datum: datum}
 
   @doc """

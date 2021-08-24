@@ -17,7 +17,7 @@ defmodule XDR.FixedArray do
   @doc """
   Create a new `XDR.FixedArray` structure with the `elements`, `type` and `length` passed.
   """
-  @spec new(elements :: list | binary, type :: module, length :: integer) :: t
+  @spec new(elements :: list() | binary(), type :: module(), length :: integer()) :: t()
   def new(elements, type, length),
     do: %XDR.FixedArray{elements: elements, type: type, length: length}
 
@@ -84,11 +84,11 @@ defmodule XDR.FixedArray do
   defp encode_element(element, type), do: element |> type.new() |> type.encode_xdr!()
 
   @spec decode_elements_from_fixed_array(
-          type :: module,
-          acc :: list,
-          rest :: binary,
-          array_length :: integer
-        ) :: {list, binary}
+          type :: module(),
+          acc :: list(),
+          rest :: binary(),
+          array_length :: integer()
+        ) :: {list(), binary()}
   defp decode_elements_from_fixed_array(_type, acc, rest, 0), do: {Enum.reverse(acc), rest}
 
   defp decode_elements_from_fixed_array(type, acc, bytes, array_length) do

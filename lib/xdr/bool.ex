@@ -20,7 +20,7 @@ defmodule XDR.Bool do
   @doc """
   Create a new `XDR.Bool` structure from the `identifier` passed either `false` or `true`.
   """
-  @spec new(identifier :: atom()) :: t
+  @spec new(identifier :: atom()) :: t()
   def new(identifier), do: %XDR.Bool{identifier: identifier}
 
   @doc """

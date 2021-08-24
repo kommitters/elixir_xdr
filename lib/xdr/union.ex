@@ -24,7 +24,7 @@ defmodule XDR.Union do
           discriminant :: XDR.Enum.t() | XDR.Int.t() | XDR.UInt.t(),
           arms :: keyword() | map(),
           value :: any()
-        ) :: t
+        ) :: t()
   def new(discriminant, arms, value \\ nil),
     do: %XDR.Union{discriminant: discriminant, arms: arms, value: value}
 
@@ -91,8 +91,8 @@ defmodule XDR.Union do
     end
   end
 
-  @spec decode_union_discriminant(bytes :: binary, struct :: map()) ::
-          {struct(), binary} | {:error, :not_binary | :not_list}
+  @spec decode_union_discriminant(bytes :: binary(), struct :: map()) ::
+          {struct(), binary()} | {:error, :not_binary | :not_list}
   defp decode_union_discriminant(bytes, _union) when not is_binary(bytes),
     do: {:error, :not_binary}
 
@@ -131,10 +131,10 @@ defmodule XDR.Union do
     xdr_type.encode_xdr!(arm)
   end
 
-  @spec decode_union_arm({:error, atom}) :: {:error, atom}
+  @spec decode_union_arm({:error, atom()}) :: {:error, atom()}
   defp decode_union_arm({:error, reason}), do: {:error, reason}
 
-  @spec decode_union_arm({struct(), binary}) :: {:ok, {{atom | integer, any}, binary}}
+  @spec decode_union_arm({struct(), binary()}) :: {:ok, {{atom() | integer(), any()}, binary()}}
   defp decode_union_arm(
          {%{discriminant: %{identifier: identifier} = discriminant, arms: arms}, rest}
        ) do
@@ -152,10 +152,10 @@ defmodule XDR.Union do
   end
 
   @spec decode_arm(
-          xdr_type :: struct | atom | non_neg_integer,
-          discriminant :: non_neg_integer | XDR.Enum.t(),
-          rest :: binary
-        ) :: {:ok, {{atom | non_neg_integer, any}, binary}} | {:error, any}
+          xdr_type :: struct() | atom() | non_neg_integer(),
+          discriminant :: non_neg_integer() | XDR.Enum.t(),
+          rest :: binary()
+        ) :: {:ok, {{atom() | non_neg_integer(), any()}, binary()}} | {:error, any()}
   defp decode_arm(nil, _discriminant, _rest), do: {:error, :invalid_arm}
 
   defp decode_arm(xdr_type, discriminant, rest) do

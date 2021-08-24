@@ -17,7 +17,7 @@ defmodule XDR.FixedOpaque do
   @doc """
   Create a new `XDR.FixedOpaque` structure with the `opaque` and `length` passed.
   """
-  @spec new(opaque :: binary, length :: integer) :: t
+  @spec new(opaque :: binary(), length :: integer()) :: t()
   def new(opaque, length), do: %XDR.FixedOpaque{opaque: opaque, length: length}
 
   @doc """

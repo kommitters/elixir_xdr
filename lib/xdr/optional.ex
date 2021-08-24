@@ -13,12 +13,12 @@ defmodule XDR.Optional do
   @typedoc """
   `XDR.Optional` structure type specification.
   """
-  @type t :: %XDR.Optional{type: nil | any()}
+  @type t :: %XDR.Optional{type: any()}
 
   @doc """
   Create a new `XDR.Optional` structure with the `type` passed.
   """
-  @spec new(type :: any()) :: t
+  @spec new(type :: any()) :: t()
   def new(type), do: %XDR.Optional{type: type}
 
   @doc """

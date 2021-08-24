@@ -13,12 +13,12 @@ defmodule XDR.String do
   @typedoc """
   `XDR.String` structure type specification.
   """
-  @type t :: %XDR.String{string: binary(), max_length: integer}
+  @type t :: %XDR.String{string: binary(), max_length: integer()}
 
   @doc """
   Create a new `XDR.String` structure with the `opaque` and `length` passed.
   """
-  @spec new(string :: bitstring(), max_length :: integer()) :: t
+  @spec new(string :: bitstring(), max_length :: integer()) :: t()
   def new(string, max_length \\ 4_294_967_295)
   def new(string, max_length), do: %XDR.String{string: string, max_length: max_length}
 

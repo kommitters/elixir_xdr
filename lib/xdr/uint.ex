@@ -17,7 +17,7 @@ defmodule XDR.UInt do
   @doc """
   Create a new `XDR.UInt` structure with the `datum` passed.
   """
-  @spec new(datum :: integer()) :: t
+  @spec new(datum :: integer()) :: t()
   def new(datum), do: %XDR.UInt{datum: datum}
 
   @doc """

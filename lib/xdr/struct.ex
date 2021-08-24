@@ -17,7 +17,7 @@ defmodule XDR.Struct do
   @doc """
   Create a new `XDR.Struct` structure with the `opaque` and `length` passed.
   """
-  @spec new(components :: keyword()) :: t
+  @spec new(components :: keyword()) :: t()
   def new(components), do: %XDR.Struct{components: components}
 
   @doc """

@@ -19,7 +19,7 @@ defmodule XDR.Float do
   @doc """
   Create a new `XDR.Float` structure with the `float` passed.
   """
-  @spec new(float :: float | integer | binary) :: t
+  @spec new(float :: float() | integer() | binary()) :: t()
   def new(float), do: %XDR.Float{float: float}
 
   @doc """
