@@ -138,15 +138,31 @@ defmodule XDR.Union do
   defp decode_union_arm(
          {%{discriminant: %{identifier: identifier} = discriminant, arms: arms}, rest}
        ) do
-    arm_module = identifier |> get_arm(arms) |> get_arm_module()
-    {decoded_arm, rest} = arm_module.decode_xdr!(rest)
-    {:ok, {{discriminant, decoded_arm}, rest}}
+    identifier
+    |> get_arm(arms)
+    |> get_arm_module()
+    |> decode_arm(discriminant, rest)
   end
 
   defp decode_union_arm({%{discriminant: discriminant, arms: arms}, rest}) do
-    arm_module = discriminant |> get_arm(arms) |> get_arm_module()
-    {decoded_arm, rest} = arm_module.decode_xdr!(rest)
-    {:ok, {{discriminant, decoded_arm}, rest}}
+    discriminant
+    |> get_arm(arms)
+    |> get_arm_module()
+    |> decode_arm(discriminant, rest)
+  end
+
+  @spec decode_arm(
+          xdr_type :: struct | atom | non_neg_integer,
+          discriminant :: non_neg_integer | XDR.Enum.t(),
+          rest :: binary
+        ) :: {:ok, {{atom | non_neg_integer, any}, binary}} | {:error, any}
+  defp decode_arm(nil, _discriminant, _rest), do: {:error, :invalid_arm}
+
+  defp decode_arm(xdr_type, discriminant, rest) do
+    case xdr_type.decode_xdr(rest) do
+      {:ok, {decoded_arm, rest}} -> {:ok, {{discriminant, decoded_arm}, rest}}
+      error -> error
+    end
   end
 
   @spec get_arm_module(arm :: struct() | module()) :: module()
