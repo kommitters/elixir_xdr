@@ -13,5 +13,5 @@ defmodule XDR.Declaration do
   @callback decode_xdr(binary, term) :: {:ok, {term, binary}} | {:error, atom()}
 
   @doc "Decode XDR for any type returns the resulted converted value."
-  @callback decode_xdr!(binary, term) :: {term, binary} | {:error, atom()}
+  @callback decode_xdr!(binary, term) :: {term, binary} | no_return()
 end
