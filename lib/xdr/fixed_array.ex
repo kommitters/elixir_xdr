@@ -21,12 +21,10 @@ defmodule XDR.FixedArray do
   def new(elements, type, length),
     do: %XDR.FixedArray{elements: elements, type: type, length: length}
 
-  @impl XDR.Declaration
   @doc """
   Encode a `XDR.FixedArray` structure into a XDR format.
   """
-  @spec encode_xdr(fixed_array :: t) ::
-          {:ok, binary} | {:error, :not_number | :invalid_length | :not_list}
+  @impl true
   def encode_xdr(%{length: length}) when not is_integer(length), do: {:error, :not_number}
 
   def encode_xdr(%{elements: elements, length: length}) when length(elements) !== length,
@@ -42,12 +40,11 @@ defmodule XDR.FixedArray do
     {:ok, binary}
   end
 
-  @impl XDR.Declaration
   @doc """
   Encode a `XDR.FixedArray` structure into a XDR format.
   If the `fixed_array` is not valid, an exception is raised.
   """
-  @spec encode_xdr!(fixed_array :: t) :: binary()
+  @impl true
   def encode_xdr!(fixed_array) do
     case encode_xdr(fixed_array) do
       {:ok, result} -> result
@@ -55,12 +52,10 @@ defmodule XDR.FixedArray do
     end
   end
 
-  @impl XDR.Declaration
   @doc """
   Decode the Fixed-Length Array in XDR format to a `XDR.FixedArray` structure.
   """
-  @spec decode_xdr(bytes :: binary, fixed_array :: t | map()) ::
-          {:ok, {list, binary}} | {:error, :not_number | :not_binary | :not_valid_binary}
+  @impl true
   def decode_xdr(_bytes, %{length: length}) when not is_integer(length), do: {:error, :not_number}
   def decode_xdr(bytes, _struct) when not is_binary(bytes), do: {:error, :not_binary}
 
@@ -73,12 +68,11 @@ defmodule XDR.FixedArray do
     {:ok, decode_elements_from_fixed_array(type, [], bytes, length)}
   end
 
-  @impl XDR.Declaration
   @doc """
   Decode the Fixed-Length Array in XDR format to a `XDR.FixedArray` structure.
   If the binaries are not valid, an exception is raised.
   """
-  @spec decode_xdr!(bytes :: binary, fixed_array :: t | map()) :: {list, binary}
+  @impl true
   def decode_xdr!(bytes, fixed_array) do
     case decode_xdr(bytes, fixed_array) do
       {:ok, result} -> result

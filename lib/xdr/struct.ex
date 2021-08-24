@@ -20,21 +20,19 @@ defmodule XDR.Struct do
   @spec new(components :: keyword()) :: t
   def new(components), do: %XDR.Struct{components: components}
 
-  @impl XDR.Declaration
   @doc """
   Encode a `XDR.Struct` structure into a XDR format.
   """
-  @spec encode_xdr(struct :: t) :: {:ok, binary} | {:error, :not_list | :empty_list}
+  @impl true
   def encode_xdr(%{components: components}) when not is_list(components), do: {:error, :not_list}
   def encode_xdr(%{components: []}), do: {:error, :empty_list}
   def encode_xdr(%{components: components}), do: {:ok, encode_components(components)}
 
-  @impl XDR.Declaration
   @doc """
   Encode a `XDR.Struct` structure into a XDR format.
   If the `struct` is not valid, an exception is raised.
   """
-  @spec encode_xdr!(struct :: t) :: binary()
+  @impl true
   def encode_xdr!(struct) do
     case encode_xdr(struct) do
       {:ok, binary} -> binary
@@ -42,29 +40,26 @@ defmodule XDR.Struct do
     end
   end
 
-  @impl XDR.Declaration
   @doc """
   Decode the Structure in XDR format to a `XDR.Struct` structure.
   """
-  @spec decode_xdr(bytes :: binary, struct :: t | map()) ::
-          {:ok, {t, binary()}} | {:error, :not_binary | :not_list}
+  @impl true
   def decode_xdr(bytes, _struct) when not is_binary(bytes), do: {:error, :not_binary}
 
   def decode_xdr(_bytes, %{components: components}) when not is_list(components),
     do: {:error, :not_list}
 
   def decode_xdr(bytes, %{components: components}) do
-    {decoded_components, rest} = bytes |> decode_components(components)
+    {decoded_components, rest} = decode_components(bytes, components)
     decoded_struct = decoded_components |> Enum.reverse() |> new()
     {:ok, {decoded_struct, rest}}
   end
 
-  @impl XDR.Declaration
   @doc """
   Decode the Structure in XDR format to a `XDR.Struct` structure.
   If the binaries are not valid, an exception is raised.
   """
-  @spec decode_xdr!(bytes :: binary, struct :: t | map()) :: {t, binary()}
+  @impl true
   def decode_xdr!(bytes, struct) do
     case decode_xdr(bytes, struct) do
       {:ok, result} -> result

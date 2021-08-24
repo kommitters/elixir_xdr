@@ -23,22 +23,20 @@ defmodule XDR.Bool do
   @spec new(identifier :: atom()) :: t
   def new(identifier), do: %XDR.Bool{identifier: identifier}
 
-  @impl XDR.Declaration
   @doc """
   Encode a `XDR.Bool` structure into a XDR format.
   """
-  @spec encode_xdr(boolean :: t) :: {:ok, binary} | {:error, :not_boolean}
+  @impl true
   def encode_xdr(%XDR.Bool{identifier: identifier}) when not is_boolean(identifier),
     do: {:error, :not_boolean}
 
   def encode_xdr(%XDR.Bool{} = boolean), do: Enum.encode_xdr(boolean)
 
-  @impl XDR.Declaration
   @doc """
   Encode a `XDR.Bool` structure into a XDR format.
   If the structure received is not `XDR.Bool` or the identifier is not boolean, an exception is raised.
   """
-  @spec encode_xdr!(boolean :: t) :: binary()
+  @impl true
   def encode_xdr!(boolean) do
     case encode_xdr(boolean) do
       {:ok, binary} -> binary
@@ -46,12 +44,10 @@ defmodule XDR.Bool do
     end
   end
 
-  @impl XDR.Declaration
   @doc """
   Decode the Boolean in XDR format to a `XDR.Bool` structure.
   """
-  @spec decode_xdr(bytes :: binary, struct :: t | any) ::
-          {:ok, {t, binary}} | {:error, :invalid_value}
+  @impl true
   def decode_xdr(bytes, struct \\ %XDR.Bool{})
   def decode_xdr(bytes, _struct) when not is_binary(bytes), do: {:error, :invalid_value}
 
@@ -61,12 +57,11 @@ defmodule XDR.Bool do
     {:ok, {decoded_bool, rest}}
   end
 
-  @impl XDR.Declaration
   @doc """
   Decode the Boolean in XDR format to a `XDR.Bool` structure.
   If the binary is not a valid boolean, an exception is raised.
   """
-  @spec decode_xdr!(bytes :: binary, struct :: t | any) :: {t, binary}
+  @impl true
   def decode_xdr!(bytes, struct \\ %XDR.Bool{})
 
   def decode_xdr!(bytes, struct) do

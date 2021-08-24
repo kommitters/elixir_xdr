@@ -20,12 +20,10 @@ defmodule XDR.Int do
   @spec new(datum :: integer) :: t
   def new(datum), do: %XDR.Int{datum: datum}
 
-  @impl XDR.Declaration
   @doc """
   Encode a `XDR.Int` structure into a XDR format.
   """
-  @spec encode_xdr(int :: t) ::
-          {:ok, binary} | {:error, :not_integer | :exceed_upper_limit | :exceed_lower_limit}
+  @impl true
   def encode_xdr(%XDR.Int{datum: datum}) when not is_integer(datum), do: {:error, :not_integer}
 
   def encode_xdr(%XDR.Int{datum: datum}) when datum > 2_147_483_647,
@@ -36,12 +34,11 @@ defmodule XDR.Int do
 
   def encode_xdr(%XDR.Int{datum: datum}), do: {:ok, <<datum::big-signed-integer-size(32)>>}
 
-  @impl XDR.Declaration
   @doc """
   Encode a `XDR.Int` structure into a XDR format.
   If the `int` is not valid, an exception is raised.
   """
-  @spec encode_xdr!(int :: t) :: binary()
+  @impl true
   def encode_xdr!(int) do
     case encode_xdr(int) do
       {:ok, binary} -> binary
@@ -49,23 +46,21 @@ defmodule XDR.Int do
     end
   end
 
-  @impl XDR.Declaration
   @doc """
   Decode the Integer in XDR format to a `XDR.Int` structure.
   """
-  @spec decode_xdr(bytes :: binary(), int :: t) :: {:ok, {t, binary}} | {:error, :not_binary}
+  @impl true
   def decode_xdr(bytes, int \\ nil)
   def decode_xdr(bytes, _int) when not is_binary(bytes), do: {:error, :not_binary}
 
   def decode_xdr(<<datum::big-signed-integer-size(32), rest::binary>>, _int),
     do: {:ok, {new(datum), rest}}
 
-  @impl XDR.Declaration
   @doc """
   Decode the Integer in XDR format to a `XDR.Int` structure.
   If the binaries are not valid, an exception is raised.
   """
-  @spec decode_xdr!(bytes :: binary(), int :: t) :: {t, binary()}
+  @impl true
   def decode_xdr!(bytes, int \\ nil)
 
   def decode_xdr!(bytes, _int) do

@@ -28,11 +28,10 @@ defmodule XDR.Union do
   def new(discriminant, arms, value \\ nil),
     do: %XDR.Union{discriminant: discriminant, arms: arms, value: value}
 
-  @impl XDR.Declaration
   @doc """
   Encode a `XDR.Union` structure into a XDR format.
   """
-  @spec encode_xdr(union :: t) :: {:ok, binary()} | {:error, :not_atom}
+  @impl true
   def encode_xdr(%{discriminant: %{identifier: identifier}}) when not is_atom(identifier),
     do: {:error, :not_atom}
 
@@ -58,12 +57,11 @@ defmodule XDR.Union do
     {:ok, encoded_discriminant <> encoded_arm}
   end
 
-  @impl XDR.Declaration
   @doc """
   Encode a `XDR.Union` structure into a XDR format.
   If the `union` is not valid, an exception is raised.
   """
-  @spec encode_xdr!(union :: t) :: binary()
+  @impl true
   def encode_xdr!(union) do
     case encode_xdr(union) do
       {:ok, binary} -> binary
@@ -71,24 +69,21 @@ defmodule XDR.Union do
     end
   end
 
-  @impl XDR.Declaration
   @doc """
   Decode the Discriminated Union in XDR format to a `XDR.Union` structure.
   """
-  @spec decode_xdr(bytes :: binary(), union :: t | map()) ::
-          {:ok, {any, binary()}} | {:error, :not_binary | :not_list}
+  @impl true
   def decode_xdr(bytes, union) do
     bytes
     |> decode_union_discriminant(union)
     |> decode_union_arm()
   end
 
-  @impl XDR.Declaration
   @doc """
   Decode the Discriminated Union in XDR format to a `XDR.Union` structure.
   If the binaries are not valid, an exception is raised.
   """
-  @spec decode_xdr!(bytes :: binary(), union :: t | map()) :: {any, binary()}
+  @impl true
   def decode_xdr!(bytes, union) do
     case decode_xdr(bytes, union) do
       {:ok, result} -> result
