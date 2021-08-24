@@ -13,15 +13,16 @@ defmodule XDR.Union do
   `XDR.Union` structure type specification.
   """
   @type t :: %XDR.Union{
-          discriminant: XDR.Enum.t() | XDR.Int.t() | XDR.UInt.t(),
-          arms: keyword() | map()
+          discriminant: XDR.Enum.t() | XDR.Int.t() | XDR.UInt.t() | struct(),
+          arms: keyword() | map(),
+          value: any()
         }
 
   @doc """
   Create a new `XDR.Union` structure with the `discriminant`, `arms` and `value` passed.
   """
   @spec new(
-          discriminant :: XDR.Enum.t() | XDR.Int.t() | XDR.UInt.t(),
+          discriminant :: XDR.Enum.t() | XDR.Int.t() | XDR.UInt.t() | struct(),
           arms :: keyword() | map(),
           value :: any()
         ) :: t()
@@ -134,7 +135,7 @@ defmodule XDR.Union do
   @spec decode_union_arm({:error, atom()}) :: {:error, atom()}
   defp decode_union_arm({:error, reason}), do: {:error, reason}
 
-  @spec decode_union_arm({struct(), binary()}) :: {:ok, {{atom() | integer(), any()}, binary()}}
+  @spec decode_union_arm({struct(), binary()}) :: {:ok, {term(), binary()}} | {:error, atom()}
   defp decode_union_arm(
          {%{discriminant: %{identifier: identifier} = discriminant, arms: arms}, rest}
        ) do
@@ -155,7 +156,7 @@ defmodule XDR.Union do
           xdr_type :: struct() | atom() | non_neg_integer(),
           discriminant :: non_neg_integer() | XDR.Enum.t(),
           rest :: binary()
-        ) :: {:ok, {{atom() | non_neg_integer(), any()}, binary()}} | {:error, any()}
+        ) :: {:ok, {term(), binary()}} | {:error, atom()}
   defp decode_arm(nil, _discriminant, _rest), do: {:error, :invalid_arm}
 
   defp decode_arm(xdr_type, discriminant, rest) do
