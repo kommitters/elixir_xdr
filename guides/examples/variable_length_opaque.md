@@ -1,5 +1,5 @@
 # XDR.VariableOpaque - Variable-Length Opaque
-Represents a sequence of n (numbered 0 through n-1) arbitrary bytes to be the number n encoded as an unsigned integer. If the maximum length is not specified, it is assumed to be 2<sup>32</sup> - 1, the maximum length.
+Represents a sequence of n (numbered 0 through n-1) arbitrary bytes to be the number n encoded as an unsigned integer. If the maximum length is not specified, it is assumed to be 2<sup>32</sup> - 1.
 
 [Variable-Length Opaque - RFC 4506](https://tools.ietf.org/html/rfc4506#section-4.10)
 
