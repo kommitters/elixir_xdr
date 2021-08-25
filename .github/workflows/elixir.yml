@@ -3,7 +3,7 @@ name: ElixirXDR CI
 on:
   push:
     branches:
-      - main
+      - master
       - 'v*.[0-9]'
   pull_request:
 
