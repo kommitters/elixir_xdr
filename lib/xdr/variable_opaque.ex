@@ -10,15 +10,17 @@ defmodule XDR.VariableOpaque do
 
   defstruct [:opaque, :max_size]
 
+  @type opaque :: binary() | nil
+
   @typedoc """
   `XDR.VariableOpaque` structure type specification.
   """
-  @type t :: %XDR.VariableOpaque{opaque: binary() | nil, max_size: integer()}
+  @type t :: %XDR.VariableOpaque{opaque: opaque(), max_size: integer()}
 
   @doc """
   Create a new `XDR.VariableOpaque` structure with the `opaque` and `max_size` passed.
   """
-  @spec new(opaque :: binary() | nil, max_size :: integer()) :: t()
+  @spec new(opaque :: opaque(), max_size :: integer()) :: t()
   def new(opaque, max_size \\ 4_294_967_295)
   def new(opaque, max_size), do: %XDR.VariableOpaque{opaque: opaque, max_size: max_size}
 

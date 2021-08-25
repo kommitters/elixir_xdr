@@ -10,19 +10,17 @@ defmodule XDR.VariableArray do
 
   defstruct [:elements, :type, :max_length]
 
+  @type elements :: list() | binary()
+
   @typedoc """
   `XDR.VariableArray` structure type specification.
   """
-  @type t :: %XDR.VariableArray{
-          elements: list() | binary(),
-          type: module(),
-          max_length: integer()
-        }
+  @type t :: %XDR.VariableArray{elements: elements(), type: module(), max_length: integer()}
 
   @doc """
   Create a new `XDR.VariableArray` structure with the `elements`, `type` and `max_length` passed.
   """
-  @spec new(elements :: list() | binary(), type :: module(), max_length :: integer()) :: t()
+  @spec new(elements :: elements(), type :: module(), max_length :: integer()) :: t()
   def new(elements, type, max_length \\ 4_294_967_295),
     do: %XDR.VariableArray{elements: elements, type: type, max_length: max_length}
 

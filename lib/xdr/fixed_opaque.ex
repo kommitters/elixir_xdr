@@ -9,15 +9,17 @@ defmodule XDR.FixedOpaque do
 
   alias XDR.Error.FixedOpaque, as: FixedOpaqueError
 
+  @type opaque :: binary() | nil
+
   @typedoc """
   `XDR.FixedOpaque` structure type specification.
   """
-  @type t :: %XDR.FixedOpaque{opaque: binary | nil, length: integer}
+  @type t :: %XDR.FixedOpaque{opaque: opaque(), length: integer}
 
   @doc """
   Create a new `XDR.FixedOpaque` structure with the `opaque` and `length` passed.
   """
-  @spec new(opaque :: binary(), length :: integer()) :: t()
+  @spec new(opaque :: opaque(), length :: integer()) :: t()
   def new(opaque, length), do: %XDR.FixedOpaque{opaque: opaque, length: length}
 
   @doc """

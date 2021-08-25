@@ -11,15 +11,17 @@ defmodule XDR.Float do
 
   defguard valid_float?(value) when is_float(value) or is_integer(value)
 
+  @type float_number :: integer() | float() | binary()
+
   @typedoc """
   `XDR.Float` structure type specification.
   """
-  @type t :: %XDR.Float{float: integer | float | binary}
+  @type t :: %XDR.Float{float: float_number()}
 
   @doc """
   Create a new `XDR.Float` structure with the `float` passed.
   """
-  @spec new(float :: float() | integer() | binary()) :: t()
+  @spec new(float :: float_number()) :: t()
   def new(float), do: %XDR.Float{float: float}
 
   @doc """

@@ -9,15 +9,17 @@ defmodule XDR.UInt do
 
   defstruct [:datum]
 
+  @type datum :: integer() | binary()
+
   @typedoc """
   `XDR.UInt` structure type specification.
   """
-  @type t :: %XDR.UInt{datum: integer() | binary()}
+  @type t :: %XDR.UInt{datum: datum()}
 
   @doc """
   Create a new `XDR.UInt` structure with the `datum` passed.
   """
-  @spec new(datum :: integer()) :: t()
+  @spec new(datum :: datum()) :: t()
   def new(datum), do: %XDR.UInt{datum: datum}
 
   @doc """
