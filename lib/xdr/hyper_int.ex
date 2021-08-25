@@ -9,23 +9,23 @@ defmodule XDR.HyperInt do
 
   defstruct [:datum]
 
+  @type datum :: integer() | binary()
+
   @typedoc """
   `XDR.HyperInt` structure type specification.
   """
-  @type t :: %XDR.HyperInt{datum: integer | binary}
+  @type t :: %XDR.HyperInt{datum: datum()}
 
   @doc """
   Create a new `XDR.HyperInt` structure with the `datum` passed.
   """
-  @spec new(datum :: integer | binary) :: t
+  @spec new(datum :: datum()) :: t()
   def new(datum), do: %XDR.HyperInt{datum: datum}
 
-  @impl XDR.Declaration
   @doc """
   Encode a `XDR.HyperInt` structure into a XDR format.
   """
-  @spec encode_xdr(h_int :: t) ::
-          {:ok, binary} | {:error, :not_integer | :exceed_upper_limit | :exceed_lower_limit}
+  @impl true
   def encode_xdr(%XDR.HyperInt{datum: datum}) when not is_integer(datum),
     do: {:error, :not_integer}
 
@@ -37,12 +37,11 @@ defmodule XDR.HyperInt do
 
   def encode_xdr(%XDR.HyperInt{datum: datum}), do: {:ok, <<datum::big-signed-integer-size(64)>>}
 
-  @impl XDR.Declaration
   @doc """
   Encode a `XDR.HyperInt` structure into a XDR format.
   If the `h_int` is not valid, an exception is raised.
   """
-  @spec encode_xdr!(h_int :: t) :: binary
+  @impl true
   def encode_xdr!(h_int) do
     case encode_xdr(h_int) do
       {:ok, binary} -> binary
@@ -50,11 +49,10 @@ defmodule XDR.HyperInt do
     end
   end
 
-  @impl XDR.Declaration
   @doc """
   Decode the Hyper Integer in XDR format to a `XDR.HyperInt` structure.
   """
-  @spec decode_xdr(bytes :: binary, h_int :: t) :: {:ok, {t, binary}} | {:error, :not_binary}
+  @impl true
   def decode_xdr(bytes, h_int \\ nil)
 
   def decode_xdr(bytes, _h_int) when not is_binary(bytes),
@@ -63,12 +61,11 @@ defmodule XDR.HyperInt do
   def decode_xdr(<<hyper_int::big-signed-integer-size(64), rest::binary>>, _h_int),
     do: {:ok, {new(hyper_int), rest}}
 
-  @impl XDR.Declaration
   @doc """
   Decode the Hyper Integer in XDR format to a `XDR.HyperInt` structure.
   If the binaries are not valid, an exception is raised.
   """
-  @spec decode_xdr!(bytes :: binary, h_int :: t) :: {t, binary}
+  @impl true
   def decode_xdr!(bytes, h_int \\ nil)
 
   def decode_xdr!(bytes, h_int) do

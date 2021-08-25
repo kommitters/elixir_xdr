@@ -10,30 +10,24 @@ defmodule XDR.VariableOpaque do
 
   defstruct [:opaque, :max_size]
 
+  @type opaque :: binary() | nil
+
   @typedoc """
   `XDR.VariableOpaque` structure type specification.
   """
-  @type t :: %XDR.VariableOpaque{opaque: binary() | nil, max_size: integer()}
+  @type t :: %XDR.VariableOpaque{opaque: opaque(), max_size: integer()}
 
   @doc """
   Create a new `XDR.VariableOpaque` structure with the `opaque` and `max_size` passed.
   """
-  @spec new(opaque :: binary | nil, max_size :: integer) :: t
+  @spec new(opaque :: opaque(), max_size :: integer()) :: t()
   def new(opaque, max_size \\ 4_294_967_295)
   def new(opaque, max_size), do: %XDR.VariableOpaque{opaque: opaque, max_size: max_size}
 
-  @impl XDR.Declaration
   @doc """
   Encode a `XDR.VariableOpaque` structure into a XDR format.
   """
-  @spec encode_xdr(opaque :: t) ::
-          {:ok, binary}
-          | {:error,
-             :not_binary
-             | :not_number
-             | :exceed_lower_bound
-             | :exceed_upper_bound
-             | :invalid_length}
+  @impl true
   def encode_xdr(%{opaque: opaque}) when not is_binary(opaque),
     do: {:error, :not_binary}
 
@@ -57,12 +51,11 @@ defmodule XDR.VariableOpaque do
     {:ok, opaque_length <> fixed_opaque}
   end
 
-  @impl XDR.Declaration
   @doc """
   Encode a `XDR.VariableOpaque` structure into a XDR format.
   If the `opaque` is not valid, an exception is raised.
   """
-  @spec encode_xdr!(opaque :: t) :: binary()
+  @impl true
   def encode_xdr!(opaque) do
     case encode_xdr(opaque) do
       {:ok, binary} -> binary
@@ -70,19 +63,10 @@ defmodule XDR.VariableOpaque do
     end
   end
 
-  @impl XDR.Declaration
   @doc """
   Decode the Variable-Length Opaque Data in XDR format to a `XDR.VariableOpaque` structure.
   """
-  @spec decode_xdr(bytes :: binary, opaque :: t) ::
-          {:ok, {t, binary}}
-          | {:error,
-             :not_binary
-             | :not_number
-             | :exceed_lower_bound
-             | :exceed_upper_bound
-             | :length_over_max
-             | :length_over_rest}
+  @impl true
   def decode_xdr(bytes, opaque \\ %{max_size: 4_294_967_295})
 
   def decode_xdr(bytes, _opaque) when not is_binary(bytes),
@@ -102,12 +86,11 @@ defmodule XDR.VariableOpaque do
     uint.datum |> get_decoded_value(rest, max_size)
   end
 
-  @impl XDR.Declaration
   @doc """
   Decode the Variable-Length Opaque Data in XDR format to a `XDR.VariableOpaque` structure.
   If the binaries are not valid, an exception is raised.
   """
-  @spec decode_xdr!(bytes :: binary, opaque :: t) :: {t, binary}
+  @impl true
   def decode_xdr!(bytes, opaque \\ %{max_size: 4_294_967_295})
 
   def decode_xdr!(bytes, opaque) do
@@ -118,7 +101,7 @@ defmodule XDR.VariableOpaque do
   end
 
   @spec get_decoded_value(length :: integer(), rest :: binary(), max :: integer()) ::
-          {:ok, {t, binary}}
+          {:ok, {t(), binary()}}
   defp get_decoded_value(length, _rest, max) when length > max, do: {:error, :length_over_max}
 
   defp get_decoded_value(length, rest, _max) when length > byte_size(rest),

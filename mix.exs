@@ -2,7 +2,7 @@ defmodule XDR.MixProject do
   use Mix.Project
 
   @github_url "https://github.com/kommitters/elixir_xdr"
-  @version "0.1.5"
+  @version "0.1.6"
 
   def project do
     [
@@ -29,9 +29,10 @@ defmodule XDR.MixProject do
 
   def deps do
     [
-      {:ex_doc, "~> 0.21", only: :dev, runtime: false},
-      {:credo, "~> 1.4", only: [:dev, :test], runtime: false},
-      {:excoveralls, "~> 0.10", only: :test}
+      {:ex_doc, "~> 0.24", only: :dev, runtime: false},
+      {:credo, "~> 1.5", only: [:dev, :test], runtime: false},
+      {:dialyxir, "~> 1.0", only: :dev, runtime: false},
+      {:excoveralls, "~> 0.14", only: :test, runtime: false}
     ]
   end
 

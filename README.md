@@ -1,5 +1,5 @@
 # Elixir XDR
-![Build Badge](https://img.shields.io/github/workflow/status/kommitters/elixir_xdr/ElixirCI/master?style=for-the-badge)
+![Build Badge](https://img.shields.io/github/workflow/status/kommitters/elixir_xdr/ElixirXDR%20CI/master?style=for-the-badge)
 [![Coverage Status](https://img.shields.io/coveralls/github/kommitters/elixir_xdr?style=for-the-badge)](https://coveralls.io/github/kommitters/elixir_xdr)
 [![Version Badge](https://img.shields.io/hexpm/v/elixir_xdr?style=for-the-badge)](https://hexdocs.pm/elixir_xdr)
 ![Downloads Badge](https://img.shields.io/hexpm/dt/elixir_xdr?style=for-the-badge)
@@ -8,12 +8,12 @@
 XDR is an open data format, specified in [RFC 4506](http://tools.ietf.org/html/rfc4506.html). This library provides a way to decode and encode XDR data from Elixir. Extend with ease to other XDR types.
 
 ## Installation
-[Available in Hex](https://hex.pm/packages/elixir_xdr), Add `elixir_xdr` to your list of dependencies in `mix.exs`:
+[Available in Hex][hex], Add `elixir_xdr` to your dependencies list in `mix.exs`:
 
 ```elixir
 def deps do
   [
-    {:elixir_xdr, "~> 0.1.5"}
+    {:elixir_xdr, "~> 0.1.6"}
   ]
 end
 ```
@@ -55,10 +55,10 @@ XDR.Typedef              # Section 4.18, may be implemented with elixir modules.
 
 `It is an Open Source project, not a code that only I understand.`
 
-Macros are harder to write than ordinary Elixir functions, implementing them increases the code complexity which is not good especially if you are planning to build an Open Source code easy to understand to everyone. We decided to go without macros, we want to let everyone to expand or implement their own XDR types with a clear model based on Elixir functions.
+Macros are harder to write than ordinary Elixir functions, implementing them increases the code complexity, which is not good, especially if you plan to build an Open Source code that is easy to understand for everyone. We decided to go without macros, we want to let everyone expand or implement their own XDR types with a clear model based on Elixir functions.
 
 ## How to implement an XDR type?
-**Behaviour is the key**. When implementing a new XDR type follow this [Behaviour's Declaration](https://github.com/kommitters/elixir_xdr/blob/master/lib/xdr/declaration.ex).
+**Behaviour is the key**. When implementing a new XDR type, follow this [Behaviour's Declaration](https://github.com/kommitters/elixir_xdr/blob/master/lib/xdr/declaration.ex).
 
 ### For Encoding
 We use the function `encode_xdr/2` or the bang version `encode_xdr!/2` to encode any XDR type to its XDR binary format.
@@ -66,7 +66,7 @@ We use the function `encode_xdr/2` or the bang version `encode_xdr!/2` to encode
 ### For Decoding
 We use the function `decode_xdr/2` or the bang version `decode_xdr!/2` to decode any XDR type from an XDR binary format.
 
-In most XDR types we must pass the `type specification`, it is a struct (or map) with the attributes of the XDR type that is expected to decode.
+In most XDR types, we must pass the `type specification`, it is a struct (or map) with the XDR type attributes that is expected to decode.
 
 ```elixir
 iex(1)> enum_spec = XDR.Enum.new([false: 0, true: 1], nil) # preferred.
@@ -89,7 +89,7 @@ iex(1)> {decoded_part, remaining_part} = XDR.Int.decode_xdr!(<<127, 255, 255, 25
 ```
 
 ## Basic usage examples
-As mentioned before all the XDR types follow the same [Behaviour's Declaration](https://github.com/kommitters/elixir_xdr/blob/master/lib/xdr/declaration.ex)
+As mentioned before, all the XDR types follow the same [Behaviour's Declaration](https://github.com/kommitters/elixir_xdr/blob/master/lib/xdr/declaration.ex)
 
 ### XDR.Int - Integer
 An XDR signed integer is a 32-bit datum that encodes an integer in the range `[-2_147_483_648, 2_147_483_647]`.
@@ -140,7 +140,7 @@ More examples [here](https://hexdocs.pm/elixir_xdr/unsigned_integer.html).
 
 ### XDR.Enum - Enumeration
 Represents subsets of integers.
-The declarations of the Enumeration is a keyword list of integers (E.g. `[false: 0, true: 1]`). 
+The Enumeration's declarations are a keyword list of integers (E.g. `[false: 0, true: 1]`).
 
 Encoding:
 ```elixir
@@ -164,7 +164,7 @@ iex(1)> XDR.Enum.decode_xdr!(<<0, 0, 0, 0>>, %{declarations: [false: 0, true: 1]
 More examples [here](https://hexdocs.pm/elixir_xdr/enumeration.html).
 
 ### XDR.Bool - Boolean
-Boolean is an Enumeration implementation that allows us to create boolean types. An XDR Boolean type is a Enumeration with the keyword list `[false: 0, true: 1]` as declarations.
+Boolean is an Enumeration implementation that allows us to create boolean types. An XDR Boolean type is an Enumeration with the keyword list `[false: 0, true: 1]` as declarations.
 
 Encoding:
 ```elixir
@@ -305,7 +305,7 @@ iex(2)> XDR.FixedOpaque.decode_xdr!(<<72, 101, 108, 108, 111, 32, 119, 111, 114,
 More examples [here](https://hexdocs.pm/elixir_xdr/fixed_length_opaque.html).
 
 ### XDR.VariableOpaque - Variable-Length Opaque
-Represents a sequence of n (numbered 0 through n-1) arbitrary bytes to be the number n encoded as an unsigned integer. If the maximum length is not specified, it is assumed to be 2<sup>32</sup> - 1, the maximum length.
+Represents a sequence of n (numbered 0 through n-1) arbitrary bytes to be the number n encoded as an unsigned integer. If the maximum length is not specified, it is assumed to be 2<sup>32</sup> - 1.
 
 Encoding:
 ```elixir 
@@ -328,7 +328,7 @@ iex(1)> XDR.VariableOpaque.decode_xdr!(<<0, 0, 0, 5, 1, 2, 3, 4, 5, 0, 0, 0>>, %
 More examples [here](https://hexdocs.pm/elixir_xdr/variable_length_opaque.html).
 
 ### XDR.String - String
-Represents a string of n (numbered 0 through n-1) ASCII bytes to be the number n encoded as an unsigned integer (as described above), and followed by the n bytes of the string. If the maximum length is not specified, it is assumed to be 2<sup>32</sup> - 1, the maximum length.
+Represents a string of n (numbered 0 through n-1) ASCII bytes to be the number n encoded as an unsigned integer (as described above), and followed by the n bytes of the string. If the maximum length is not specified, it is assumed to be 2<sup>32</sup> - 1.
 
 Encoding:
 ```elixir
@@ -380,7 +380,7 @@ iex(1)> XDR.FixedArray.decode_xdr!(<<0, 0, 0, 3, 84, 104, 101, 0, 0, 0, 0, 6, 10
 More examples [here](https://hexdocs.pm/elixir_xdr/fixed_length_array.html).
 
 ### XDR.VariableArray - Variable-Length Array
-Represents a variable-length array that contains elements with the same type. If the maximum length is not specified, it is assumed to be 2<sup>32</sup> - 1, the maximum length.
+Represents a variable-length array that contains elements with the same type. If the maximum length is not specified, it is assumed to be 2<sup>32</sup> - 1.
 
 Encoding:
 ```elixir 
@@ -409,7 +409,7 @@ iex(1)> XDR.VariableArray.decode_xdr!(<<0, 0, 0, 3, 0, 0, 0, 3, 84, 104, 101, 0,
 More examples [here](https://hexdocs.pm/elixir_xdr/variable_length_array.html).
 
 ### XDR.Struct - Structure
-Represent a collection of fields, possibly of different data types, typically in fixed number and sequence.
+Represents a collection of fields, possibly of different data types, typically in fixed and sequence numbers.
 
 Encoding:
 ```elixir
@@ -446,7 +446,7 @@ A discriminated union is a type composed of a discriminant followed by a type se
 
 The type of discriminant is either `XDR.Int`, `XDR.UInt`, or an `XDR.Enum` type. 
 
-The `arms` can be a keyword list or a map and the value of each arm can be either a struct or a module of any XDR type. You can define a default arm using `:default` as key (The default arm is optional).
+The `arms` can be a keyword list or a map and the value of each arm can be either a struct or a module of any XDR type. You can define a default arm using `:default` as a key (The default arm is optional).
 
 Encoding:
 ```elixir
@@ -515,19 +515,28 @@ iex(2)> XDR.Optional.decode_xdr!(<<0, 0, 0, 0>>, optional_spec)
 
 More examples [here](https://hexdocs.pm/elixir_xdr/optional_data.html).
 
-## Contributing and Development
-See [CONTRIBUTING.md](https://github.com/kommitters/elixir_xdr/blob/master/CONTRIBUTING.md)
-for guidance on how to develop for this library.
+## Development
+* Install any Elixir version above 1.7.
+* Compile dependencies: `mix deps.get`.
+* Run tests: `mix test`.
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/kommitters/elixir_xdr.
+## Code of conduct
+We welcome everyone to contribute. Make sure you have read the [CODE_OF_CONDUCT][coc] before.
 
-Everyone is welcome to participate in the project.
+## Contributing
+For information on how to contribute, please refer to our [CONTRIBUTING][contributing] guide.
 
 ## Changelog
-See the [CHANGELOG](https://github.com/kommitters/elixir_xdr/blob/master/CHANGELOG.md) for versions details.
+Features and bug fixes are listed in the [CHANGELOG][changelog] file.
 
 ## License
-See [LICENSE](https://github.com/kommitters/elixir_xdr/blob/master/LICENSE) for details.
+This library is licensed under an MIT license. See [LICENSE][license] for details.
 
-## Credits
-Made with 💙 by [kommit](https://kommit.co)
+## Acknowledgements
+Made with 💙 by [kommitters Open Source](https://kommit.co)
+
+[license]: https://github.com/kommitters/elixir_xdr/blob/master/LICENSE.md
+[coc]: https://github.com/kommitters/elixir_xdr/blob/master/CODE_OF_CONDUCT.md
+[changelog]: https://github.com/kommitters/elixir_xdr/blob/master/CHANGELOG.md
+[contributing]: https://github.com/kommitters/elixir_xdr/blob/master/CONTRIBUTING.md
+[hex]: https://hex.pm/packages/elixir_xdr

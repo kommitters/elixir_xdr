@@ -337,33 +337,6 @@ defmodule XDR.Error do
     defp new(msg), do: %XDR.Error.VariableOpaque{message: msg}
   end
 
-  defmodule String do
-    @moduledoc """
-    This module contains the definition of `XDR.Error.String` exception that may be raised by the `XDR.String` module.
-    """
-
-    defexception [:message]
-
-    @impl true
-    @doc """
-    Create a `XDR.Error.String` exception with the message of the `error_type` passed.
-    """
-    def exception(:not_bitstring) do
-      new("The value you are trying to encode must be a bitstring value")
-    end
-
-    def exception(:invalid_length) do
-      new("The length of the string exceeds the max length allowed")
-    end
-
-    def exception(:not_binary) do
-      new("The value you are trying to decode must be a binary value")
-    end
-
-    @spec new(msg :: binary()) :: struct()
-    defp new(msg), do: %XDR.Error.String{message: msg}
-  end
-
   defmodule FixedArray do
     @moduledoc """
     This module contains the definition of `XDR.Error.FixedArray` exception that may be raised by the `XDR.FixedArray` module.
@@ -566,5 +539,32 @@ defmodule XDR.Error do
 
     @spec new(msg :: String.t()) :: struct()
     defp new(msg), do: %XDR.Error.Optional{message: msg}
+  end
+
+  defmodule String do
+    @moduledoc """
+    This module contains the definition of `XDR.Error.String` exception that may be raised by the `XDR.String` module.
+    """
+
+    defexception [:message]
+
+    @impl true
+    @doc """
+    Create a `XDR.Error.String` exception with the message of the `error_type` passed.
+    """
+    def exception(:not_bitstring) do
+      new("The value you are trying to encode must be a bitstring value")
+    end
+
+    def exception(:invalid_length) do
+      new("The length of the string exceeds the max length allowed")
+    end
+
+    def exception(:not_binary) do
+      new("The value you are trying to decode must be a binary value")
+    end
+
+    @spec new(msg :: binary()) :: struct()
+    defp new(msg), do: %XDR.Error.String{message: msg}
   end
 end

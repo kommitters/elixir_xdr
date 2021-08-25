@@ -11,33 +11,33 @@ defmodule XDR.Float do
 
   defguard valid_float?(value) when is_float(value) or is_integer(value)
 
+  @type float_number :: integer() | float() | binary()
+
   @typedoc """
   `XDR.Float` structure type specification.
   """
-  @type t :: %XDR.Float{float: integer | float | binary}
+  @type t :: %XDR.Float{float: float_number()}
 
   @doc """
   Create a new `XDR.Float` structure with the `float` passed.
   """
-  @spec new(float :: float | integer | binary) :: t
+  @spec new(float :: float_number()) :: t()
   def new(float), do: %XDR.Float{float: float}
 
-  @impl XDR.Declaration
   @doc """
   Encode a `XDR.Float` structure into a XDR format.
   """
-  @spec encode_xdr(float :: t) :: {:ok, binary} | {:error, :not_number}
+  @impl true
   def encode_xdr(%XDR.Float{float: float}) when not valid_float?(float),
     do: {:error, :not_number}
 
   def encode_xdr(%XDR.Float{float: float}), do: {:ok, <<float::big-signed-float-size(32)>>}
 
-  @impl XDR.Declaration
   @doc """
   Encode a `XDR.Float` structure into a XDR format.
   If the `float` is not valid, an exception is raised.
   """
-  @spec encode_xdr!(float :: t) :: binary
+  @impl true
   def encode_xdr!(float) do
     case encode_xdr(float) do
       {:ok, binary} -> binary
@@ -45,11 +45,10 @@ defmodule XDR.Float do
     end
   end
 
-  @impl XDR.Declaration
   @doc """
   Decode the Floating-Point in XDR format to a `XDR.Float` structure.
   """
-  @spec decode_xdr(bytes :: binary, float :: t) :: {:ok, {t, binary}} | {:error, :not_binary}
+  @impl true
   def decode_xdr(bytes, float \\ nil)
 
   def decode_xdr(bytes, _float) when not is_binary(bytes),
@@ -58,12 +57,11 @@ defmodule XDR.Float do
   def decode_xdr(<<float::big-signed-float-size(32), rest::binary>>, _float),
     do: {:ok, {new(float), rest}}
 
-  @impl XDR.Declaration
   @doc """
   Decode the Floating-Point in XDR format to a `XDR.Float` structure.
   If the binaries are not valid, an exception is raised.
   """
-  @spec decode_xdr!(bytes :: binary, float :: t) :: {t, binary}
+  @impl true
   def decode_xdr!(bytes, float \\ nil)
 
   def decode_xdr!(bytes, float) do

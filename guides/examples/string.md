@@ -1,5 +1,5 @@
 # XDR.String - String
-Represents a string of n (numbered 0 through n-1) ASCII bytes to be the number n encoded as an unsigned integer (as described above), and followed by the n bytes of the string. If the maximum length is not specified, it is assumed to be 2<sup>32</sup> - 1, the maximum length.
+Represents a string of n (numbered 0 through n-1) ASCII bytes to be the number n encoded as an unsigned integer (as described above), and followed by the n bytes of the string. If the maximum length is not specified, it is assumed to be 2<sup>32</sup> - 1.
 
 [String - RFC 4506](https://tools.ietf.org/html/rfc4506#section-4.11)
 

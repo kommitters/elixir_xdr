@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.6 (25.08.2021)
+* Solve success-typing dialyzer warnings.
+* Properly define typespecs.
+* Remove compilation warnings from old dependencies.
+* Improve library documentation.
+
 ## 0.1.5 (09.08.2021)
 * Fix max length issue on Strings.
 * Fix issues encoding/decoding discriminated unions.
