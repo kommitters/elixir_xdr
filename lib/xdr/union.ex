@@ -28,9 +28,8 @@ defmodule XDR.Union do
   Encode a `XDR.Union` structure into a XDR format.
   """
   @impl true
-  def encode_xdr(%{discriminant: %{identifier: identifier}})
-      when not is_atom(identifier),
-      do: {:error, :not_atom}
+  def encode_xdr(%{discriminant: %{identifier: identifier}}) when not is_atom(identifier),
+    do: {:error, :not_atom}
 
   def encode_xdr(%{
         discriminant: %{__struct__: xdr_type, identifier: identifier} = discriminant,
@@ -166,8 +165,7 @@ defmodule XDR.Union do
   defp get_arm_module(%{__struct__: xdr_type}), do: xdr_type
   defp get_arm_module(arm) when is_atom(arm), do: arm
 
-  @spec get_arm(identifier :: atom() | number(), arms :: arms()) ::
-          struct() | module() | nil
+  @spec get_arm(identifier :: atom() | number(), arms :: arms()) :: struct() | module() | nil
   defp get_arm(identifier, arms) do
     case arms[identifier] do
       nil -> arms[:default]
