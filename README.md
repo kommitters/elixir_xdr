@@ -1,5 +1,5 @@
 # Elixir XDR
-![Build Badge](https://img.shields.io/github/workflow/status/kommitters/elixir_xdr/ElixirCI/master?style=for-the-badge)
+![Build Badge](https://img.shields.io/github/workflow/status/kommitters/elixir_xdr/ElixirXDR%20CI/master?style=for-the-badge)
 [![Coverage Status](https://img.shields.io/coveralls/github/kommitters/elixir_xdr?style=for-the-badge)](https://coveralls.io/github/kommitters/elixir_xdr)
 [![Version Badge](https://img.shields.io/hexpm/v/elixir_xdr?style=for-the-badge)](https://hexdocs.pm/elixir_xdr)
 ![Downloads Badge](https://img.shields.io/hexpm/dt/elixir_xdr?style=for-the-badge)
@@ -8,12 +8,12 @@
 XDR is an open data format, specified in [RFC 4506](http://tools.ietf.org/html/rfc4506.html). This library provides a way to decode and encode XDR data from Elixir. Extend with ease to other XDR types.
 
 ## Installation
-[Available in Hex](https://hex.pm/packages/elixir_xdr), Add `elixir_xdr` to your dependencies list in `mix.exs`:
+[Available in Hex][hex], Add `elixir_xdr` to your dependencies list in `mix.exs`:
 
 ```elixir
 def deps do
   [
-    {:elixir_xdr, "~> 0.1.5"}
+    {:elixir_xdr, "~> 0.1.6"}
   ]
 end
 ```
@@ -515,19 +515,28 @@ iex(2)> XDR.Optional.decode_xdr!(<<0, 0, 0, 0>>, optional_spec)
 
 More examples [here](https://hexdocs.pm/elixir_xdr/optional_data.html).
 
-## Contributing and Development
-See [CONTRIBUTING.md](https://github.com/kommitters/elixir_xdr/blob/master/CONTRIBUTING.md)
-for guidance on how to develop for this library.
+## Development
+* Install any Elixir version above 1.7.
+* Compile dependencies: `mix deps.get`.
+* Run tests: `mix test`.
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/kommitters/elixir_xdr.
+## Code of conduct
+We welcome everyone to contribute. Make sure you have read the [CODE_OF_CONDUCT][coc] before.
 
-Everyone is welcome to participate in the project.
+## Contributing
+For information on how to contribute, please refer to our [CONTRIBUTING][contributing] guide.
 
 ## Changelog
-See the [CHANGELOG](https://github.com/kommitters/elixir_xdr/blob/master/CHANGELOG.md) for versions details.
+Features and bug fixes are listed in the [CHANGELOG][changelog] file.
 
 ## License
-See [LICENSE](https://github.com/kommitters/elixir_xdr/blob/master/LICENSE) for details.
+This library is licensed under an MIT license. See [LICENSE][license] for details.
 
-## Credits
-Made with 💙 by [kommit](https://kommit.co)
+## Acknowledgements
+Made with 💙 by [kommitters Open Source](https://kommit.co)
+
+[license]: https://github.com/kommitters/elixir_xdr/blob/master/LICENSE.md
+[coc]: https://github.com/kommitters/elixir_xdr/blob/master/CODE_OF_CONDUCT.md
+[changelog]: https://github.com/kommitters/elixir_xdr/blob/master/CHANGELOG.md
+[contributing]: https://github.com/kommitters/elixir_xdr/blob/master/CONTRIBUTING.md
+[hex]: https://hex.pm/packages/elixir_xdr
