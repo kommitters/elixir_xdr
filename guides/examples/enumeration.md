@@ -1,11 +1,11 @@
 # XDR.Enum - Enumeration
 Represents subsets of integers.
-The declarations of the Enumeration is a keyword list of integers (E.g. `[false: 0, true: 1]`). 
+The Enumeration's declarations is a keyword list of integers (E.g. `[false: 0, true: 1]`).
 
  [Enumeration - RFC 4506](https://tools.ietf.org/html/rfc4506#section-4.3)
 
 ## Implementation
-To implement an Enumeration type we need to define the declarations as a keyword list that contains the possible values to select in each key.
+To implement an Enumeration type, we need to define the declarations as a keyword list that contains the possible values to select in each key.
 
 ## Usage
 

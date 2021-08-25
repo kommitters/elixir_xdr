@@ -7,7 +7,7 @@ A discriminated union is a type composed of a discriminant followed by a type se
 
 The type of discriminant is either `XDR.Int`, `XDR.UInt`, or an `XDR.Enum` type. 
 
-The `arms` can be a keyword list or a map and the value of each arm can be either a struct or a module of any XDR type. You can define a default arm using `:default` as key (The default arm is optional).
+The `arms` can be a keyword list or a map and the value of each arm can be either a struct or a module of any XDR type. You can define a default arm using `:default` as a key (The default arm is optional).
 
 ## Usage
 

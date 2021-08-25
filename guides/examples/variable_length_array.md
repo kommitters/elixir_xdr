@@ -1,5 +1,5 @@
 # XDR.VariableArray - Variable-Length Array
-Represents a variable-length array that contains elements with the same type. If the maximum length is not specified, it is assumed to be 2<sup>32</sup> - 1, the maximum length.
+Represents a variable-length array that contains elements with the same type. If the maximum length is not specified, it is assumed to be 2<sup>32</sup> - 1.
 
 [Variable-Length Array - RFC 4506](https://tools.ietf.org/html/rfc4506#section-4.13)
 

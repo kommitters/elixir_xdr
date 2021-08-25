@@ -1,5 +1,5 @@
 # XDR.Struct - Structure
-Represent a collection of fields, possibly of different data types, typically in fixed number and sequence.
+Represents a collection of fields, possibly of different data types, typically in fixed and sequence numbers.
 
 [Structure - RFC 4506](https://tools.ietf.org/html/rfc4506#section-4.14)
 

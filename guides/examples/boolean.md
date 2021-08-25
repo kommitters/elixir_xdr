@@ -1,5 +1,5 @@
 # XDR.Bool - Boolean
-Boolean is an Enumeration implementation that allows us to create boolean types. An XDR Boolean type is a Enumeration with the keyword list `[false: 0, true: 1]` as declarations.
+Boolean is an Enumeration implementation that allows us to create boolean types. An XDR Boolean type is an Enumeration with the keyword list `[false: 0, true: 1]` as declarations.
 
 [Boolean - RFC 4506](https://tools.ietf.org/html/rfc4506#section-4.4)
 
