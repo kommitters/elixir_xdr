@@ -9,15 +9,17 @@ defmodule XDR.FixedArray do
 
   defstruct [:elements, :type, :length]
 
+  @type elements :: list() | binary() | nil
+
   @typedoc """
   `XDR.FixedArray` structure type specification.
   """
-  @type t :: %XDR.FixedArray{elements: list | nil, type: module, length: integer}
+  @type t :: %XDR.FixedArray{elements: elements(), type: module(), length: integer()}
 
   @doc """
   Create a new `XDR.FixedArray` structure with the `elements`, `type` and `length` passed.
   """
-  @spec new(elements :: list() | binary(), type :: module(), length :: integer()) :: t()
+  @spec new(elements :: elements(), type :: module(), length :: integer()) :: t()
   def new(elements, type, length),
     do: %XDR.FixedArray{elements: elements, type: type, length: length}
 
@@ -80,7 +82,7 @@ defmodule XDR.FixedArray do
     end
   end
 
-  @spec encode_element(element :: any(), type :: module()) :: binary()
+  @spec encode_element(element :: elements(), type :: module()) :: binary()
   defp encode_element(element, type), do: element |> type.new() |> type.encode_xdr!()
 
   @spec decode_elements_from_fixed_array(

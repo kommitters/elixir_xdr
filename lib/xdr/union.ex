@@ -9,23 +9,18 @@ defmodule XDR.Union do
 
   defstruct [:discriminant, :arms, :value]
 
+  @type discriminant :: XDR.Enum.t() | XDR.Int.t() | XDR.UInt.t() | struct()
+  @type arms :: keyword() | map()
+
   @typedoc """
   `XDR.Union` structure type specification.
   """
-  @type t :: %XDR.Union{
-          discriminant: XDR.Enum.t() | XDR.Int.t() | XDR.UInt.t() | struct(),
-          arms: keyword() | map(),
-          value: any()
-        }
+  @type t :: %XDR.Union{discriminant: discriminant(), arms: arms(), value: any()}
 
   @doc """
   Create a new `XDR.Union` structure with the `discriminant`, `arms` and `value` passed.
   """
-  @spec new(
-          discriminant :: XDR.Enum.t() | XDR.Int.t() | XDR.UInt.t() | struct(),
-          arms :: keyword() | map(),
-          value :: any()
-        ) :: t()
+  @spec new(discriminant :: discriminant(), arms :: arms(), value :: any()) :: t()
   def new(discriminant, arms, value \\ nil),
     do: %XDR.Union{discriminant: discriminant, arms: arms, value: value}
 
@@ -170,8 +165,7 @@ defmodule XDR.Union do
   defp get_arm_module(%{__struct__: xdr_type}), do: xdr_type
   defp get_arm_module(arm) when is_atom(arm), do: arm
 
-  @spec get_arm(identifier :: atom() | number(), arms :: keyword() | map()) ::
-          struct() | module() | nil
+  @spec get_arm(identifier :: atom() | number(), arms :: arms()) :: struct() | module() | nil
   defp get_arm(identifier, arms) do
     case arms[identifier] do
       nil -> arms[:default]
