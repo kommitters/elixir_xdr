@@ -5,8 +5,7 @@ defmodule XDR.VariableOpaque do
 
   @behaviour XDR.Declaration
 
-  alias XDR.{FixedOpaque, UInt}
-  alias XDR.Error.VariableOpaque, as: VariableOpaqueError
+  alias XDR.{FixedOpaque, UInt, VariableOpaqueError}
 
   defstruct [:opaque, :max_size]
 

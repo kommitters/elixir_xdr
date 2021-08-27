@@ -5,7 +5,7 @@ defmodule XDR.Enum do
 
   @behaviour XDR.Declaration
 
-  alias XDR.Error.Enum, as: EnumError
+  alias XDR.EnumError
 
   defstruct [:declarations, :identifier]
 

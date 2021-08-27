@@ -5,7 +5,7 @@ defmodule XDR.Int do
 
   @behaviour XDR.Declaration
 
-  alias XDR.Error.Int, as: IntError
+  alias XDR.IntError
 
   defstruct [:datum]
 

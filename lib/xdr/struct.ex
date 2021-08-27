@@ -5,7 +5,7 @@ defmodule XDR.Struct do
 
   @behaviour XDR.Declaration
 
-  alias XDR.Error.Struct, as: StructError
+  alias XDR.StructError
 
   defstruct [:components]
 
