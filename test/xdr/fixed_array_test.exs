@@ -5,8 +5,7 @@ defmodule XDR.FixedArrayTest do
 
   use ExUnit.Case
 
-  alias XDR.FixedArray
-  alias XDR.Error.FixedArray, as: FixedArrayError
+  alias XDR.{FixedArray, IntError, FixedArrayError}
 
   describe "Encoding Fixed Array" do
     test "with invalid type" do
@@ -53,7 +52,7 @@ defmodule XDR.FixedArrayTest do
 
       fixed_array = FixedArray.new(elements, XDR.Int, 2)
 
-      assert_raise XDR.Error.Int, fn -> FixedArray.encode_xdr(fixed_array) end
+      assert_raise IntError, fn -> FixedArray.encode_xdr(fixed_array) end
     end
 
     test "with valid data" do

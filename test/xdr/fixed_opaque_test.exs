@@ -5,8 +5,7 @@ defmodule XDR.FixedOpaqueTest do
 
   use ExUnit.Case
 
-  alias XDR.FixedOpaque
-  alias XDR.Error.FixedOpaque, as: FixedOpaqueError
+  alias XDR.{FixedOpaque, FixedOpaqueError}
 
   describe "Encoding Fixed Opaque" do
     test "when xdr is not binary" do

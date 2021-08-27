@@ -5,8 +5,7 @@ defmodule XDR.EnumTest do
 
   use ExUnit.Case
 
-  alias XDR.Enum
-  alias XDR.Error.Enum, as: EnumError
+  alias XDR.{Enum, EnumError}
 
   setup do
     keyword = [red: 0, blue: 1, yellow: 2]

@@ -6,8 +6,7 @@ defmodule XDR.StructTest do
   use ExUnit.Case
 
   alias TestFile
-  alias XDR.Struct
-  alias XDR.Error.Struct, as: StructError
+  alias XDR.{Struct, StructError}
 
   describe "Encoding Struct to binary" do
     test "when is not a list" do
@@ -214,6 +213,7 @@ defmodule TestFile do
 
   @type t :: %TestFile{file_name: XDR.String.t(), file_size: XDR.Int.t()}
 
+  @spec new(file_name :: String.t(), file_size :: integer()) :: TestFile.t()
   def new(file_name, file_size) do
     %TestFile{file_name: file_name, file_size: file_size}
   end

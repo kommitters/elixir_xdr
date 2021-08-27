@@ -5,8 +5,7 @@ defmodule XDR.FloatTest do
 
   use ExUnit.Case
 
-  alias XDR.Float
-  alias XDR.Error.Float, as: FloatError
+  alias XDR.{Float, FloatError}
 
   describe "defguard tests" do
     test "valid_float? guard" do

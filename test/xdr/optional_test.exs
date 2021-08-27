@@ -5,8 +5,7 @@ defmodule XDR.OptionalTest do
 
   use ExUnit.Case
 
-  alias XDR.Optional
-  alias XDR.Error.Optional, as: OptionalError
+  alias XDR.{Optional, OptionalError}
 
   describe "Encoding Optional type to binary" do
     test "when receives a string" do
