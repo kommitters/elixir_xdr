@@ -45,6 +45,17 @@ defmodule XDR.FixedArrayTest do
       assert reason == :not_number
     end
 
+    test "with other XDR types as elements but different type" do
+      elements = [
+        XDR.Enum.new([foo: 0, bar: 1], :foo),
+        XDR.Enum.new([foo: 0, bar: 2], :bar)
+      ]
+
+      fixed_array = FixedArray.new(elements, XDR.Int, 2)
+
+      assert_raise XDR.Error.Int, fn -> FixedArray.encode_xdr(fixed_array) end
+    end
+
     test "with valid data" do
       {status, result} =
         FixedArray.new([0, 0, 1], XDR.Int, 3)
@@ -52,6 +63,21 @@ defmodule XDR.FixedArrayTest do
 
       assert status == :ok
       assert result == <<0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1>>
+    end
+
+    test "with other XDR types as elements" do
+      elements = [
+        XDR.Enum.new([foo: 0, bar: 1], :foo),
+        XDR.Enum.new([foo: 0, bar: 2], :bar)
+      ]
+
+      {status, result} =
+        elements
+        |> FixedArray.new(XDR.Enum, 2)
+        |> FixedArray.encode_xdr()
+
+      assert status == :ok
+      assert result == <<0, 0, 0, 0, 0, 0, 0, 2>>
     end
 
     test "encode_xdr! with valid data" do
