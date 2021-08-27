@@ -72,6 +72,21 @@ defmodule XDR.VariableArrayTest do
       assert result == <<0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1>>
     end
 
+    test "with other XDR types as elements" do
+      elements = [
+        XDR.Enum.new([foo: 0, bar: 1], :foo),
+        XDR.Enum.new([foo: 0, bar: 2], :bar)
+      ]
+
+      {status, result} =
+        elements
+        |> VariableArray.new(XDR.Enum, 5)
+        |> VariableArray.encode_xdr()
+
+      assert status == :ok
+      assert result == <<0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 2>>
+    end
+
     test "encode_xdr! with valid data" do
       result =
         VariableArray.new(["kommit.co", "kommitter", "kommit"], XDR.String, 3)
