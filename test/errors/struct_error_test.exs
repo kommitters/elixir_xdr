@@ -4,15 +4,19 @@ defmodule XDR.StructErrorTest do
   alias XDR.StructError
 
   test "When receives :not_list" do
-    assert_raise StructError, "The :components received by parameter must be a keyword list", fn ->
-      raise StructError, :not_list
-    end
+    assert_raise StructError,
+                 "The :components received by parameter must be a keyword list",
+                 fn ->
+                   raise StructError, :not_list
+                 end
   end
 
   test "When receives :empty_list" do
-    assert_raise StructError, "The :components must not be empty, it must be a keyword list", fn ->
-      raise StructError, :empty_list
-    end
+    assert_raise StructError,
+                 "The :components must not be empty, it must be a keyword list",
+                 fn ->
+                   raise StructError, :empty_list
+                 end
   end
 
   test "When receives :not_binary" do

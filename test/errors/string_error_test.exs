@@ -4,9 +4,11 @@ defmodule XDR.StringErrorTest do
   alias XDR.StringError
 
   test "When receives :not_bitstring" do
-    assert_raise StringError, "The value you are trying to encode must be a bitstring value", fn ->
-      raise StringError, :not_bitstring
-    end
+    assert_raise StringError,
+                 "The value you are trying to encode must be a bitstring value",
+                 fn ->
+                   raise StringError, :not_bitstring
+                 end
   end
 
   test "When receives :invalid_length" do

@@ -4,9 +4,11 @@ defmodule XDR.OptionalErrorTest do
   alias XDR.OptionalError
 
   test "When receives :not_valid" do
-    assert_raise OptionalError, "The value which you try to encode must be Int, UInt or Enum", fn ->
-      raise OptionalError, :not_valid
-    end
+    assert_raise OptionalError,
+                 "The value which you try to encode must be Int, UInt or Enum",
+                 fn ->
+                   raise OptionalError, :not_valid
+                 end
   end
 
   test "When receives :not_binary" do
