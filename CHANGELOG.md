@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.0 (27.08.2021)
+* Fix array's elements encoding bug.
+* Refactor library exceptions.
+* Credo integration.
+* Code cleanup.
+
 ## 0.1.6 (25.08.2021)
 * Solve success-typing dialyzer warnings.
 * Properly define typespecs.
