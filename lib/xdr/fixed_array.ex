@@ -5,7 +5,7 @@ defmodule XDR.FixedArray do
 
   @behaviour XDR.Declaration
 
-  alias XDR.Error.FixedArray, as: FixedArrayError
+  alias XDR.FixedArrayError
 
   defstruct [:elements, :type, :length]
 

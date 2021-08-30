@@ -5,8 +5,7 @@ defmodule XDR.UnionTest do
 
   use ExUnit.Case
 
-  alias XDR.Union
-  alias XDR.Error.Union, as: UnionError
+  alias XDR.{Union, UnionError}
 
   describe "new" do
     test "with Enum" do
@@ -413,6 +412,16 @@ defmodule XDR.UnionTest do
       assert reason == :not_binary
     end
 
+    test "decode_xdr/1 with an invalid arm", %{decoded_enum: decoded_enum} do
+      arms = [case_1: %XDR.Int{datum: 1}, case_2: %XDR.Int{datum: 2}]
+
+      {status, reason} =
+        XDR.Union.decode_xdr(<<0, 0, 0, 2, 0, 93, 112, 164>>, XDR.Union.new(decoded_enum, arms))
+
+      assert status == :error
+      assert reason == :invalid_arm
+    end
+
     test "Enum example", %{decoded_enum: decoded_enum} do
       {status, result} = UnionSCPStatementWithTypes.decode_xdr(<<0, 0, 0, 0, 0, 0, 0, 60>>)
 
@@ -518,6 +527,7 @@ defmodule SCPStatementType do
     SCP_ST_NOMINATE: 3
   ]
 
+  @spec new(identifier :: atom()) :: %__MODULE__{}
   def new(identifier),
     do: %SCPStatementType{declarations: @scp_statement_type, identifier: identifier}
 
@@ -568,6 +578,7 @@ defmodule UnionSCPStatementWithTypes do
     SCP_ST_NOMINATE: XDR.Float
   ]
 
+  @spec new(identifier :: atom(), value :: any()) :: XDR.Union.t()
   def new(identifier, value \\ nil) do
     identifier |> SCPStatementType.new() |> XDR.Union.new(@arms, value)
   end

@@ -5,7 +5,7 @@ defmodule XDR.UInt do
 
   @behaviour XDR.Declaration
 
-  alias XDR.Error.UInt, as: UIntError
+  alias XDR.UIntError
 
   defstruct [:datum]
 

@@ -5,7 +5,7 @@ defmodule XDR.Union do
 
   @behaviour XDR.Declaration
 
-  alias XDR.Error.Union, as: UnionError
+  alias XDR.UnionError
 
   defstruct [:discriminant, :arms, :value]
 
@@ -155,10 +155,8 @@ defmodule XDR.Union do
   defp decode_arm(nil, _discriminant, _rest), do: {:error, :invalid_arm}
 
   defp decode_arm(xdr_type, discriminant, rest) do
-    case xdr_type.decode_xdr(rest) do
-      {:ok, {decoded_arm, rest}} -> {:ok, {{discriminant, decoded_arm}, rest}}
-      error -> error
-    end
+    {decoded_arm, rest} = xdr_type.decode_xdr!(rest)
+    {:ok, {{discriminant, decoded_arm}, rest}}
   end
 
   @spec get_arm_module(arm :: struct() | module()) :: module()

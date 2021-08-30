@@ -5,8 +5,7 @@ defmodule XDR.String do
 
   @behaviour XDR.Declaration
 
-  alias XDR.VariableOpaque
-  alias XDR.Error.String, as: StringError
+  alias XDR.{VariableOpaque, StringError}
 
   defstruct [:string, :max_length]
 

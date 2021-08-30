@@ -5,8 +5,7 @@ defmodule XDR.VariableArrayTest do
 
   use ExUnit.Case
 
-  alias XDR.VariableArray
-  alias XDR.Error.VariableArray, as: VariableArrayError
+  alias XDR.{VariableArray, VariableArrayError}
 
   describe "Encoding Fixed Array" do
     test "when xdr is not list" do

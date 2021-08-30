@@ -5,7 +5,7 @@ defmodule XDR.Void do
 
   @behaviour XDR.Declaration
 
-  alias XDR.Error.Void, as: VoidError
+  alias XDR.VoidError
 
   defstruct [:void]
 

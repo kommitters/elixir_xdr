@@ -5,8 +5,7 @@ defmodule XDR.IntTest do
 
   use ExUnit.Case
 
-  alias XDR.Int
-  alias XDR.Error.Int, as: IntError
+  alias XDR.{Int, IntError}
 
   describe "Encoding integer to binary" do
     test "when is not an integer value" do

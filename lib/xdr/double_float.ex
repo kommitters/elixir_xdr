@@ -5,7 +5,7 @@ defmodule XDR.DoubleFloat do
 
   @behaviour XDR.Declaration
 
-  alias XDR.Error.DoubleFloat, as: DoubleFloatError
+  alias XDR.DoubleFloatError
 
   defstruct [:float]
 
