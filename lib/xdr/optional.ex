@@ -5,8 +5,7 @@ defmodule XDR.Optional do
 
   @behaviour XDR.Declaration
 
-  alias XDR.Bool
-  alias XDR.Error.Optional, as: OptionalError
+  alias XDR.{Bool, OptionalError}
 
   defstruct [:type]
 

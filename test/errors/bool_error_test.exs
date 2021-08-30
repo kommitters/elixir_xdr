@@ -1,19 +1,19 @@
-defmodule Error.BoolTest do
+defmodule XDR.BoolErrorTest do
   use ExUnit.Case
 
-  alias XDR.Error.Bool
+  alias XDR.BoolError
 
   test "When receives :not_boolean" do
-    assert_raise Bool, "The value which you try to encode is not a boolean", fn ->
-      raise Bool, :not_boolean
+    assert_raise BoolError, "The value which you try to encode is not a boolean", fn ->
+      raise BoolError, :not_boolean
     end
   end
 
   test "When receives :invalid_value" do
-    assert_raise Bool,
+    assert_raise BoolError,
                  "The value which you try to decode must be <<0, 0, 0, 0>> or <<0, 0, 0, 1>>",
                  fn ->
-                   raise Bool, :invalid_value
+                   raise BoolError, :invalid_value
                  end
   end
 end

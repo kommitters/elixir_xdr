@@ -5,8 +5,7 @@ defmodule XDR.VoidTest do
 
   use ExUnit.Case
 
-  alias XDR.Void
-  alias XDR.Error.Void, as: VoidError
+  alias XDR.{Void, VoidError}
 
   describe "Encoding void to binary" do
     test "when not receive a void struct" do

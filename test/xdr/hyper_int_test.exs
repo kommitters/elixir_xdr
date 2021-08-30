@@ -5,8 +5,7 @@ defmodule XDR.HyperIntTest do
 
   use ExUnit.Case
 
-  alias XDR.HyperInt
-  alias XDR.Error.HyperInt, as: HyperIntError
+  alias XDR.{HyperInt, HyperIntError}
 
   describe "Encoding Hyper Integer to binary" do
     test "when is not an integer value" do

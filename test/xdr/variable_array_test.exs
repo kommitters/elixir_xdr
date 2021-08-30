@@ -5,8 +5,7 @@ defmodule XDR.VariableArrayTest do
 
   use ExUnit.Case
 
-  alias XDR.VariableArray
-  alias XDR.Error.VariableArray, as: VariableArrayError
+  alias XDR.{VariableArray, VariableArrayError}
 
   describe "Encoding Fixed Array" do
     test "when xdr is not list" do
@@ -70,6 +69,21 @@ defmodule XDR.VariableArrayTest do
 
       assert status == :ok
       assert result == <<0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1>>
+    end
+
+    test "with other XDR types as elements" do
+      elements = [
+        XDR.Enum.new([foo: 0, bar: 1], :foo),
+        XDR.Enum.new([foo: 0, bar: 2], :bar)
+      ]
+
+      {status, result} =
+        elements
+        |> VariableArray.new(XDR.Enum, 5)
+        |> VariableArray.encode_xdr()
+
+      assert status == :ok
+      assert result == <<0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 2>>
     end
 
     test "encode_xdr! with valid data" do

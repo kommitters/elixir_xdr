@@ -5,8 +5,7 @@ defmodule XDR.UIntTest do
 
   use ExUnit.Case
 
-  alias XDR.UInt
-  alias XDR.Error.UInt, as: UIntError
+  alias XDR.{UInt, UIntError}
 
   describe "Encoding unsigned integer to binary" do
     test "when is not an unsigned integer value" do

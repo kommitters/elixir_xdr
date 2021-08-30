@@ -5,8 +5,7 @@ defmodule XDR.VariableOpaqueTest do
 
   use ExUnit.Case
 
-  alias XDR.VariableOpaque
-  alias XDR.Error.VariableOpaque, as: VariableOpaqueError
+  alias XDR.{VariableOpaque, VariableOpaqueError}
 
   describe "Encoding Variable Opaque" do
     test "when xdr is not binary" do

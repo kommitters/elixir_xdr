@@ -5,8 +5,7 @@ defmodule XDR.VariableArray do
 
   @behaviour XDR.Declaration
 
-  alias XDR.Error.VariableArray, as: VariableArrayError
-  alias XDR.{UInt, FixedArray}
+  alias XDR.{UInt, FixedArray, VariableArrayError}
 
   defstruct [:elements, :type, :max_length]
 

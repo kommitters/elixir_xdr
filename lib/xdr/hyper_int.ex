@@ -5,7 +5,7 @@ defmodule XDR.HyperInt do
 
   @behaviour XDR.Declaration
 
-  alias XDR.Error.HyperInt, as: HyperIntError
+  alias XDR.HyperIntError
 
   defstruct [:datum]
 

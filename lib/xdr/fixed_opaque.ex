@@ -7,7 +7,7 @@ defmodule XDR.FixedOpaque do
 
   defstruct [:opaque, :length]
 
-  alias XDR.Error.FixedOpaque, as: FixedOpaqueError
+  alias XDR.FixedOpaqueError
 
   @type opaque :: binary() | nil
 

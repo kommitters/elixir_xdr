@@ -5,8 +5,7 @@ defmodule XDR.BoolTest do
 
   use ExUnit.Case
 
-  alias XDR.Bool
-  alias XDR.Error.Bool, as: BoolError
+  alias XDR.{Bool, BoolError}
 
   describe "Encoding Boolean structures" do
     test "when the value is not boolean" do

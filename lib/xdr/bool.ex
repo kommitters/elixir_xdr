@@ -5,8 +5,7 @@ defmodule XDR.Bool do
 
   @behaviour XDR.Declaration
 
-  alias XDR.Enum
-  alias XDR.Error.Bool, as: BoolError
+  alias XDR.{Enum, BoolError}
 
   @boolean [false: 0, true: 1]
 

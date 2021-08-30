@@ -5,7 +5,7 @@ defmodule XDR.StringTest do
 
   use ExUnit.Case
 
-  alias XDR.String
+  alias XDR.{String, StringError}
 
   describe "Encoding string to binary" do
     test "when is not a bitstring value" do
@@ -45,7 +45,7 @@ defmodule XDR.StringTest do
     end
 
     test "encode_xdr! when is not a bitstring value" do
-      assert_raise XDR.Error.String,
+      assert_raise StringError,
                    "The value you are trying to encode must be a bitstring value",
                    fn ->
                      String.new(2)
@@ -54,7 +54,7 @@ defmodule XDR.StringTest do
     end
 
     test "encode_xdr! raise an error when the string exceeds the max length set" do
-      assert_raise XDR.Error.String,
+      assert_raise StringError,
                    "The length of the string exceeds the max length allowed",
                    fn ->
                      "kommit.co"
@@ -89,7 +89,7 @@ defmodule XDR.StringTest do
     end
 
     test "decode_xdr! when value is not a binary" do
-      assert_raise XDR.Error.String,
+      assert_raise StringError,
                    "The value you are trying to decode must be a binary value",
                    fn ->
                      list = [0, 0, 0, 9, 107, 111, 109, 109, 105, 116, 46, 99, 111, 0, 0, 0]
