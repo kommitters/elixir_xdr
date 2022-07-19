@@ -1,0 +1,35 @@
+name: ElixirXDR CD
+
+on:
+  release:
+    types:
+      [published]
+
+jobs:
+  publish:
+    name: Publish Release to HEX PM
+    runs-on: ubuntu-latest
+    strategy:
+       matrix:
+        otp: ['22.3']
+        elixir: ['1.11']
+    env:
+      HEX_API_KEY: ${{ secrets.HEX_API_KEY }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: erlef/setup-elixir@v1
+        with:
+          otp-version: ${{ matrix.otp }}
+          elixir-version: ${{ matrix.elixir }}
+      - uses: actions/cache@v3
+        with:
+          path: deps
+          key: ${{ runner.os }}-mix-${{ hashFiles(format('{0}{1}', github.workspace, '/mix.lock')) }}
+          restore-keys: |
+            ${{ runner.os }}-mix-
+      - name: Install Dependencies
+        run: |
+          rm -rf deps _build
+          mix deps.get
+      - name: Publish
+        run: HEX_API_KEY=$HEX_API_KEY mix hex.publish --yes
