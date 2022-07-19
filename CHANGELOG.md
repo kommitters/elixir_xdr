@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.3.0 (19.06.2022)
+* Automate publishing releases
+
 ## 0.2.0 (27.08.2021)
 * Fix array's elements encoding bug.
 * Refactor library exceptions.
