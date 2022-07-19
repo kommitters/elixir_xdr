@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.3.0 (19.06.2022)
+## 0.3.0 (19.07.2022)
 * Automate publishing releases
 
 ## 0.2.0 (27.08.2021)
