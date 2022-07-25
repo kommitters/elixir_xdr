@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.1 (25.07.2022)
+
+- Add security policy to the repository
+
 ## 0.3.0 (19.07.2022)
 * Automate publishing releases
 

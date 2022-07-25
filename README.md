@@ -13,7 +13,7 @@ XDR is an open data format, specified in [RFC 4506](http://tools.ietf.org/html/r
 ```elixir
 def deps do
   [
-    {:elixir_xdr, "~> 0.3.0"}
+    {:elixir_xdr, "~> 0.3.1"}
   ]
 end
 ```
@@ -70,7 +70,7 @@ In most XDR types, we must pass the `type specification`, it is a struct (or map
 
 ```elixir
 iex(1)> enum_spec = XDR.Enum.new([false: 0, true: 1], nil) # preferred.
-%XDR.Enum{declarations: [false: 0, true: 1], identifier: nil} 
+%XDR.Enum{declarations: [false: 0, true: 1], identifier: nil}
 iex(2)> XDR.Enum.decode_xdr(<<0, 0, 0, 1>>, enum_spec)
 
 iex(1)> enum_spec = %{declarations: [false: 0, true: 1]}
@@ -190,7 +190,7 @@ More examples [here](https://hexdocs.pm/elixir_xdr/boolean.html).
 It is an extension of the Integer type defined above. Represents a 64-bit (8-byte) integer with values in a range of `[-9_223_372_036_854_775_808, 9_223_372_036_854_775_807]`.
 
 Encoding:
-```elixir 
+```elixir
 iex(1)> XDR.HyperInt.new(9_223_372_036_854_775_807) |> XDR.HyperInt.encode_xdr()
 {:ok, <<127, 255, 255, 255, 255, 255, 255, 255>>}
 
@@ -213,7 +213,7 @@ More examples [here](https://hexdocs.pm/elixir_xdr/hyper_integer.html).
 It is an extension of the Unsigned Integer type defined above. Represents a 64-bit (8-byte) unsigned integer with values in a range of `[0, 18_446_744_073_709_551_615]`.
 
 Encoding:
-```elixir 
+```elixir
 iex(1)> XDR.HyperUInt.new(258963) |> XDR.HyperUInt.encode_xdr()
 {:ok, <<0, 0, 0, 0, 0, 3, 243, 147>>}
 
@@ -236,12 +236,12 @@ More examples [here](https://hexdocs.pm/elixir_xdr/unsigned_hyper_integer.html).
 Represents a single-precision float value (32 bits, 4 bytes).
 
 Encoding:
-```elixir 
+```elixir
 iex(1)> XDR.Float.new(3.46) |> XDR.Float.encode_xdr()
 {:ok, <<64, 93, 112, 164>>}
 
 iex(1)> XDR.Float.new(-2589) |> XDR.Float.encode_xdr!()
-<<197, 33, 208, 0>> 
+<<197, 33, 208, 0>>
 ```
 
 Decoding:
@@ -264,7 +264,7 @@ iex(1)> XDR.DoubleFloat.new(0.33333333333333331482961625624739099293947219848632
 {:ok, <<63, 213, 85, 85, 85, 85, 85, 85>>}
 
 iex(1)> XDR.DoubleFloat.new(258963) |> XDR.DoubleFloat.encode_xdr!()
-<<65, 15, 156, 152, 0, 0, 0, 0>> 
+<<65, 15, 156, 152, 0, 0, 0, 0>>
 ```
 
 Decoding:
@@ -279,7 +279,7 @@ iex(1)> XDR.DoubleFloat.decode_xdr!(<<64, 11, 174, 20, 122, 225, 71, 174>>)
 More examples [here](https://hexdocs.pm/elixir_xdr/double_floating_point.html).
 
 ### XDR.FixedOpaque - Fixed-Length Opaque
-Represents a fixed-length uninterpreted data (This data is called "opaque") that needs to be passed among machines.  
+Represents a fixed-length uninterpreted data (This data is called "opaque") that needs to be passed among machines.
 
 In the following examples we will use an opaque of 12-bytes length:
 
@@ -295,7 +295,7 @@ iex(1)> XDR.FixedOpaque.new(<<72, 101, 108, 108, 111, 32, 119, 111, 114, 108, 10
 Decoding:
 ```elixir
 iex(1)> XDR.FixedOpaque.decode_xdr(<<72, 101, 108, 108, 111, 32, 119, 111, 114, 108, 100, 0>>, %{length: 12})
-{:ok, {%XDR.FixedOpaque{length: 12, opaque: <<72, 101, 108, 108, 111, 32, 119, 111, 114, 108, 100, 0>>}, ""}} 
+{:ok, {%XDR.FixedOpaque{length: 12, opaque: <<72, 101, 108, 108, 111, 32, 119, 111, 114, 108, 100, 0>>}, ""}}
 
 iex(1)> opaque_spec = XDR.FixedOpaque.new(nil, 12)
 iex(2)> XDR.FixedOpaque.decode_xdr!(<<72, 101, 108, 108, 111, 32, 119, 111, 114, 108, 100, 0>>, opaque_spec)
@@ -308,7 +308,7 @@ More examples [here](https://hexdocs.pm/elixir_xdr/fixed_length_opaque.html).
 Represents a sequence of n (numbered 0 through n-1) arbitrary bytes to be the number n encoded as an unsigned integer. If the maximum length is not specified, it is assumed to be 2<sup>32</sup> - 1.
 
 Encoding:
-```elixir 
+```elixir
 iex(1)> XDR.VariableOpaque.new(<<1, 2, 3, 4, 5>>, 5) |> XDR.VariableOpaque.encode_xdr()
 {:ok, <<0, 0, 0, 5, 1, 2, 3, 4, 5, 0, 0, 0>>}
 
@@ -354,7 +354,7 @@ More examples [here](https://hexdocs.pm/elixir_xdr/string.html).
 Represents a fixed-length array that contains elements with the same type.
 
 Encoding:
-```elixir 
+```elixir
 iex(1)> XDR.FixedArray.new([1,2,3], XDR.Int, 3) |> XDR.FixedArray.encode_xdr()
 {:ok, <<0, 0, 0, 1, 0, 0, 0, 2, 0, 0, 0, 3>>}
 
@@ -383,7 +383,7 @@ More examples [here](https://hexdocs.pm/elixir_xdr/fixed_length_array.html).
 Represents a variable-length array that contains elements with the same type. If the maximum length is not specified, it is assumed to be 2<sup>32</sup> - 1.
 
 Encoding:
-```elixir 
+```elixir
 iex(1)> XDR.VariableArray.new([1,2,3], XDR.Int) |> XDR.VariableArray.encode_xdr()
 {:ok, <<0, 0, 0, 3, 0, 0, 0, 1, 0, 0, 0, 2, 0, 0, 0, 3>>}
 
@@ -392,12 +392,12 @@ iex(1)> XDR.VariableArray.new(["The", "little", "prince"], XDR.String) |> XDR.Va
 ```
 Decoding:
 ```elixir
-iex(1)> XDR.VariableArray.decode_xdr(<<0, 0, 0, 3, 0, 0, 0, 1, 0, 0, 0, 2, 0, 0, 0, 3>>, 
+iex(1)> XDR.VariableArray.decode_xdr(<<0, 0, 0, 3, 0, 0, 0, 1, 0, 0, 0, 2, 0, 0, 0, 3>>,
 ...> %{type: XDR.Int, max_length: 3})
 {:ok, {[%XDR.Int{datum: 1}, %XDR.Int{datum: 2}, %XDR.Int{datum: 3}], <<>>}}
 
 iex(1)> XDR.VariableArray.decode_xdr!(<<0, 0, 0, 3, 0, 0, 0, 3, 84, 104, 101, 0, 0, 0, 0, 6, 108, 105,
-...> 116, 116, 108, 101, 0, 0, 0, 0, 0, 6, 112, 114, 105, 110, 99, 101, 0, 0>>, 
+...> 116, 116, 108, 101, 0, 0, 0, 0, 0, 6, 112, 114, 105, 110, 99, 101, 0, 0>>,
 ...> %{type: XDR.String, length: 3})
 {[
    %XDR.String{max_length: 4294967295, string: "The"},
@@ -442,9 +442,9 @@ iex(2)> XDR.Struct.decode_xdr!(<<0, 0, 0, 17, 84, 104, 101, 32, 108, 105, 116, 1
 More examples [here](https://hexdocs.pm/elixir_xdr/structure.html).
 
 ### XDR.Union - Discriminated Union
-A discriminated union is a type composed of a discriminant followed by a type selected from a set of prearranged types according to the value of the discriminant. The component types are called `arms` of the union and are preceded by the value of the discriminant that implies their encoding or decoding. 
+A discriminated union is a type composed of a discriminant followed by a type selected from a set of prearranged types according to the value of the discriminant. The component types are called `arms` of the union and are preceded by the value of the discriminant that implies their encoding or decoding.
 
-The type of discriminant is either `XDR.Int`, `XDR.UInt`, or an `XDR.Enum` type. 
+The type of discriminant is either `XDR.Int`, `XDR.UInt`, or an `XDR.Enum` type.
 
 The `arms` can be a keyword list or a map and the value of each arm can be either a struct or a module of any XDR type. You can define a default arm using `:default` as a key (The default arm is optional).
 
@@ -462,7 +462,7 @@ iex(1)> enum = %XDR.Enum{declarations: [case_1: 1, case_2: 2, case_3: 3]}
 iex(2)> arms = [case_1: %XDR.Int{datum: 123}, case_2: %XDR.Int{datum: 2}, case_3: XDR.Float, default: XDR.String]
 iex(3)> union = XDR.Union.new(enum, arms)
 iex(4)> XDR.Union.decode_xdr(<<0, 0, 0, 1, 0, 0, 0, 123>>, union)
-{:ok, {{:case_1, %XDR.Int{datum: 123}}, ""}} 
+{:ok, {{:case_1, %XDR.Int{datum: 123}}, ""}}
 ```
 
 More examples [here](https://hexdocs.pm/elixir_xdr/discriminated_union.html).
@@ -471,7 +471,7 @@ More examples [here](https://hexdocs.pm/elixir_xdr/discriminated_union.html).
 Represents a 0-byte quantity.
 
 Encoding:
-```elixir 
+```elixir
 iex(1)> XDR.Void.new(nil) |> XDR.Void.encode_xdr()
 {:ok, <<>>}
 
@@ -506,7 +506,7 @@ Decoding:
 ```elixir
 iex(1)> optional_spec = XDR.Optional.new(XDR.String)
 iex(2)> XDR.Optional.decode_xdr(<<0, 0, 0, 1, 0, 0, 0, 19, 116, 104, 105, 115, 32, 105, 115, 32, 97, 110, 32, 101, 120, 97, 109, 112, 108, 101, 46, 0>>, optional_spec)
-{:ok, {%XDR.Optional{type: %XDR.String{max_length: 4294967295, string: "this is an example"}}, ""}} 
+{:ok, {%XDR.Optional{type: %XDR.String{max_length: 4294967295, string: "this is an example"}}, ""}}
 
 iex(1)> optional_spec = XDR.Optional.new(XDR.String)
 iex(2)> XDR.Optional.decode_xdr!(<<0, 0, 0, 0>>, optional_spec)
