@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.3.2 (08.08.2022)
+- Add scorecards actions
+
 ## 0.3.1 (25.07.2022)
 
 - Add security policy to the repository

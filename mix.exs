@@ -2,7 +2,7 @@ defmodule XDR.MixProject do
   use Mix.Project
 
   @github_url "https://github.com/kommitters/elixir_xdr"
-  @version "0.3.1"
+  @version "0.3.2"
 
   def project do
     [
