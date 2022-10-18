@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.3.3 (18.10.2022)
+* Include OpenSSF BestPractices & Scorecard in README.
+
 ## 0.3.2 (08.08.2022)
 - Add scorecards actions
 

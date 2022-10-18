@@ -4,6 +4,8 @@
 [![Version Badge](https://img.shields.io/hexpm/v/elixir_xdr?style=for-the-badge)](https://hexdocs.pm/elixir_xdr)
 ![Downloads Badge](https://img.shields.io/hexpm/dt/elixir_xdr?style=for-the-badge)
 [![License badge](https://img.shields.io/hexpm/l/elixir_xdr.svg?style=for-the-badge)](https://github.com/kommitters/elixir_xdr/blob/master/LICENSE.md)
+[![OpenSSF Best Practices](https://img.shields.io/cii/summary/6466?label=openssf%20best%20practices&style=for-the-badge)](https://bestpractices.coreinfrastructure.org/projects/6466)
+[![OpenSSF Scorecard](https://img.shields.io/ossf-scorecard/github.com/kommitters/elixir_xdr?label=openssf%20scorecard&style=for-the-badge)](https://api.securityscorecards.dev/projects/github.com/kommitters/elixir_xdr)
 
 XDR is an open data format, specified in [RFC 4506](http://tools.ietf.org/html/rfc4506.html). This library provides a way to decode and encode XDR data from Elixir. Extend with ease to other XDR types.
 
@@ -13,7 +15,7 @@ XDR is an open data format, specified in [RFC 4506](http://tools.ietf.org/html/r
 ```elixir
 def deps do
   [
-    {:elixir_xdr, "~> 0.3.2"}
+    {:elixir_xdr, "~> 0.3.3"}
   ]
 end
 ```
