@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.3.4 (25.10.2022)
+* Enable ExCoveralls with parallel builds.
+
 ## 0.3.3 (18.10.2022)
 * Include OpenSSF BestPractices & Scorecard in README.
 
