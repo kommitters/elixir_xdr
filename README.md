@@ -1,5 +1,5 @@
 # Elixir XDR
-![Build Badge](https://img.shields.io/github/workflow/status/kommitters/elixir_xdr/ElixirXDR%20CI/master?style=for-the-badge)
+![Build Badge](https://img.shields.io/github/actions/workflow/status/kommitters/elixir_xdr/CI.yml?branch=main&style=for-the-badge)
 [![Coverage Status](https://img.shields.io/coveralls/github/kommitters/elixir_xdr?style=for-the-badge)](https://coveralls.io/github/kommitters/elixir_xdr)
 [![Version Badge](https://img.shields.io/hexpm/v/elixir_xdr?style=for-the-badge)](https://hexdocs.pm/elixir_xdr)
 ![Downloads Badge](https://img.shields.io/hexpm/dt/elixir_xdr?style=for-the-badge)
