@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.3.6 (21.12.2022)
+* Bump ossf/scorecard-action to v2.0.6.
+
 ## 0.3.5 (21.12.2022)
 * Update build badge and lock to ubuntu-20.04.
 
