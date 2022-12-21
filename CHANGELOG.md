@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.3.5 (21.12.2022)
+* Update build badge and lock to ubuntu-20.04.
+
 ## 0.3.4 (25.10.2022)
 * Enable ExCoveralls with parallel builds.
 
