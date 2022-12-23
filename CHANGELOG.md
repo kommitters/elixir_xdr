@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.3.7 (23.12.2022)
+* Harden GitHub Actions.
+
 ## 0.3.6 (21.12.2022)
 * Bump ossf/scorecard-action to v2.0.6.
 
