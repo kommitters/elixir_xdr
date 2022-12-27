@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.8 (27.12.2022)
+* Add Renovate as dependency update tool.
+* Add default permissions as read-only in the CI workflow.
+
 ## 0.3.7 (23.12.2022)
 * Harden GitHub Actions.
 
