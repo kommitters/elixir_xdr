@@ -1,4 +1,6 @@
 # Elixir XDR
+
+![stability-beta](https://img.shields.io/badge/stability-beta-33bbff.svg?style=for-the-badge)
 ![Build Badge](https://img.shields.io/github/actions/workflow/status/kommitters/elixir_xdr/ci.yml?branch=main&style=for-the-badge)
 [![Coverage Status](https://img.shields.io/coveralls/github/kommitters/elixir_xdr?style=for-the-badge)](https://coveralls.io/github/kommitters/elixir_xdr)
 [![Version Badge](https://img.shields.io/hexpm/v/elixir_xdr?style=for-the-badge)](https://hexdocs.pm/elixir_xdr)
@@ -15,7 +17,7 @@ XDR is an open data format, specified in [RFC 4506](http://tools.ietf.org/html/r
 ```elixir
 def deps do
   [
-    {:elixir_xdr, "~> 0.3.8"}
+    {:elixir_xdr, "~> 0.3.9"}
   ]
 end
 ```
