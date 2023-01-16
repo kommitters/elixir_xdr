@@ -1,4 +1,6 @@
 # Elixir XDR
+
+![stability-beta](https://img.shields.io/badge/stability-beta-33bbff.svg?style=for-the-badge)
 ![Build Badge](https://img.shields.io/github/actions/workflow/status/kommitters/elixir_xdr/ci.yml?branch=main&style=for-the-badge)
 [![Coverage Status](https://img.shields.io/coveralls/github/kommitters/elixir_xdr?style=for-the-badge)](https://coveralls.io/github/kommitters/elixir_xdr)
 [![Version Badge](https://img.shields.io/hexpm/v/elixir_xdr?style=for-the-badge)](https://hexdocs.pm/elixir_xdr)
