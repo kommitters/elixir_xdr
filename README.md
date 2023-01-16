@@ -15,7 +15,7 @@ XDR is an open data format, specified in [RFC 4506](http://tools.ietf.org/html/r
 ```elixir
 def deps do
   [
-    {:elixir_xdr, "~> 0.3.8"}
+    {:elixir_xdr, "~> 0.3.9"}
   ]
 end
 ```
