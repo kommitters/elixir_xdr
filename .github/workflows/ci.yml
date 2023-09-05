@@ -13,7 +13,7 @@ permissions:
 jobs:
   tests:
     name: Run tests
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-20.04
     strategy:
       matrix:
         otp: ['22.3']
@@ -32,7 +32,7 @@ jobs:
             repo.hex.pm:443
 
       - uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac # v4.0.0
-      - uses: erlef/setup-elixir@61e01a43a562a89bfc54c7f9a378ff67b03e4a21 # v1.16.0
+      - uses: erlef/setup-beam@61e01a43a562a89bfc54c7f9a378ff67b03e4a21 # v1.16.0
         with:
           otp-version: ${{ matrix.otp }}
           elixir-version: ${{ matrix.elixir }}
