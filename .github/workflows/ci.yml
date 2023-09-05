@@ -22,7 +22,7 @@ jobs:
       MIX_ENV: test
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@18bf8ad2ca49c14cbb28b91346d626ccfb00c518 # v2.1.0
+        uses: step-security/harden-runner@8ca2b8b2ece13480cda6dacd3511b49857a23c09 # v2.5.1
         with:
           disable-sudo: true
           egress-policy: block
@@ -30,13 +30,14 @@ jobs:
             coveralls.io:443
             github.com:443
             repo.hex.pm:443
+            builds.hex.pm:443
 
-      - uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c # v3.3.0
-      - uses: erlef/setup-elixir@e3f6ffe2878180f57318bf13febd3933ee81f664 # v1.15.2
+      - uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac # v4.0.0
+      - uses: erlef/setup-beam@61e01a43a562a89bfc54c7f9a378ff67b03e4a21 # v1.16.0
         with:
           otp-version: ${{ matrix.otp }}
           elixir-version: ${{ matrix.elixir }}
-      - uses: actions/cache@58c146cc91c5b9e778e71775dfe9bf1442ad9a12 # v3.2.3
+      - uses: actions/cache@88522ab9f39a2ea568f7027eddc7d8d8bc9d59c8 # v3.3.1
         with:
           path: deps
           key: ${{ runner.os }}-mix-${{ hashFiles(format('{0}{1}', github.workspace, '/mix.lock')) }}
@@ -59,10 +60,10 @@ jobs:
 
   finish:
     needs: tests
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@18bf8ad2ca49c14cbb28b91346d626ccfb00c518 # v2.1.0
+        uses: step-security/harden-runner@8ca2b8b2ece13480cda6dacd3511b49857a23c09 # v2.5.1
         with:
           disable-sudo: true
           egress-policy: block
