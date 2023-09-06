@@ -49,11 +49,9 @@ jobs:
           mix deps.get
       - name: Check Formatting
         run: mix format --check-formatted
-      - name: Run Tests
-        run: mix test
       - name: Run credo
         run: mix credo --strict
-      - name: Run Excoveralls
+      - name: Run Tests and Excoveralls
         run: mix coveralls.github --parallel --flagname otp-${{ matrix.otp }}-elixir-${{ matrix.elixir }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

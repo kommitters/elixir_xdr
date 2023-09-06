@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.3.10 (05.09.2023)
+## 0.3.10 (06.09.2023)
 * Update all dependencies.
   | Package | Type | Update | Change |
   |---|---|---|---|
