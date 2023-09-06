@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.3.10 (06.09.2023)
+* Update all dependencies.
+  | Package | Type | Update | Change |
+  |---|---|---|---|
+  | [actions/cache](https://togithub.com/actions/cache) | action | minor | `v3.2.3` -> `v3.3.1` |
+  | [actions/checkout](https://togithub.com/actions/checkout) | action | major | `v3.3.0` -> `v4.0.0` |
+  | [erlef/setup-elixir](https://togithub.com/erlef/setup-elixir) | action | minor | `v1.15.2` -> `v1.16.0` |
+  | [github/codeql-action](https://togithub.com/github/codeql-action) | action | minor | `v2.1.37` -> `v2.21.5` |
+  | [ossf/scorecard-action](https://togithub.com/ossf/scorecard-action) | action | minor | `v2.1.2` -> `v2.2.0` |
+  | [step-security/harden-runner](https://togithub.com/step-security/harden-runner) | action | minor | `v2.1.0` -> `v2.5.1` |
+* Lock ubuntu version to `ubuntu-20.04` in CI/CD.
+* Ignore updates for `ubuntu`.
+
 ## 0.3.9 (16.01.2023)
 * Update all dependencies.
 * Block egress traffic in GitHub Actions.
