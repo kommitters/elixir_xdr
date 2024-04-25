@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.3.11 (25.04.2024)
+* Add stale issues policy. See [PR #87](https://github.com/kommitters/elixir_xdr/pull/87)
+
 ## 0.3.10 (06.09.2023)
 * Update all dependencies.
   | Package | Type | Update | Change |
