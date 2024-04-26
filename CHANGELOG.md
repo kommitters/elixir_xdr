@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.3.12 (25.04.2024)
+* Fix workflow for scorecards. See [PR #90](https://github.com/kommitters/elixir_xdr/pull/90)
+
 ## 0.3.11 (25.04.2024)
 * Add stale issues policy. See [PR #87](https://github.com/kommitters/elixir_xdr/pull/87)
 
